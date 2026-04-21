@@ -1,0 +1,2414 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GR Assessoria e Planejamento Agropecuário</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons (via CDN) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #1b4332;
+            --primary-light: #2d6a4f;
+            --secondary: #2d6a4f;
+            --accent: #FF8C00;
+            --bg-gray: #f8fafc;
+            --text-dark: #1e293b;
+            --danger: #ef4444;
+        }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3 {
+            font-family: 'Outfit', sans-serif;
+        }
+        .bg-primary { background-color: var(--primary); }
+        .bg-secondary { background-color: var(--primary-light); }
+        .bg-accent { background-color: var(--accent); }
+        .text-primary { color: var(--primary); }
+        .text-accent { color: var(--accent); }
+        .border-accent { border-color: var(--accent); }
+        
+        .hero-gradient {
+            background: linear-gradient(rgba(27, 67, 50, 0.8), rgba(27, 67, 50, 0.6)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .sidebar { 
+            width: 260px; 
+            background-color: var(--primary); 
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100%; 
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1); 
+        }
+        .nav-item { 
+            display: flex; 
+            align-items: center; 
+            padding: 12px 24px; 
+            transition: background 0.3s; 
+            cursor: pointer; 
+            border-left: 4px solid transparent; 
+            font-size: 0.9rem; 
+            width: 100%;
+            text-align: left;
+        }
+        .nav-item:hover { background-color: var(--primary-light); }
+        .nav-item.active { 
+            background-color: var(--primary-light); 
+            border-left-color: var(--accent); 
+            font-weight: 600; 
+        }
+
+        .main-content { 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
+        }
+
+        .header-dashboard { 
+            height: 64px; 
+            background: white; 
+            border-bottom: 1px solid #e2e8f0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 0 32px; 
+            flex-shrink: 0; 
+        }
+
+        .card { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); 
+            padding: 20px; 
+            border: 1px solid #f1f5f9; 
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-accent { 
+            background-color: var(--accent); 
+            color: white; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            transition: transform 0.1s; 
+            border: none; 
+            cursor: pointer; 
+        }
+        .btn-accent:hover { opacity: 0.9; }
+
+        .limit-chip { 
+            font-size: 0.75rem; 
+            padding: 4px 8px; 
+            border-radius: 999px; 
+            background: #f1f5f9; 
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+        }
+
+        .table-dashboard-container { 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            padding: 0; 
+        }
+        .table-dashboard { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0; 
+        }
+        .table-dashboard th { 
+            text-align: left; 
+            background: #f8fafc; 
+            padding: 12px 16px; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: #64748b; 
+            border-bottom: 2px solid #e2e8f0; 
+        }
+        .table-dashboard td { 
+            padding: 12px 16px; 
+            border-bottom: 1px solid #f1f5f9; 
+            font-size: 0.85rem; 
+        }
+
+        /* Hide/Show logic classes */
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+        
+        .limit-reached {
+            background-color: var(--danger) !important;
+            color: white !important;
+            border-color: var(--danger) !important;
+        }
+
+        .dashboard-panel {
+            height: calc(100vh - 64px);
+            overflow-y: auto;
+            padding: 32px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-in-right { animation: slideInRight 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Toast Notification System -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[1000] flex flex-col gap-2"></div>
+    
+    <!-- Warning Banner -->
+    <div id="warning-banner" class="fixed top-0 left-0 w-full z-[999] bg-orange-500 text-white py-2 px-4 text-center font-bold text-sm transform -translate-y-full transition-transform duration-300">
+        Nenhum programa ou instrumento cadastrado. Por favor, cadastre um contrato primeiro.
+    </div>
+
+    <!-- Landing Page (Section: site) -->
+    <div id="site-page" class="page-section active">
+        <!-- Header -->
+        <header class="fixed w-full z-50 bg-white shadow-md">
+            <div class="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">GR</span>
+                    </div>
+                    <span class="font-bold text-primary text-lg hidden sm:block">GR Assessoria</span>
+                </div>
+                
+                <nav class="hidden md:flex gap-8 font-semibold text-gray-600" id="site-nav">
+                    <a href="#inicio" class="hover:text-primary transition-colors">Início</a>
+                    <a href="#servicos" class="hover:text-primary transition-colors">Serviços</a>
+                    <a href="#projetos" class="hover:text-primary transition-colors">Projetos</a>
+                    <a href="#galeria" class="hover:text-primary transition-colors">Galeria</a>
+                    <button id="site-login-btn" onclick="showSection('login')" class="text-primary border-2 border-primary px-4 py-1 rounded-md hover:bg-primary hover:text-white transition-all">Sistema</button>
+                    <a href="#contato" class="bg-accent text-white px-4 py-1 rounded-md hover:opacity-90 transition-all">Contato</a>
+                </nav>
+
+                <button class="md:hidden text-primary" id="mobile-menu-btn">
+                    <i data-lucide="menu"></i>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-white border-t p-4 flex flex-col gap-4">
+                <a href="#inicio" class="py-2 text-primary">Início</a>
+                <a href="#servicos" class="py-2 text-primary">Serviços</a>
+                <a href="#projetos" class="py-2 text-primary">Projetos</a>
+                <a href="#galeria" class="py-2 text-primary">Galeria</a>
+                <button id="mobile-login-btn" onclick="showSection('login')" class="py-2 text-left text-primary font-bold">Sistema</button>
+                <a href="#contato" class="py-2 text-accent font-bold">Contato</a>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section id="inicio" class="hero-gradient min-h-screen flex items-center pt-20">
+            <div class="container mx-auto px-4 md:px-6 text-white">
+                <div class="max-w-3xl animate-fade-up">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                        Assistência técnica e extensão rural para a agricultura familiar.
+                    </h1>
+                    <p class="text-lg md:text-xl mb-8 text-gray-200">
+                        Apoiamos produtores rurais com soluções técnicas inovadoras, planejamento estratégico e gestão de projetos para fortalecer o campo.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#projetos" class="bg-accent text-white px-8 py-4 rounded-lg font-bold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all">
+                            Nossos Projetos
+                        </a>
+                        <a href="#contato" class="bg-white text-primary px-8 py-4 rounded-lg font-bold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all border-2 border-white">
+                            Falar com Especialista
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Cards Section -->
+        <section id="servicos" class="py-20 bg-white">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Nossas frentes de atuação</h2>
+                    <div class="w-20 h-1 bg-accent mx-auto"></div>
+                </div>
+                
+                <div id="projetos" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Card 1 -->
+                    <div class="card-shadow p-8 rounded-2xl border-b-4 border-primary hover:transform hover:-translate-y-2 transition-all duration-300">
+                        <div class="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center text-primary mb-6">
+                            <i data-lucide="tractor" size="32"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Assistência Técnica Rural</h3>
+                        <p class="text-gray-600">Acompanhamento direto no campo, orientando sobre técnicas de plantio, manejo e colheita.</p>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="card-shadow p-8 rounded-2xl border-b-4 border-secondary hover:transform hover:-translate-y-2 transition-all duration-300">
+                        <div class="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center text-secondary mb-6">
+                            <i data-lucide="sprout" size="32"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Projetos Agropecuários</h3>
+                        <p class="text-gray-600">Elaboração de planos técnicos para implantação e melhoria de unidades produtivas agropecuárias.</p>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="card-shadow p-8 rounded-2xl border-b-4 border-accent hover:transform hover:-translate-y-2 transition-all duration-300">
+                        <div class="w-14 h-14 bg-orange-100 rounded-lg flex items-center justify-center text-accent mb-6">
+                            <i data-lucide="map" size="32"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Georreferenciamento</h3>
+                        <p class="text-gray-600">Mapeamento preciso de propriedades rurais para regularização fundiária e licenciamento ambiental.</p>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="card-shadow p-8 rounded-2xl border-b-4 border-primary hover:transform hover:-translate-y-2 transition-all duration-300">
+                        <div class="w-14 h-14 bg-green-100 rounded-lg flex items-center justify-center text-primary mb-6">
+                            <i data-lucide="badge-dollar-sign" size="32"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4 text-primary">Projetos de Crédito</h3>
+                        <p class="text-gray-600">Viabilização de linhas de crédito rural junto a instituições financeiras para investimento no campo.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Differentials -->
+        <section class="py-20 bg-primary text-white">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                    <div>
+                        <div class="mx-auto w-16 h-16 bg-accent border-4 border-white rounded-full flex items-center justify-center mb-6">
+                            <i data-lucide="trending-up" class="text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Resultados Reais</h3>
+                        <p class="text-green-100">Foco no aumento da produtividade e na sustentabilidade do negócio rural familiar.</p>
+                    </div>
+                    <div>
+                        <div class="mx-auto w-16 h-16 bg-accent border-4 border-white rounded-full flex items-center justify-center mb-6">
+                            <i data-lucide="users" class="text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Equipe Técnica</h3>
+                        <p class="text-green-100">Engenheiros agrônomos e técnicos experientes dedicados ao suporte personalizado.</p>
+                    </div>
+                    <div>
+                        <div class="mx-auto w-16 h-16 bg-accent border-4 border-white rounded-full flex items-center justify-center mb-6">
+                            <i data-lucide="handshake" class="text-white"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold mb-3">Parceiros</h3>
+                        <p class="text-green-100">Conexão com os principais bancos e órgãos de fomento da região Norte.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery -->
+        <section id="galeria" class="py-20 bg-white">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Projetos Concretizados</h2>
+                    <div class="w-20 h-1 bg-accent mx-auto"></div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
+                        <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80" alt="Projeto 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    </div>
+                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
+                        <img src="https://images.unsplash.com/photo-1595841696662-5083d30b3565?auto=format&fit=crop&w=800&q=80" alt="Projeto 2" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    </div>
+                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
+                        <img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=800&q=80" alt="Projeto 3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    </div>
+                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
+                        <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80" alt="Projeto 4" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    </div>
+                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
+                        <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=800&q=80" alt="Projeto 5" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    </div>
+                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
+                        <img src="https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80" alt="Projeto 6" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer id="contato" class="bg-primary pt-16 pb-8 text-white">
+            <div class="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-1 md:col-span-1">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                            <span class="text-primary font-bold text-xl">GR</span>
+                        </div>
+                        <span class="font-bold text-white text-lg">GR Assessoria</span>
+                    </div>
+                    <p class="text-green-100">Compromisso com o desenvolvimento rural e sustentável da região.</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-6 text-accent">Navegação</h4>
+                    <ul class="space-y-3 text-green-100">
+                        <li><a href="#inicio" class="hover:text-white transition-colors">Início</a></li>
+                        <li><a href="#servicos" class="hover:text-white transition-colors">Serviços</a></li>
+                        <li><a href="#projetos" class="hover:text-white transition-colors">Projetos</a></li>
+                        <li><a href="#galeria" class="hover:text-white transition-colors">Galeria</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-6 text-accent">Contato</h4>
+                    <ul class="space-y-3 text-green-100">
+                        <li class="flex items-center gap-2"><i data-lucide="mail" size="18"></i> contato@grassessoria.com.br</li>
+                        <li class="flex items-center gap-2"><i data-lucide="phone" size="18"></i> (91) 98765-4321</li>
+                        <li class="flex items-center gap-2"><i data-lucide="map-pin" size="18"></i> Av. Independência, Belém - PA</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-bold mb-6 text-accent">Newsletter</h4>
+                    <div class="flex">
+                        <input type="email" placeholder="Seu e-mail" class="bg-secondary rounded-l-md px-4 py-2 w-full focus:outline-none">
+                        <button class="bg-accent px-4 py-2 rounded-r-md"><i data-lucide="send" size="18"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="container mx-auto px-4 md:px-6 pt-8 border-t border-green-800 text-center text-green-400 text-sm">
+                <p>&copy; 2025 GR Assessoria e Planejamento. Todos os direitos reservados.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Login Page -->
+    <div id="login-page" class="page-section min-h-screen items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white rounded-2xl border-2 border-gray-100 p-8 card-shadow mx-auto mt-20">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="lock" class="text-white" size="32"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-primary">Acesso ao Sistema</h2>
+                <p class="text-gray-500">Gestão de Equipe Técnica</p>
+            </div>
+            
+            <form id="login-form" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Login (Matrícula/CPF)</label>
+                    <input type="text" id="username" placeholder="00587945303" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Senha</label>
+                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                </div>
+                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:opacity-90 transition-all">Entrar no Sistema</button>
+                <button type="button" onclick="showSection('site')" class="w-full text-gray-500 font-semibold py-2">Voltar ao Site</button>
+                <div id="login-error" class="text-red-500 text-sm text-center font-semibold mt-4 hidden">Credenciais incorretas!</div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboard-page" class="page-section min-h-screen bg-gray-50 overflow-hidden">
+        <div class="flex h-screen">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="p-6">
+                    <div class="flex items-center gap-2 mb-8">
+                        <div class="w-8 h-8 bg-white rounded flex items-center justify-center">
+                            <span class="text-primary font-bold text-sm">GR</span>
+                        </div>
+                        <div class="text-sm leading-tight font-bold">
+                            GR ASSESSORIA<br>
+                            <span class="text-xs opacity-75 font-normal">Projetos Agropecuários</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="flex-1 flex flex-col gap-1 px-2" id="sidebar-nav">
+                    <!-- Nav items will be injected by JavaScript based on permissions -->
+                </nav>
+
+                <div class="p-6 mt-auto bg-black/10 text-[10px] opacity-60">
+                    <div class="mb-2" id="user-info">Logado como: ...</div>
+                    <button onclick="logout()" class="flex items-center gap-2 text-white hover:text-accent transition-colors">
+                        <i data-lucide="log-out" size="14"></i> Sair do Sistema
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <div class="main-content">
+                <header class="header-dashboard">
+                    <div class="flex items-center gap-4">
+                        <h1 class="text-lg font-bold text-slate-800">Sistema de Controle Técnico</h1>
+                        <span class="limit-chip">72 visitas/mês | 4 visitas/dia</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="showSection('site')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 p-2 rounded-full transition-all" title="Ir para Home">
+                            <i data-lucide="home" size="20"></i>
+                        </button>
+                        <button onclick="showPanel('producao')" class="btn-accent text-sm">+ Lançamento</button>
+                        <div class="flex items-center gap-3 ml-2 border-l border-slate-200 pl-4 items-center">
+                            <div class="text-right hidden sm:block">
+                                <div class="text-xs font-bold text-slate-700 leading-none" id="header-user-name">Carregando...</div>
+                                <div class="text-[10px] text-slate-400 mt-1 uppercase font-semibold" id="header-user-role">Função</div>
+                            </div>
+                            <div class="w-10 h-10 rounded-full bg-slate-200 border border-slate-300 flex items-center justify-center">
+                                <i data-lucide="user" class="text-slate-500" size="20"></i>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Panel: Dashboard -->
+                <div id="panel-dashboard" class="dashboard-panel">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800">Painel de Controle Estratégico</h2>
+                        <p class="text-gray-500 text-sm">Visão geral de execução, metas e desempenho da equipe.</p>
+                    </div>
+
+                    <div id="dashboard-stats" class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <!-- Stats injected here -->
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <div class="card">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i data-lucide="award" class="text-accent"></i> Ranking de Produção (Técnicos)
+                            </h3>
+                            <div class="space-y-4" id="tech-ranking">
+                                <!-- Ranking injected here -->
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                                <i data-lucide="trending-up" class="text-primary"></i> Execução de Metas por Contrato
+                            </h3>
+                            <div class="space-y-6" id="contract-execution">
+                                <!-- Progress bars injected here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 class="font-bold text-slate-800 mb-4">Metas Mensais e Prazos</h3>
+                        <div class="table-dashboard-container">
+                            <table class="table-dashboard">
+                                <thead>
+                                    <tr>
+                                        <th>Contrato</th>
+                                        <th>Vigência</th>
+                                        <th>Pecentual Executado</th>
+                                        <th>Meta Mensal Sugerida</th>
+                                        <th>Status Prazo</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-dashboard-metas">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel: Empresa -->
+                <div id="panel-empresa" class="dashboard-panel hidden">
+                    <div class="mb-8">
+                        <h2 class="text-2xl font-bold text-gray-800">Dados da Instituição</h2>
+                        <p class="text-gray-500 text-sm">Informações cadastrais da empresa e unidade administrativa.</p>
+                    </div>
+                    <div class="card max-w-2xl">
+                        <form id="form-empresa" class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-bold text-gray-500 uppercase mb-2">Razão Social</label>
+                                    <input type="text" id="emp-name" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-500 uppercase mb-2">CNPJ</label>
+                                    <input type="text" id="emp-cnpj" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-bold text-gray-500 uppercase mb-2">Endereço Completo</label>
+                                    <input type="text" id="emp-address" class="w-full px-4 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-primary">
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="button" onclick="saveEmpresa()" class="bg-primary text-white px-8 py-2 rounded-lg font-bold hover:opacity-90">Salvar Dados</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Panel: Contratos -->
+                <div id="panel-contratos" class="dashboard-panel hidden">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Gestão de Contratos</h2>
+                            <p class="text-gray-500 text-sm">Cadastre programas, instrumentos e vigências contratuais.</p>
+                        </div>
+                        <button onclick="openModal('contrato')" class="bg-primary text-white px-6 py-2 rounded-lg flex items-center gap-2 font-semibold hover:opacity-90 transition-all">
+                            <i data-lucide="plus" size="18"></i> Novo Contrato
+                        </button>
+                    </div>
+                    <div class="card overflow-hidden">
+                        <div class="table-dashboard-container">
+                            <table class="table-dashboard">
+                                <thead>
+                                    <tr>
+                                        <th>Nome do Programa</th>
+                                        <th>Contratante</th>
+                                        <th>Nº Instrumento</th>
+                                        <th>Vigência</th>
+                                        <th class="text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-contratos">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel: Técnicos -->
+                <div id="panel-tecnicos" class="dashboard-panel active">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Cadastro de Técnicos</h2>
+                            <p class="text-gray-500 text-sm">Gerencie a equipe de campo e limites de produção.</p>
+                        </div>
+                        <button onclick="openModal('tecnico')" class="bg-primary text-white px-6 py-2 rounded-lg flex items-center gap-2 font-semibold hover:opacity-90 transition-all">
+                            <i data-lucide="plus" size="18"></i> Novo Técnico
+                        </button>
+                    </div>
+                    <div class="card overflow-hidden">
+                        <div class="table-dashboard-container">
+                            <table class="table-dashboard">
+                                <thead>
+                                    <tr>
+                                        <th>ID/Matrícula</th>
+                                        <th>Nome</th>
+                                        <th>Visitas no Mês</th>
+                                        <th>Status</th>
+                                        <th class="text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-tecnicos">
+                                    <!-- Data injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel: Atividades -->
+                <div id="panel-atividades" class="dashboard-panel hidden">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Cadastro de Atividades</h2>
+                            <p class="text-gray-500 text-sm">Defina as atividades técnicas padronizadas vinculadas a instrumentos.</p>
+                        </div>
+                        <button onclick="openModal('calendario')" class="bg-accent text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold hover:opacity-90 transition-all shadow-md shadow-accent/20">
+                            <i data-lucide="calendar" size="18"></i> Consultar Calendário do Técnico
+                        </button>
+                    </div>
+                    <div id="atividades-contracts-list" class="space-y-4">
+                        <!-- Grouped by contract here -->
+                    </div>
+                </div>
+
+                <!-- Panel: Relatórios -->
+                <div id="panel-relatorios" class="dashboard-panel hidden">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Relatório de Execução</h2>
+                            <p class="text-gray-500 text-sm">Gere relatórios de produtividade e financeiros.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+                        <div class="card p-4 col-span-2">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Contrato / Instrumento</label>
+                            <select id="report-contract-filter" class="w-full p-2 border rounded-lg text-sm">
+                                <option value="all">Todos os Contratos</option>
+                            </select>
+                        </div>
+                        <div class="card p-4 col-span-2">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Técnicos (Um ou mais)</label>
+                            <p class="text-[9px] text-slate-400 mb-1 leading-none">Segure Ctrl para selecionar vários</p>
+                            <select id="report-tech-filter" multiple class="w-full p-2 border rounded-lg text-sm h-20 outline-none focus:border-accent transition-colors">
+                                <option value="all" selected>Equipe Completa</option>
+                            </select>
+                        </div>
+                        <div class="card p-4">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Data Inicial</label>
+                            <input type="date" id="report-date-start" class="w-full p-2 border rounded-lg text-sm">
+                        </div>
+                        <div class="card p-4">
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Data Final</label>
+                            <input type="date" id="report-date-end" class="w-full p-2 border rounded-lg text-sm">
+                        </div>
+                        <div class="flex items-end md:col-span-6">
+                            <button onclick="generateReport()" class="btn-accent w-full flex items-center justify-center gap-2">
+                                <i data-lucide="refresh-cw" size="18"></i> Gerar Relatório Filtrado
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="report-results" class="space-y-6 hidden">
+                        <!-- Summary Cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="report-summary">
+                        </div>
+                        
+                        <!-- Detail Table -->
+                        <div class="card">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-slate-800">Detalhamento por Técnico</h3>
+                                <button onclick="printReport()" class="text-primary flex items-center gap-2 text-sm font-bold border border-primary px-3 py-1 rounded hover:bg-primary hover:text-white transition-all">
+                                    <i data-lucide="printer" size="16"></i> Imprimir / PDF
+                                </button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="table-dashboard">
+                                    <thead>
+                                        <tr>
+                                            <th>Técnico</th>
+                                            <th>Salário Fixo</th>
+                                            <th>Aluguel Veículo</th>
+                                            <th>Produção (Total)</th>
+                                            <th class="bg-gray-100">TOTAL A RECEBER</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-table-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Activities Breakdown -->
+                        <div class="card">
+                            <h3 class="font-bold text-slate-800 mb-4">Produção por Atividade / Dia</h3>
+                            <div class="overflow-x-auto">
+                                <table class="table-dashboard">
+                                    <thead>
+                                        <tr>
+                                            <th>Técnico</th>
+                                            <th>Dia da Semana</th>
+                                            <th>Atividade</th>
+                                            <th>Município/Comunidade</th>
+                                            <th>Valor</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-activities-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel: Usuários -->
+                <div id="panel-usuarios" class="dashboard-panel hidden">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Cadastro de Usuários</h2>
+                            <p class="text-gray-500 text-sm">Gerencie acessos e níveis de permissão.</p>
+                        </div>
+                        <button onclick="openModal('usuario')" class="bg-primary text-white px-6 py-2 rounded-lg flex items-center gap-2 font-semibold hover:opacity-90 transition-all">
+                            <i data-lucide="plus" size="18"></i> Novo Usuário
+                        </button>
+                    </div>
+                    <div class="card overflow-hidden">
+                        <div class="table-dashboard-container">
+                            <table class="table-dashboard">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Login</th>
+                                        <th>Nível</th>
+                                        <th class="text-right">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-usuarios">
+                                    <!-- Data injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel: Municípios -->
+                <div id="panel-municipios" class="dashboard-panel hidden">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Municípios e Comunidades</h2>
+                            <p class="text-gray-500 text-sm">Gestão territorial das áreas de atuação.</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <button onclick="openModal('municipio')" class="bg-secondary text-white px-6 py-2 rounded-lg flex items-center gap-2 font-semibold hover:opacity-90 transition-all">
+                                <i data-lucide="plus" size="18"></i> Novo Município
+                            </button>
+                            <button onclick="openModal('comunidade')" class="bg-primary text-white px-6 py-2 rounded-lg flex items-center gap-2 font-semibold hover:opacity-90 transition-all">
+                                <i data-lucide="plus" size="18"></i> Adicionar Comunidade
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-municipios">
+                        <!-- Municipalities layout injected here -->
+                    </div>
+                </div>
+
+                <!-- Panel: Controle de Produção (Grid/Table) -->
+                <div id="panel-producao" class="dashboard-panel hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Controle de Produção Diária</h2>
+                            <p class="text-gray-500 text-sm">Limite: Máximo de 4 visitas/dia por técnico.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="card">
+                            <h3 class="text-sm font-bold mb-4 uppercase tracking-wider text-slate-500">Novo Lançamento</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-gray-50 border-b">
+                                        <tr>
+                                            <th class="p-3 text-xs font-bold text-slate-500">Técnico</th>
+                                            <th class="p-3 text-xs font-bold text-slate-500">Contrato</th>
+                                            <th class="p-3 text-xs font-bold text-slate-500">Atividade</th>
+                                            <th class="p-3 text-xs font-bold text-slate-500">Município</th>
+                                            <th class="p-3 text-xs font-bold text-slate-500">Comunidade</th>
+                                            <th class="p-3 text-xs font-bold text-slate-500">Data</th>
+                                            <th class="p-3 text-xs font-bold text-slate-500">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="production-input-row">
+                                        <tr>
+                                            <td class="p-2">
+                                                <select id="input-prod-tecnico" class="w-full p-2 border rounded-lg text-sm"></select>
+                                            </td>
+                                            <td class="p-2">
+                                                <select id="input-prod-contrato" class="w-full p-2 border rounded-lg text-sm" onchange="filterProductionActivities()"></select>
+                                            </td>
+                                            <td class="p-2">
+                                                <select id="input-prod-atividade" class="w-full p-2 border rounded-lg text-sm"></select>
+                                            </td>
+                                            <td class="p-2">
+                                                <select id="input-prod-municipio" class="w-full p-2 border rounded-lg text-sm" onchange="updateCommunitySelect()"></select>
+                                            </td>
+                                            <td class="p-2">
+                                                <select id="input-prod-comunidade" class="w-full p-2 border rounded-lg text-sm"></select>
+                                            </td>
+                                            <td class="p-2">
+                                                <input type="date" id="input-prod-data" class="w-full p-2 border rounded-lg text-sm">
+                                            </td>
+                                            <td class="p-2 text-center">
+                                                <button onclick="addProductionRecord()" class="bg-accent text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90">Lançar</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card flex flex-col min-h-0">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Histórico de Produção</h3>
+                                <input type="date" id="filtro-data" class="text-xs border p-2 rounded-lg" onchange="renderProductionHistory()">
+                            </div>
+                            <div class="table-dashboard-container">
+                                <table class="table-dashboard">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Técnico Responsável</th>
+                                            <th>Atividade</th>
+                                            <th>Localidade</th>
+                                            <th>Status Dia</th>
+                                            <th class="text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="production-history">
+                                        <!-- Injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generic Modal for CRUD -->
+    <div id="modal-container" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-[100] p-4">
+        <div class="bg-white rounded-xl max-w-md w-full p-8 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <i data-lucide="x"></i>
+            </button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="importmap">
+      {
+        "imports": {
+          "firebase/app": "https://www.gstatic.com/firebasejs/11.3.1/firebase-app.js",
+          "firebase/firestore": "https://www.gstatic.com/firebasejs/11.3.1/firebase-firestore.js",
+          "firebase/auth": "https://www.gstatic.com/firebasejs/11.3.1/firebase-auth.js"
+        }
+      }
+    </script>
+    <script type="module">
+        import { initializeApp } from "firebase/app";
+        import { 
+            getFirestore, collection, doc, setDoc, addDoc, getDoc, getDocs, 
+            onSnapshot, updateDoc, deleteDoc, query, orderBy, serverTimestamp 
+        } from "firebase/firestore";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyAghu8qI0FdAG2BF4mcXmWzfviidpeIJoA",
+          authDomain: "gen-lang-client-0042361490.firebaseapp.com",
+          projectId: "gen-lang-client-0042361490",
+          storageBucket: "gen-lang-client-0042361490.firebasestorage.app",
+          messagingSenderId: "895397185923",
+          appId: "1:895397185923:web:b4e69c59d9335de21d0eb6"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db_fs = getFirestore(app, "ai-studio-afc308e9-5766-47cc-82e4-d006512e64b8");
+
+        // Global DB state (Reactive update from Firestore)
+        window.INITIAL_MUNICIPALITIES = [];
+        window.db = {
+            empresa: { name: '', cnpj: '', address: '' },
+            contratos: [],
+            usuarios: [],
+            tecnicos: [],
+            atividades: [],
+            comunidades: [],
+            producao: [],
+            municipios: []
+        };
+        window.editingId = null;
+        window.currentUser = null;
+
+        // --- Real-time Sync ---
+        function setupRealtimeSync() {
+            // Empresa Config
+            onSnapshot(doc(db_fs, "config", "empresa"), async (docSnap) => {
+                if (docSnap.exists()) {
+                    window.db.empresa = docSnap.data();
+                } else {
+                    // Seed initial company data
+                    const defaultEmpresa = {
+                        name: 'GR ASSESSORIA E PLANEJAMENTO DE PROJETOS AGROPECUARIOS LTDA',
+                        cnpj: '24.230.134/0001-50',
+                        address: 'Rodovia Mário Covas, Coqueiro, Ananindeua - PA'
+                    };
+                    await setDoc(doc(db_fs, "config", "empresa"), defaultEmpresa);
+                }
+                renderAll();
+            });
+
+            // Collections
+            const syncColl = (name, localKey) => {
+                onSnapshot(collection(db_fs, name), async (snap) => {
+                    window.db[localKey] = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+                    
+                    if (name === 'municipios') {
+                        window.INITIAL_MUNICIPALITIES = window.db[localKey].map(m => m.name).sort();
+                    }
+
+                    // Warning banner logic
+                    if (name === 'contratos') {
+                        const banner = document.getElementById('warning-banner');
+                        if (window.db.contratos.length === 0) {
+                            banner.classList.remove('-translate-y-full');
+                        } else {
+                            banner.classList.add('-translate-y-full');
+                        }
+                    }
+
+                    // cleanup activities without contractId (Requested: "Apague todos os registros de atividades existentes")
+                    if (name === 'atividades') {
+                        const orphans = snap.docs.filter(d => !d.data().contractId);
+                        for (const d of orphans) {
+                            await deleteDoc(doc(db_fs, "atividades", d.id));
+                        }
+                    }
+
+                    // Bootstrap Admin User
+                    if (name === 'usuarios') {
+                        const adminLogin = "00587945303";
+                        const adminPass = "admin123";
+                        const adminUser = window.db.usuarios.find(u => u.login === adminLogin);
+                        
+                        if (!adminUser) {
+                            await setDoc(doc(db_fs, "usuarios", "admin-default"), {
+                                name: "Administrador Geral",
+                                login: adminLogin,
+                                password: adminPass,
+                                role: "admin"
+                            });
+                        } else if (adminUser.password !== adminPass) {
+                            await updateDoc(doc(db_fs, "usuarios", adminUser.id), {
+                                password: adminPass
+                            });
+                        }
+                    }
+                    
+                    renderAll();
+                });
+            };
+
+            syncColl('contratos', 'contratos');
+            syncColl('usuarios', 'usuarios');
+            syncColl('tecnicos', 'tecnicos');
+            syncColl('atividades', 'atividades');
+            syncColl('comunidades', 'comunidades');
+            syncColl('producao', 'producao');
+            syncColl('municipios', 'municipios');
+        }
+
+        // --- Exposure to Legacy code ---
+        window.db_fs = db_fs;
+        window.fs_ops = { setDoc, addDoc, doc, collection, deleteDoc, updateDoc, serverTimestamp };
+
+        // Start Sync
+        setupRealtimeSync();
+
+        // Standard initialization
+        document.addEventListener('DOMContentLoaded', () => {
+             // Check session
+             const savedUser = localStorage.getItem('gr_current_user');
+             if (savedUser) {
+                 window.currentUser = JSON.parse(savedUser);
+                 showSection('dashboard');
+                 if (typeof resetInactivityTimer === 'function') resetInactivityTimer();
+             }
+
+             lucide.createIcons();
+             document.getElementById('mobile-menu-btn').onclick = () => document.getElementById('mobile-menu').classList.toggle('hidden');
+             
+             document.getElementById('login-form').addEventListener('submit', async (e) => {
+                 e.preventDefault();
+                 const uLogin = document.getElementById('username').value;
+                 const uPass = document.getElementById('password').value;
+                 
+                 const foundUser = window.db.usuarios.find(u => u.login === uLogin && u.password === uPass);
+                 
+                 if (foundUser) {
+                     window.currentUser = foundUser;
+                     localStorage.setItem('gr_current_user', JSON.stringify(window.currentUser));
+                     showSection('dashboard');
+                     if (typeof resetInactivityTimer === 'function') resetInactivityTimer();
+                 } else {
+                     document.getElementById('login-error').classList.remove('hidden');
+                 }
+             });
+        });
+    </script>
+    <script>
+        // --- Inactivity Timer ---
+        let inactivityTimeout;
+        const INACTIVITY_LIMIT = 60 * 60 * 1000; // 60 minutes in ms
+
+        function resetInactivityTimer() {
+            if (inactivityTimeout) clearTimeout(inactivityTimeout);
+            if (window.currentUser) {
+                inactivityTimeout = setTimeout(() => {
+                    alert("Sua sessão expirou devido à inatividade (60 minutos).");
+                    logout();
+                }, INACTIVITY_LIMIT);
+            }
+        }
+
+        // Initialize listeners for user activity
+        ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+
+        // --- Legacy Functions adapted for Firebase ---
+
+        // --- Navigation Logic ---
+        function showSection(sectionId) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById(`${sectionId}-page`).classList.add('active');
+            
+            if (sectionId === 'dashboard') {
+                if(!currentUser) {
+                    showSection('login');
+                    return;
+                }
+                renderSidebar();
+                renderAll();
+                
+                // Show default panel based on role
+                if (currentUser.role === 'admin') {
+                    showPanel('dashboard');
+                } else {
+                    showPanel('producao');
+                }
+            } else if (sectionId === 'login') {
+                currentUser = null;
+                localStorage.removeItem('gr_current_user');
+            }
+            
+            window.scrollTo(0, 0);
+            lucide.createIcons();
+        }
+
+        function renderSidebar() {
+            const nav = document.getElementById('sidebar-nav');
+            const info = document.getElementById('user-info');
+            const hName = document.getElementById('header-user-name');
+            const hRole = document.getElementById('header-user-role');
+            const siteLoginBtn = document.getElementById('site-login-btn');
+            const mobileLoginBtn = document.getElementById('mobile-login-btn');
+            
+            if(!currentUser) {
+                if(siteLoginBtn) siteLoginBtn.innerText = 'Sistema';
+                if(mobileLoginBtn) mobileLoginBtn.innerText = 'Sistema';
+                if(hName) hName.innerText = 'Bem-vindo';
+                if(hRole) hRole.innerText = 'Acesso Restrito';
+                return;
+            }
+            
+            // Format name to show first and last name only
+            const nameParts = currentUser.name.trim().split(/\s+/);
+            const displayName = nameParts.length > 1 ? `${nameParts[0]} ${nameParts[nameParts.length - 1]}` : (nameParts[0] || 'Usuário');
+            
+            if(hName) hName.innerText = displayName;
+            if(hRole) hRole.innerText = currentUser.role === 'admin' ? 'Administrador' : 'Técnico de Campo';
+            if(siteLoginBtn) siteLoginBtn.innerText = `Painel: ${nameParts[0]}`;
+            if(mobileLoginBtn) mobileLoginBtn.innerText = `Acessar Painel (${nameParts[0]})`;
+            
+            info.innerText = `Logado como: ${currentUser.name} (${currentUser.role === 'admin' ? 'Adm' : 'Téc'})`;
+
+            let menu = '';
+            if (currentUser.role === 'admin') {
+                menu = `
+                    <button onclick="showPanel('dashboard')" id="btn-dashboard" class="nav-item">
+                        <i data-lucide="layout-dashboard" class="mr-3" size="18"></i> Dashboard
+                    </button>
+                    <button onclick="showPanel('empresa')" id="btn-empresa" class="nav-item">
+                        <i data-lucide="building-2" class="mr-3" size="18"></i> Dados da Empresa
+                    </button>
+                    <button onclick="showPanel('contratos')" id="btn-contratos" class="nav-item">
+                        <i data-lucide="file-text" class="mr-3" size="18"></i> Cadastrar Contrato
+                    </button>
+                    <button onclick="showPanel('tecnicos')" id="btn-tecnicos" class="nav-item">
+                        <i data-lucide="users-2" class="mr-3" size="18"></i> Cadastro de Técnicos
+                    </button>
+                    <button onclick="showPanel('atividades')" id="btn-atividades" class="nav-item">
+                        <i data-lucide="clipboard-list" class="mr-3" size="18"></i> Cadastro de Atividades
+                    </button>
+                    <button onclick="showPanel('municipios')" id="btn-municipios" class="nav-item">
+                        <i data-lucide="map-pinned" class="mr-3" size="18"></i> Cadastro de Município
+                    </button>
+                    <button onclick="showPanel('usuarios')" id="btn-usuarios" class="nav-item">
+                        <i data-lucide="user-cog" class="mr-3" size="18"></i> Cadastro de Usuários
+                    </button>
+                    <button onclick="showPanel('relatorios')" id="btn-relatorios" class="nav-item">
+                        <i data-lucide="file-pie-chart" class="mr-3" size="18"></i> Relatório de Execução
+                    </button>
+                `;
+            }
+            
+            // Common/Technician Menu
+            menu += `
+                <button onclick="showPanel('producao')" id="btn-producao" class="nav-item mt-4 bg-accent/20 border-accent text-accent font-bold">
+                    <i data-lucide="calendar-check-2" class="mr-3" size="18"></i> Controle de Produção
+                </button>
+            `;
+            
+            nav.innerHTML = menu;
+            lucide.createIcons();
+        }
+
+        function showPanel(panelId) {
+            // Permission check
+            if (currentUser.role !== 'admin' && panelId !== 'producao') {
+                alert('Acesso restrito ao administrador!');
+                return;
+            }
+
+            document.querySelectorAll('.dashboard-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById(`panel-${panelId}`).classList.remove('hidden');
+            
+            document.querySelectorAll('aside nav button').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`btn-${panelId}`);
+            if(btn) btn.classList.add('active');
+            
+            renderAll();
+        }
+
+        // --- UI Rendering ---
+        function renderAll() {
+            renderDashboard();
+            renderEmpresa();
+            renderContratos();
+            renderTecnicos();
+            renderAtividades();
+            renderMunicipiosGrid();
+            renderUsuarios();
+            populateProductionSelectors();
+            renderProductionHistory();
+            lucide.createIcons();
+        }
+
+        function renderDashboard() {
+            const stats = document.getElementById('dashboard-stats');
+            const ranking = document.getElementById('tech-ranking');
+            const execution = document.getElementById('contract-execution');
+            const metasBody = document.getElementById('table-dashboard-metas');
+            if(!stats) return;
+
+            // Stats
+            const totalActs = db.producao.length;
+            const totalTechs = db.tecnicos.length;
+            const totalContracts = db.contratos.length;
+            const totalPlanned = db.atividades.filter(a=>true).reduce((sum, a) => sum + (Number(a.planned) || 0), 0);
+            const percGlobal = totalPlanned > 0 ? (totalActs / totalPlanned * 100).toFixed(1) : 0;
+
+            stats.innerHTML = `
+                <div class="card p-4 border-l-4 border-primary">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase">Atividades Registradas</div>
+                    <div class="text-2xl font-bold">${totalActs}</div>
+                </div>
+                <div class="card p-4 border-l-4 border-blue-500">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase">Técnicos Ativos</div>
+                    <div class="text-2xl font-bold">${totalTechs}</div>
+                </div>
+                <div class="card p-4 border-l-4 border-purple-500">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase">Contratos Vigentes</div>
+                    <div class="text-2xl font-bold">${totalContracts}</div>
+                </div>
+                <div class="card p-4 border-l-4 border-accent">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase">Execução Global</div>
+                    <div class="text-2xl font-bold">${percGlobal}%</div>
+                </div>
+            `;
+
+            // Tech Ranking
+            const techStats = db.tecnicos.map(t => ({
+                name: t.name,
+                count: db.producao.filter(p => p.tecnicoId === t.id).length
+            })).sort((a,b) => b.count - a.count);
+
+            ranking.innerHTML = techStats.map((t, i) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <span class="w-6 h-6 flex items-center justify-center bg-primary text-white text-xs font-bold rounded-full">${i+1}</span>
+                        <span class="font-semibold text-slate-700">${t.name}</span>
+                    </div>
+                    <div class="font-bold text-primary">${t.count} atendimentos</div>
+                </div>
+            `).join('') || '<p class="text-gray-400 text-sm">Nenhum dado disponível.</p>';
+
+            // Contract Execution & Metas
+            execution.innerHTML = '';
+            metasBody.innerHTML = '';
+
+            db.contratos.forEach(c => {
+                const cProds = db.producao.filter(p => {
+                    const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
+                    return tech && tech.contractId === c.id;
+                });
+                
+                const totalTarget = db.atividades.filter(a=>true).reduce((sum, a) => sum + (Number(a.planned) || 0), 0);
+                const executed = cProds.length;
+                const perc = totalTarget > 0 ? (executed / totalTarget * 100).toFixed(1) : 0;
+                const remainingPerc = (100 - perc).toFixed(1);
+
+                execution.innerHTML += `
+                    <div>
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="font-bold text-slate-700">${c.program}</span>
+                            <span class="text-primary font-bold">${perc}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-primary h-2.5 rounded-full" style="width: ${perc}%"></div>
+                        </div>
+                        <div class="text-[10px] text-gray-400 mt-1">Faltam ${remainingPerc}% para conclusão</div>
+                    </div>
+                `;
+
+                const end = new Date(c.validity);
+                const now = new Date();
+                const mLeft = Math.max(1, (end.getFullYear() - now.getFullYear()) * 12 + (end.getMonth() - now.getMonth()));
+                const targetMonthly = Math.ceil((totalTarget - executed) / mLeft);
+                
+                metasBody.innerHTML += `
+                    <tr>
+                        <td class="font-bold">${c.program}</td>
+                        <td>${new Date(c.validity).toLocaleDateString()}</td>
+                        <td class="font-bold text-primary">${perc}%</td>
+                        <td>
+                            <div class="flex flex-col">
+                                <span class="font-bold text-slate-700">${targetMonthly} atividades/mês</span>
+                                <span class="text-[10px] text-gray-400">Restam ${mLeft} meses</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${perc > 50 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'} uppercase">
+                                ${perc > 50 ? 'No Prazo' : 'Em Atenção'}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            if (db.contratos.length === 0) execution.innerHTML = '<p class="text-gray-400 text-sm">Nenhum contrato cadastrado.</p>';
+            lucide.createIcons();
+        }
+
+        function renderEmpresa() {
+            const e = db.empresa;
+            if (document.getElementById('emp-name')) {
+                document.getElementById('emp-name').value = e.name || '';
+                document.getElementById('emp-cnpj').value = e.cnpj || '';
+                document.getElementById('emp-address').value = e.address || '';
+            }
+        }
+
+        async function saveEmpresa() {
+            const data = {
+                name: document.getElementById('emp-name').value,
+                cnpj: document.getElementById('emp-cnpj').value,
+                address: document.getElementById('emp-address').value
+            };
+            try {
+                await fs_ops.setDoc(fs_ops.doc(db_fs, "config", "empresa"), data);
+                alert('Dados salvos com sucesso!');
+            } catch(e) {
+                console.error(e);
+                alert('Erro ao salvar dados.');
+            }
+        }
+
+        function renderContratos() {
+            const tbody = document.getElementById('table-contratos');
+            if(!tbody) return;
+            tbody.innerHTML = db.contratos.map(c => `
+                <tr class="hover:bg-slate-50">
+                    <td class="font-bold text-slate-700">${c.program}</td>
+                    <td>${c.contractor}</td>
+                    <td class="font-mono text-xs">${c.instrument}</td>
+                    <td>${new Date(c.validity).toLocaleDateString()}</td>
+                    <td class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="editItem('contrato', '${c.id}')" class="text-slate-400 hover:text-blue-500"><i data-lucide="pencil" size="16"></i></button>
+                            <button onclick="deleteContrato('${c.id}')" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" size="16"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderUsuarios() {
+            const tbody = document.getElementById('table-usuarios');
+            if(!tbody) return;
+            tbody.innerHTML = db.usuarios.map(u => `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="font-semibold text-slate-700">${u.name}</td>
+                    <td class="font-mono text-xs">${u.login}</td>
+                    <td>
+                        <span class="px-2 py-0.5 ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'} rounded text-[10px] font-bold uppercase">
+                            ${u.role === 'admin' ? 'Administrador' : 'Técnico'}
+                        </span>
+                    </td>
+                    <td class="text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button onclick="editItem('usuario', '${u.id}')" class="text-slate-400 hover:text-blue-500"><i data-lucide="pencil" size="16"></i></button>
+                            <button onclick="deleteUsuario('${u.id}')" class="text-slate-400 hover:text-red-500" ${u.login === '00587945303' ? 'disabled' : ''}><i data-lucide="trash-2" size="16"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderTecnicos() {
+            const tbody = document.getElementById('table-tecnicos');
+            if(!tbody) return;
+            tbody.innerHTML = db.tecnicos.map(t => {
+                const visits = db.producao.filter(p => p.tecnicoId === t.id).length;
+                const status = visits >= 72 ? '<span class="status-full px-2 py-0.5 rounded text-[10px]">LIMITE EXCEDIDO</span>' : '<span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded text-[10px] font-bold uppercase">Disponível</span>';
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="font-mono font-bold">${t.id}</td>
+                        <td class="font-semibold text-slate-700">${t.name}</td>
+                        <td class="font-bold text-slate-600">${visits}/72</td>
+                        <td>${status}</td>
+                        <td class="text-right">
+                            <div class="flex items-center justify-end gap-2">
+                                <button onclick="printForm('tecnico', '${t.id}')" class="text-slate-400 hover:text-primary"><i data-lucide="file-text" size="16"></i></button>
+                                <button onclick="editItem('tecnico', '${t.id}')" class="text-slate-400 hover:text-blue-500"><i data-lucide="pencil" size="16"></i></button>
+                                <button onclick="deleteTecnico('${t.id}')" class="text-slate-400 hover:text-red-500"><i data-lucide="trash-2" size="16"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showToast(message) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-emerald-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 animate-slide-in-right transform transition-all duration-300';
+            toast.innerHTML = `
+                <i data-lucide="check-circle" size="18"></i>
+                <span class="font-bold text-sm">${message}</span>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons({ props: { size: 18 }, scope: toast });
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function renderAtividades() {
+            const list = document.getElementById('atividades-contracts-list');
+            if(!list) return;
+
+            if (db.contratos.length === 0) {
+                list.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Aguardando cadastro de programas e instrumentos...</p>';
+                return;
+            }
+
+            list.innerHTML = db.contratos.map(c => {
+                const contractActivities = db.atividades.filter(a => a.contractId === c.id);
+                return `
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-4">
+                        <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-all select-none group" onclick="toggleAccordion('contract-${c.id}')">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-primary/10 text-primary rounded-lg flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+                                    ${c.program.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 leading-tight">${c.program}</h4>
+                                    <p class="text-[11px] text-slate-500 font-medium">Instrumento: ${c.instrument}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="hidden sm:inline-block text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded-full uppercase tracking-wider">${contractActivities.length} Atividades</span>
+                                <div id="arrow-container-contract-${c.id}" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors">
+                                    <i data-lucide="chevron-right" id="arrow-contract-${c.id}" class="text-slate-400 transition-transform duration-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="content-contract-${c.id}" class="hidden border-t bg-slate-50/50 p-4">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h5 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Painel de Atividades</h5>
+                                    <p class="text-[10px] text-slate-400">Gerencie as atividades vinculadas a este programa</p>
+                                </div>
+                                <button onclick="editingId=null; openModal('atividade', '${c.id}')" class="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold hover:bg-primary-dark transition-all active:scale-95 shadow-md shadow-primary/20">
+                                    <i data-lucide="plus-circle" size="16"></i> Cadastrar Nova Atividade
+                                </button>
+                            </div>
+                            
+                            <div class="grid gap-3">
+                                ${contractActivities.length > 0 ? contractActivities.map(a => `
+                                    <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm group hover:border-primary/40 hover:shadow-md transition-all">
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-slate-700 text-sm mb-1">${a.name}</span>
+                                            <div class="flex flex-wrap gap-2 text-[10px] items-center">
+                                                <span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-bold border border-slate-200">META: ${a.metaCode || 'N/A'}</span>
+                                                <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-bold border border-emerald-100">R$ ${Number(a.value || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</span>
+                                                <span class="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-bold border border-blue-100">PREVISTO: ${a.planned || 0}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                            <button onclick="editItem('atividade', '${a.id}')" title="Editar" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"><i data-lucide="pencil" size="16"></i></button>
+                                            <button onclick="deleteAtividade('${a.id}')" title="Excluir" class="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"><i data-lucide="trash-2" size="16"></i></button>
+                                        </div>
+                                    </div>
+                                `).join('') : `
+                                    <!-- Campos em Branco (Placeholder) -->
+                                    <div class="bg-white/40 p-4 rounded-xl border-2 border-dashed border-slate-200 flex items-center justify-between opacity-60">
+                                        <div class="flex flex-col gap-2 w-full">
+                                            <div class="h-4 w-1/2 bg-slate-200 rounded animate-pulse"></div>
+                                            <div class="flex gap-2">
+                                                <div class="h-3 w-16 bg-slate-200 rounded animate-pulse"></div>
+                                                <div class="h-3 w-20 bg-slate-200 rounded animate-pulse"></div>
+                                                <div class="h-3 w-12 bg-slate-200 rounded animate-pulse"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center py-2">
+                                        <p class="text-[11px] text-slate-400 font-medium uppercase tracking-tighter">Nenhuma atividade vinculada — Use o botão acima para adicionar</p>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function toggleAccordion(id) {
+            const content = document.getElementById(`content-${id}`);
+            const arrow = document.getElementById(`arrow-${id}`);
+            const isHidden = content.classList.contains('hidden');
+            
+            document.querySelectorAll('[id^="content-contract-"]').forEach(el => {
+                if(el.id !== `content-${id}`) el.classList.add('hidden');
+            });
+            document.querySelectorAll('[id^="arrow-contract-"]').forEach(el => {
+                if(el.id !== `arrow-${id}`) el.classList.remove('rotate-90');
+            });
+
+            content.classList.toggle('hidden');
+            arrow.classList.toggle('rotate-90');
+        }
+
+        function renderMunicipiosGrid() {
+            const grid = document.getElementById('grid-municipios');
+            if(!grid) return;
+            
+            if (db.contratos.length === 0) {
+                grid.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Aguardando cadastro de programas e instrumentos...</p>';
+                return;
+            }
+
+            grid.innerHTML = db.contratos.map(c => {
+                const contractMunicipios = db.municipios.filter(m => m.contractId === c.id);
+                return `
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-4">
+                        <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-all select-none group" onclick="toggleAccordion('mun-contract-${c.id}')">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 bg-secondary/10 text-secondary rounded-lg flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+                                    <i data-lucide="map"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-800 leading-tight">${c.program}</h4>
+                                    <p class="text-[11px] text-slate-500 font-medium">Instrumento: ${c.instrument}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="hidden sm:inline-block text-[10px] font-bold text-secondary bg-secondary/10 px-2 py-1 rounded-full uppercase tracking-wider">${contractMunicipios.length} Municípios</span>
+                                <div id="arrow-container-mun-contract-${c.id}" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors">
+                                    <i data-lucide="chevron-right" id="arrow-mun-contract-${c.id}" class="text-slate-400 transition-transform duration-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="content-mun-contract-${c.id}" class="hidden border-t bg-slate-50/50 p-4">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h5 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Áreas de Atuação</h5>
+                                    <p class="text-[10px] text-slate-400 leading-none">Gerencie municípios e comunidades deste programa</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="editingId=null; openModal('municipio', '${c.id}')" class="bg-secondary text-white px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold hover:opacity-90 transition-all active:scale-95 shadow-md shadow-secondary/20">
+                                        <i data-lucide="plus-circle" size="16"></i> Adicionar Município
+                                    </button>
+                                    <button onclick="editingId=null; openModal('comunidade', '${c.id}')" class="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 text-xs font-bold hover:opacity-90 transition-all active:scale-95 shadow-md shadow-primary/20">
+                                        <i data-lucide="plus" size="16"></i> Vincular Comunidade
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                ${contractMunicipios.length > 0 ? contractMunicipios.map(mObj => {
+                                    const m = mObj.name;
+                                    const communities = db.comunidades.filter(com => com.municipalityId === mObj.id);
+                                    return `
+                                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:border-secondary/40 transition-colors">
+                                            <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                                                <div class="flex items-center gap-2 text-secondary font-bold text-sm">
+                                                    <i data-lucide="map-pin" size="16"></i> ${m}
+                                                </div>
+                                                <div class="flex gap-1">
+                                                    <button onclick="editItem('municipio', '${mObj.id}')" class="p-1 text-blue-400 hover:bg-blue-50 rounded"><i data-lucide="pencil" size="12"></i></button>
+                                                    <button onclick="deleteMunicipio('${mObj.id}')" class="p-1 text-red-400 hover:bg-red-50 rounded"><i data-lucide="trash-2" size="12"></i></button>
+                                                </div>
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                ${communities.length > 0 ? communities.map(com => `
+                                                    <div class="text-[11px] bg-slate-50 px-2 py-1.5 rounded border border-slate-200 flex justify-between items-center group">
+                                                        <span class="text-slate-600 font-medium">${com.name}</span> 
+                                                        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                                                            <button onclick="editItem('comunidade', '${com.id}')" class="text-blue-400 hover:text-blue-600"><i data-lucide="pencil" size="10"></i></button>
+                                                            <button onclick="deleteComunidade('${com.id}')" class="text-red-400 hover:text-red-600 font-bold">×</button>
+                                                        </div>
+                                                    </div>
+                                                `).join('') : '<p class="text-[10px] text-slate-400 italic">Sem comunidades vinculadas.</p>'}
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('') : `
+                                    <div class="col-span-full flex flex-col items-center justify-center py-10 border-2 border-dashed border-slate-200 rounded-2xl bg-white/50">
+                                        <i data-lucide="map-placeholder" class="text-slate-300 mb-2" size="32"></i>
+                                        <p class="text-sm font-medium text-slate-400">Nenhum município mapeado para este programa.</p>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function populateProductionSelectors() {
+            const tSel = document.getElementById('input-prod-tecnico');
+            const aSel = document.getElementById('input-prod-atividade');
+            const mSel = document.getElementById('input-prod-municipio');
+            const rSel = document.getElementById('report-tech-filter');
+            const cRelSel = document.getElementById('report-contract-filter');
+            
+            if(!currentUser) return;
+
+            if(tSel) {
+                tSel.innerHTML = db.tecnicos.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+                if (currentUser.role === 'tecnico') {
+                    const myTech = db.tecnicos.find(t => t.name.toLowerCase().includes(currentUser.name.toLowerCase()));
+                    if(myTech) tSel.value = myTech.id;
+                }
+            }
+            if(aSel) aSel.innerHTML = db.atividades.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            if(mSel) mSel.innerHTML = INITIAL_MUNICIPALITIES.map(m => `<option value="${m}">${m}</option>`).join('');
+            if(rSel) {
+                const options = db.tecnicos.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+                rSel.innerHTML = '<option value="all">Equipe Completa</option>' + options;
+            }
+            if(cRelSel) {
+                const options = db.contratos.map(c => `<option value="${c.id}">${c.program} (${c.instrument})</option>`).join('');
+                cRelSel.innerHTML = '<option value="all">Todos os Contratos</option>' + options;
+            }
+            updateCommunitySelect();
+        }
+
+        function updateCommunitySelect() {
+            const mElem = document.getElementById('input-prod-municipio');
+            const cSel = document.getElementById('input-prod-comunidade');
+            if(!mElem || !cSel) return;
+            const communities = db.comunidades.filter(c => c.municipality === mElem.value);
+            cSel.innerHTML = communities.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        }
+
+        function renderProductionHistory() {
+            const history = document.getElementById('production-history');
+            if(!history) return;
+            const sorted = [...db.producao].sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            // Find filtered history if needed (by data)
+            const filtroData = document.getElementById('filtro-data').value;
+            let displayList = sorted;
+            if(filtroData) {
+                displayList = sorted.filter(p => p.date === filtroData);
+            }
+
+            history.innerHTML = displayList.map(p => {
+                const tName = db.tecnicos.find(t => t.id === p.tecnicoId)?.name || 'Removido';
+                const aName = db.atividades.find(a => a.id == p.activityId)?.name || 'Removida';
+                const countDay = db.producao.filter(rec => rec.tecnicoId === p.tecnicoId && rec.date === p.date).length;
+                const limit = countDay >= 4;
+
+                return `
+                    <tr class="${limit ? 'status-full' : ''} hover:bg-slate-50 transition-colors">
+                        <td class="text-xs font-mono">${new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                        <td class="font-bold text-slate-800">${tName}</td>
+                        <td class="text-slate-600">${aName}</td>
+                        <td class="text-xs italic text-slate-400">${p.municipality} - ${p.community}</td>
+                        <td>
+                             <div class="flex items-center gap-1">
+                                <div class="w-2 h-2 rounded-full ${limit ? 'bg-white animate-pulse' : 'bg-emerald-500'}"></div>
+                                <span class="text-xs font-bold">${limit ? 'LIMITE ATINGIDO' : `${countDay}/4 Visitas`}</span>
+                             </div>
+                        </td>
+                        <td class="text-right">
+                            <div class="flex items-center justify-end gap-2 text-slate-300">
+                                <button onclick="editProduction('${p.id}')" class="hover:text-blue-500"><i data-lucide="pencil" size="16"></i></button>
+                                <button onclick="deleteRecord('${p.id}')" class="hover:text-red-500"><i data-lucide="trash-2" size="16"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function logout() {
+            if (inactivityTimeout) clearTimeout(inactivityTimeout);
+            currentUser = null;
+            localStorage.removeItem('gr_current_user');
+            // Reset header/sidebar text
+            renderSidebar();
+            // Remove active classes from all sections and show home/site
+            document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+            document.getElementById('site-page').classList.add('active');
+            window.scrollTo(0, 0);
+            showToast("Sessão encerrada com sucesso!");
+        }
+
+        function generateUniqueTechId() {
+            let id;
+            let isUnique = false;
+            let attempts = 0;
+            while (!isUnique && attempts < 100) {
+                // Generate 4 random digits
+                id = Math.floor(1000 + Math.random() * 9000).toString();
+                isUnique = !db.tecnicos.some(t => t.id === id);
+                attempts++;
+            }
+            return id;
+        }
+
+        // --- CRUD Logic ---
+        function openModal(type, extraId) {
+            const container = document.getElementById('modal-container');
+            const content = document.getElementById('modal-content');
+            const modalBox = content.parentElement;
+            
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+            
+            // Reset modal width
+            modalBox.className = "bg-white rounded-xl max-w-md w-full p-8 relative";
+
+            if (type === 'tecnico') {
+                const contractOptions = db.contratos.map(c => `<option value="${c.id}">${c.program} (${c.instrument})</option>`).join('');
+                content.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-primary">${editingId ? 'Editar Técnico' : 'Novo Técnico'}</h3>
+                    <div class="space-y-4 max-h-[70vh] overflow-y-auto px-1">
+                        <input type="text" id="m-id" placeholder="Matrícula/ID" class="w-full p-2 border rounded" ${editingId ? 'readonly' : 'readonly'}>
+                        <input type="text" id="m-name" placeholder="Nome Completo" class="w-full p-2 border rounded">
+                        <input type="text" id="m-cpf" placeholder="CPF" class="w-full p-2 border rounded">
+                        <input type="text" id="m-role" placeholder="Função" class="w-full p-2 border rounded">
+                        <input type="text" id="m-edu" placeholder="Formação Escolar/Acadêmica" class="w-full p-2 border rounded">
+                        
+                        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200">
+                            <label class="text-[10px] font-bold text-slate-400 uppercase block mb-2">Vínculos Contratuais (Máx 2)</label>
+                            <div class="grid gap-2">
+                                <select id="m-contract-1" class="w-full p-2 border rounded text-sm">
+                                    <option value="">Selecione o Contrato 1</option>
+                                    ${contractOptions}
+                                </select>
+                                <select id="m-contract-2" class="w-full p-2 border rounded text-sm">
+                                    <option value="">Selecione o Contrato 2 (Opcional)</option>
+                                    ${contractOptions}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase">Salário Fixo (R$)</label>
+                                <input type="number" id="m-salary" placeholder="0.00" class="w-full p-2 border rounded text-sm">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase">Aluguel Veículo (R$)</label>
+                                <input type="number" id="m-rental" placeholder="0.00" class="w-full p-2 border rounded text-sm">
+                            </div>
+                        </div>
+                        <button onclick="saveNew('tecnico')" class="w-full bg-primary text-white py-2 rounded font-bold mt-2 hover:opacity-90 transition-all">${editingId ? 'Atualizar' : 'Salvar'}</button>
+                    </div>
+                `;
+                if (editingId) {
+                    const t = db.tecnicos.find(x => x.id === editingId);
+                    if(t) {
+                        document.getElementById('m-id').value = t.id;
+                        document.getElementById('m-name').value = t.name;
+                        document.getElementById('m-cpf').value = t.cpf || '';
+                        document.getElementById('m-role').value = t.role_type || '';
+                        document.getElementById('m-edu').value = t.education || '';
+                        document.getElementById('m-salary').value = t.fixedSalary || 0;
+                        document.getElementById('m-rental').value = t.vehicleRental || 0;
+                        
+                        const cIds = t.contractIds || (t.contractId ? [t.contractId] : []);
+                        if (cIds[0]) document.getElementById('m-contract-1').value = cIds[0];
+                        if (cIds[1]) document.getElementById('m-contract-2').value = cIds[1];
+                    }
+                } else {
+                    document.getElementById('m-id').value = generateUniqueTechId();
+                }
+            } else if (type === 'atividade') {
+                const targetContractId = extraId || (editingId ? db.atividades.find(a => a.id === editingId)?.contractId : '');
+                content.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-primary">${editingId ? 'Editar Atividade' : 'Nova Atividade'}</h3>
+                    <div class="space-y-4">
+                        <input type="hidden" id="m-contract-id" value="${targetContractId}">
+                        <input type="text" id="m-desc" placeholder="Descrição da Atividade" class="w-full p-2 border rounded">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase">Código Meta</label>
+                                <input type="text" id="m-meta" placeholder="Ex: M1" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase">Quantid. Prevista</label>
+                                <input type="number" id="m-planned" placeholder="0" class="w-full p-2 border rounded">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Valor por Produção (R$)</label>
+                            <input type="number" id="m-val" placeholder="0.00" class="w-full p-2 border rounded">
+                        </div>
+                        <button onclick="saveNew('atividade')" class="w-full bg-primary text-white py-2 rounded font-bold">${editingId ? 'Atualizar' : 'Salvar'}</button>
+                    </div>
+                `;
+                if (editingId) {
+                    const a = db.atividades.find(x => x.id == editingId);
+                    if(a) {
+                        document.getElementById('m-desc').value = a.name;
+                        document.getElementById('m-val').value = a.value || 0;
+                        document.getElementById('m-meta').value = a.metaCode || '';
+                        document.getElementById('m-planned').value = a.planned || 0;
+                    }
+                }
+            } else if (type === 'contrato') {
+                content.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-primary">${editingId ? 'Editar Contrato' : 'Novo Contrato'}</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="c-prog" placeholder="Nome do Programa" class="w-full p-2 border rounded">
+                        <input type="text" id="c-cont" placeholder="Empresa Contratante" class="w-full p-2 border rounded">
+                        <input type="text" id="c-inst" placeholder="Nº do Instrumento" class="w-full p-2 border rounded">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase">Vigência do Contrato (Fim)</label>
+                            <input type="date" id="c-vig" class="w-full p-2 border rounded">
+                        </div>
+                        <button onclick="saveNew('contrato')" class="w-full bg-primary text-white py-2 rounded font-bold">${editingId ? 'Atualizar' : 'Salvar'}</button>
+                    </div>
+                `;
+                if (editingId) {
+                    const c = db.contratos.find(x => x.id === editingId);
+                    if(c) {
+                        document.getElementById('c-prog').value = c.program;
+                        document.getElementById('c-cont').value = c.contractor;
+                        document.getElementById('c-inst').value = c.instrument;
+                        document.getElementById('c-vig').value = c.validity;
+                    }
+                }
+            } else if (type === 'municipio') {
+                const contractOptions = db.contratos.map(c => `<option value="${c.id}">${c.program} (${c.instrument})</option>`).join('');
+                 content.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-primary">${editingId ? 'Editar Município' : 'Novo Município'}</h3>
+                    <div class="space-y-4">
+                        <select id="mu-contract" class="w-full p-2 border rounded">
+                            <option value="">Selecione o Contrato</option>
+                            ${contractOptions}
+                        </select>
+                        <input type="text" id="mu-name" placeholder="Nome do Município" class="w-full p-2 border rounded">
+                        <button onclick="saveNew('municipio')" class="w-full bg-primary text-white py-2 rounded font-bold">${editingId ? 'Atualizar' : 'Salvar'}</button>
+                    </div>
+                `;
+                if (extraId) document.getElementById('mu-contract').value = extraId;
+                if (editingId) {
+                    const m = db.municipios.find(x => x.id === editingId);
+                    if (m) {
+                        document.getElementById('mu-name').value = m.name;
+                        document.getElementById('mu-contract').value = m.contractId || '';
+                    }
+                }
+            } else if (type === 'comunidade') {
+                const munOptions = db.municipios.map(m => `<option value="${m.id}">${m.name} (${db.contratos.find(c => c.id === m.contractId)?.program || 'N/A'})</option>`).join('');
+                content.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-primary">${editingId ? 'Editar Comunidade' : 'Vincular Comunidade'}</h3>
+                    <div class="space-y-4">
+                        <label class="text-[10px] font-bold text-gray-400 uppercase block leading-none">Município Sede</label>
+                        <select id="m-mun-id" class="w-full p-2 border rounded">
+                            <option value="">Escolha o Município</option>
+                            ${munOptions}
+                        </select>
+                        <input type="text" id="m-com" placeholder="Nome da Comunidade" class="w-full p-2 border rounded">
+                        <button onclick="saveNew('comunidade')" class="w-full bg-primary text-white py-2 rounded font-bold">${editingId ? 'Atualizar' : 'Salvar'}</button>
+                    </div>
+                `;
+                if (editingId) {
+                    const c = db.comunidades.find(x => x.id === editingId);
+                    if(c) {
+                        document.getElementById('m-mun-id').value = c.municipalityId;
+                        document.getElementById('m-com').value = c.name;
+                    }
+                }
+            } else if (type === 'calendario') {
+                const techOptions = db.tecnicos.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+                modalBox.className = "bg-white rounded-xl max-w-2xl w-full p-8 relative"; 
+                content.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-primary">Consultar Calendário do Técnico</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block leading-none">Técnico</label>
+                            <select id="cal-tech-id" class="w-full p-2 border rounded-lg text-sm bg-slate-50 outline-none focus:border-accent">
+                                <option value="">Selecione o Técnico</option>
+                                ${techOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-gray-400 uppercase mb-1 block leading-none">Mês/Ano</label>
+                            <input type="month" id="cal-period" class="w-full p-2 border rounded-lg text-sm bg-slate-50 outline-none focus:border-accent">
+                        </div>
+                    </div>
+                    <button onclick="renderCalendar()" class="w-full bg-accent text-white py-2.5 rounded-lg font-bold mb-6 hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-md shadow-accent/20">
+                        <i data-lucide="search" size="18"></i> Gerar Calendário
+                    </button>
+                    <div id="calendar-grid-container"></div>
+                `;
+            } else if (type === 'usuario') {
+                content.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-primary">${editingId ? 'Editar Usuário' : 'Novo Usuário'}</h3>
+                    <div class="space-y-4">
+                        <input type="text" id="u-name" placeholder="Nome do Usuário" class="w-full p-2 border rounded">
+                        <input type="text" id="u-login" placeholder="Login (Matrícula/CPF)" class="w-full p-2 border rounded">
+                        <input type="password" id="u-pass" placeholder="Senha" class="w-full p-2 border rounded">
+                        <select id="u-role" class="w-full p-2 border rounded">
+                            <option value="admin">Administrador</option>
+                            <option value="tecnico">Técnico</option>
+                        </select>
+                        <button onclick="saveNew('usuario')" class="w-full bg-primary text-white py-2 rounded font-bold">${editingId ? 'Atualizar' : 'Salvar'}</button>
+                    </div>
+                `;
+                if (editingId) {
+                    const u = db.usuarios.find(x => x.id === editingId);
+                    if(u) {
+                        document.getElementById('u-name').value = u.name;
+                        document.getElementById('u-login').value = u.login;
+                        document.getElementById('u-pass').value = u.password;
+                        document.getElementById('u-role').value = u.role;
+                    }
+                }
+            }
+            lucide.createIcons();
+        }
+
+        function closeModal() {
+            const container = document.getElementById('modal-container');
+            container.classList.add('hidden');
+            container.classList.remove('flex');
+            // Ensure width is reset for next open
+            document.getElementById('modal-content').parentElement.className = "bg-white rounded-xl max-w-md w-full p-8 relative";
+            editingId = null;
+        }
+
+        function renderCalendar() {
+            const techId = document.getElementById('cal-tech-id').value;
+            const period = document.getElementById('cal-period').value; // YYYY-MM
+            const container = document.getElementById('calendar-grid-container');
+            
+            if (!techId || !period) return alert("Selecione o técnico e o período!");
+            
+            const [year, month] = period.split('-').map(Number);
+            const firstDay = new Date(year, month - 1, 1).getDay(); // 0(Sun) to 6(Sat)
+            const daysInMonth = new Date(year, month, 0).getDate();
+            
+            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+            const tName = db.tecnicos.find(t => t.id === techId)?.name || '';
+
+            let html = `
+                <div class="mb-4 text-center border-b pb-4">
+                    <h4 class="font-bold text-slate-800 text-lg uppercase">${monthNames[month-1]} ${year}</h4>
+                    <p class="text-[10px] text-slate-500 font-medium">Cronograma de Atividades: ${tName}</p>
+                </div>
+                
+                <div class="flex gap-4 mb-4 justify-center">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 bg-red-500 rounded"></div>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase">Ocupado (4+ Visitas)</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 border border-slate-300 rounded"></div>
+                        <span class="text-[10px] font-bold text-slate-500 uppercase">Disponível (< 4 Visitas)</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-7 gap-1 rounded-lg overflow-hidden border border-slate-200">
+                    <div class="bg-slate-100 text-slate-500 text-center py-2 text-[9px] font-bold uppercase border-b border-r">Dom</div>
+                    <div class="bg-slate-100 text-slate-500 text-center py-2 text-[9px] font-bold uppercase border-b border-r">Seg</div>
+                    <div class="bg-slate-100 text-slate-500 text-center py-2 text-[9px] font-bold uppercase border-b border-r">Ter</div>
+                    <div class="bg-slate-100 text-slate-500 text-center py-2 text-[9px] font-bold uppercase border-b border-r">Qua</div>
+                    <div class="bg-slate-100 text-slate-500 text-center py-2 text-[9px] font-bold uppercase border-b border-r">Qui</div>
+                    <div class="bg-slate-100 text-slate-500 text-center py-2 text-[9px] font-bold uppercase border-b border-r">Sex</div>
+                    <div class="bg-slate-100 text-slate-500 text-center py-2 text-[9px] font-bold uppercase border-b">Sab</div>
+            `;
+            
+            // Empty days
+            for (let i = 0; i < firstDay; i++) {
+                html += `<div class="bg-slate-50 min-h-[50px] border-b border-r border-slate-200"></div>`;
+            }
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const visits = db.producao.filter(p => p.tecnicoId === techId && p.date === dateString).length;
+                const isRed = visits >= 4;
+                const isLastInRow = (firstDay + day) % 7 === 0;
+                
+                html += `
+                    <div class="min-h-[50px] p-2 border-b ${isLastInRow ? '' : 'border-r'} border-slate-200 bg-white ${isRed ? 'bg-red-500 text-white' : ''} transition-all">
+                        <span class="text-[10px] font-bold opacity-60">${day}</span>
+                        ${visits > 0 ? `<div class="mt-1 text-[9px] font-bold leading-tight ${isRed ? 'text-white' : 'text-slate-400'}">${visits} VISITS</div>` : ''}
+                    </div>
+                `;
+            }
+            
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function editItem(type, id) {
+            editingId = id;
+            openModal(type);
+        }
+
+        async function saveNew(type) {
+            const colls = {
+                tecnico: "tecnicos",
+                atividade: "atividades",
+                contrato: "contratos",
+                municipio: "municipios",
+                comunidade: "comunidades",
+                usuario: "usuarios"
+            };
+
+            let data = {};
+            let targetId = editingId;
+
+            if (type === 'tecnico') {
+                const id = document.getElementById('m-id').value;
+                const name = document.getElementById('m-name').value;
+                if (!id || !name) return alert('Preencha os campos!');
+                const c1 = document.getElementById('m-contract-1').value;
+                const c2 = document.getElementById('m-contract-2').value;
+                const contractIds = [c1, c2].filter(x => x !== "");
+
+                data = {
+                    name, 
+                    cpf: document.getElementById('m-cpf').value,
+                    role_type: document.getElementById('m-role').value,
+                    education: document.getElementById('m-edu').value,
+                    fixedSalary: parseFloat(document.getElementById('m-salary').value) || 0,
+                    vehicleRental: parseFloat(document.getElementById('m-rental').value) || 0,
+                    contractIds: contractIds,
+                    contractId: contractIds[0] || '' // Fallback for old code
+                };
+                targetId = id;
+                toastMsg = editingId ? "Técnico alterado com sucesso!" : "Técnico cadastrado com sucesso!";
+            } else if (type === 'atividade') {
+                const name = document.getElementById('m-desc').value;
+                if (!name) return alert('Preecha o nome!');
+                data = {
+                    name,
+                    value: parseFloat(document.getElementById('m-val').value) || 0,
+                    metaCode: document.getElementById('m-meta').value,
+                    planned: parseInt(document.getElementById('m-planned').value) || 0,
+                    contractId: document.getElementById('m-contract-id').value
+                };
+                toastMsg = editingId ? "Atividade alterada com sucesso!" : "Atividade cadastrada com sucesso!";
+            } else if (type === 'contrato') {
+                data = {
+                    program: document.getElementById('c-prog').value,
+                    contractor: document.getElementById('c-cont').value,
+                    instrument: document.getElementById('c-inst').value,
+                    validity: document.getElementById('c-vig').value
+                };
+                toastMsg = editingId ? "Contrato alterado com sucesso!" : "Contrato cadastrado com sucesso!";
+            } else if (type === 'municipio') {
+                data = { 
+                    name: document.getElementById('mu-name').value,
+                    contractId: document.getElementById('mu-contract').value
+                };
+                toastMsg = editingId ? "Município alterado com sucesso!" : "Município cadastrado com sucesso!";
+            } else if (type === 'comunidade') {
+                const munId = document.getElementById('m-mun-id').value;
+                const mun = db.municipios.find(m => m.id === munId);
+                data = { 
+                    municipalityId: munId,
+                    municipality: mun ? mun.name : '',
+                    name: document.getElementById('m-com').value 
+                };
+                toastMsg = editingId ? "Comunidade alterada com sucesso!" : "Comunidade cadastrada com sucesso!";
+            } else if (type === 'usuario') {
+                data = {
+                    name: document.getElementById('u-name').value,
+                    login: document.getElementById('u-login').value,
+                    password: document.getElementById('u-pass').value,
+                    role: document.getElementById('u-role').value
+                };
+                toastMsg = editingId ? "Usuário alterado com sucesso!" : "Usuário cadastrado com sucesso!";
+            }
+
+            try {
+                if (targetId) {
+                    await fs_ops.setDoc(fs_ops.doc(db_fs, colls[type], targetId.toString()), data, { merge: true });
+                } else {
+                    await fs_ops.addDoc(fs_ops.collection(db_fs, colls[type]), data);
+                }
+                closeModal();
+                showToast(toastMsg);
+            } catch(e) {
+                console.error(e);
+                alert("Erro ao salvar no banco de dados em tempo real.");
+            }
+        }
+
+        async function deleteUsuario(id) {
+            if(confirm("Deseja remover este usuário?")) {
+                await fs_ops.deleteDoc(fs_ops.doc(db_fs, "usuarios", id));
+                showToast("Usuário removido com sucesso!");
+            }
+        }
+
+        async function deleteContrato(id) {
+            if(confirm("Deseja remover este contrato?")) {
+                await fs_ops.deleteDoc(fs_ops.doc(db_fs, "contratos", id));
+                showToast("Contrato removido com sucesso!");
+            }
+        }
+
+        async function deleteMunicipio(id) {
+            const mun = db.municipios.find(m => m.id === id);
+            if(confirm(`Deseja remover o município ${mun ? mun.name : id} e todas as suas comunidades?`)) {
+                await fs_ops.deleteDoc(fs_ops.doc(db_fs, "municipios", id));
+                showToast("Município removido com sucesso!");
+            }
+        }
+
+        async function deleteTecnico(id) {
+            if(confirm("Deseja remover este técnico?")) {
+                await fs_ops.deleteDoc(fs_ops.doc(db_fs, "tecnicos", id));
+                showToast("Técnico removido com sucesso!");
+            }
+        }
+
+        async function deleteAtividade(id) {
+            if(confirm("Deseja remover esta atividade?")) {
+                await fs_ops.deleteDoc(fs_ops.doc(db_fs, "atividades", id.toString()));
+                showToast("Atividade removida com sucesso!");
+            }
+        }
+
+        async function deleteComunidade(id) {
+            if(confirm("Deseja remover esta comunidade?")) {
+                await fs_ops.deleteDoc(fs_ops.doc(db_fs, "comunidades", id));
+                showToast("Comunidade removida com sucesso!");
+            }
+        }
+
+        async function deleteProduction(id) {
+            if(confirm("Deseja remover este lançamento?")) {
+                await fs_ops.deleteDoc(fs_ops.doc(db_fs, "producao", id));
+                showToast("Lançamento removido com sucesso!");
+            }
+        }
+
+        function editProduction(id) {
+            const p = db.producao.find(x => x.id === id);
+            if(!p) return;
+            
+            const tSel = document.getElementById('input-prod-tecnico');
+            const contSel = document.getElementById('input-prod-contrato');
+            const dInput = document.getElementById('input-prod-data');
+            
+            if(tSel) tSel.value = p.tecnicoId;
+            if(contSel) {
+                contSel.value = p.contractId || '';
+                filterProductionActivities();
+            }
+            
+            const aSel = document.getElementById('input-prod-atividade');
+            const mSel = document.getElementById('input-prod-municipio');
+            if(aSel) aSel.value = p.activityId;
+            if(mSel) {
+                mSel.value = p.municipalityId || '';
+                updateCommunitySelect();
+            }
+            
+            const cSel = document.getElementById('input-prod-comunidade');
+            if(cSel) cSel.value = p.communityId || '';
+            if(dInput) dInput.value = p.date;
+            
+            editingId = id;
+            const btn = document.querySelector('button[onclick="addProductionRecord()"]');
+            if(btn) {
+                btn.innerText = "Atualizar";
+                btn.className = "bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90";
+            }
+            
+            document.getElementById('production-input-row')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- Production Logic ---
+        function populateProductionSelectors() {
+            const tSel = document.getElementById('input-prod-tecnico');
+            const contSel = document.getElementById('input-prod-contrato');
+            const aSel = document.getElementById('input-prod-atividade');
+            const mSel = document.getElementById('input-prod-municipio');
+            const rSel = document.getElementById('report-tech-filter');
+            const cRelSel = document.getElementById('report-contract-filter');
+            
+            if(!currentUser) return;
+
+            if(tSel) {
+                tSel.innerHTML = db.tecnicos.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+                if (currentUser.role === 'tecnico') {
+                    const myTech = db.tecnicos.find(t => t.name.toLowerCase().includes(currentUser.name.toLowerCase()));
+                    if(myTech) tSel.value = myTech.id;
+                }
+            }
+            if(contSel) {
+                const options = db.contratos.map(c => `<option value="${c.id}">${c.instrument} - ${c.program}</option>`).join('');
+                contSel.innerHTML = '<option value="">Selecione o Instrumento</option>' + options;
+            }
+            if(rSel) {
+                const options = db.tecnicos.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+                rSel.innerHTML = '<option value="all">Equipe Completa</option>' + options;
+            }
+            if(cRelSel) {
+                const options = db.contratos.map(c => `<option value="${c.id}">${c.program} (${c.instrument})</option>`).join('');
+                cRelSel.innerHTML = '<option value="all">Todos os Contratos</option>' + options;
+            }
+            filterProductionActivities();
+        }
+
+        function filterProductionActivities() {
+            const contId = document.getElementById('input-prod-contrato').value;
+            const aSel = document.getElementById('input-prod-atividade');
+            const mSel = document.getElementById('input-prod-municipio');
+            
+            if (!contId) {
+                if(aSel) aSel.innerHTML = '<option value="">Selecione o Contrato primeiro</option>';
+                if(mSel) mSel.innerHTML = '<option value="">-</option>';
+                return;
+            }
+
+            const activities = db.atividades.filter(a => a.contractId === contId);
+            aSel.innerHTML = activities.map(a => `<option value="${a.id}">${a.name}</option>`).join('') || '<option value="">Sem atividades vinculadas</option>';
+
+            const municipios = db.municipios.filter(m => m.contractId === contId);
+            mSel.innerHTML = municipios.map(m => `<option value="${m.id}">${m.name}</option>`).join('') || '<option value="">Sem municípios</option>';
+            
+            updateCommunitySelect();
+        }
+
+        function updateCommunitySelect() {
+            const mId = document.getElementById('input-prod-municipio').value;
+            const cSel = document.getElementById('input-prod-comunidade');
+            if(!cSel) return;
+            if(!mId) {
+                cSel.innerHTML = '<option value="">-</option>';
+                return;
+            }
+            const communities = db.comunidades.filter(c => c.municipalityId === mId);
+            cSel.innerHTML = communities.map(c => `<option value="${c.id}">${c.name}</option>`).join('') || '<option value="">Sem comunidades</option>';
+        }
+
+        function renderProductionHistory() {
+            const history = document.getElementById('production-history');
+            if(!history) return;
+            const sorted = [...db.producao].sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            const filtroData = document.getElementById('filtro-data').value;
+            let displayList = sorted;
+            if(filtroData) {
+                displayList = sorted.filter(p => p.date === filtroData);
+            }
+
+            history.innerHTML = displayList.map(p => {
+                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
+                const tName = tech ? tech.name : 'Removido';
+                const aName = db.atividades.find(a => a.id == p.activityId)?.name || 'Removida';
+                const cont = db.contratos.find(c => c.id === p.contractId);
+                const instrument = cont ? cont.instrument : 'N/A';
+                
+                const mun = db.municipios.find(m => m.id === p.municipalityId)?.name || p.municipality || 'N/A';
+                const com = db.comunidades.find(co => co.id === p.communityId)?.name || p.community || 'N/A';
+
+                const countDay = db.producao.filter(rec => rec.tecnicoId === p.tecnicoId && rec.date === p.date).length;
+                const limit = countDay >= 4;
+
+                return `
+                    <tr class="${limit ? 'status-full' : ''} hover:bg-slate-50 transition-colors">
+                        <td class="text-xs font-mono">${new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                        <td class="font-bold text-slate-800">${tName}</td>
+                        <td class="text-xs font-mono text-slate-500">${instrument}</td>
+                        <td class="text-slate-600">${aName}</td>
+                        <td class="text-xs italic text-slate-400">${mun} - ${com}</td>
+                        <td>
+                             <div class="flex items-center gap-1">
+                                <div class="w-2 h-2 rounded-full ${limit ? 'bg-white animate-pulse' : 'bg-emerald-500'}"></div>
+                                <span class="text-xs font-bold">${limit ? 'LIMITE ATINGIDO' : `${countDay}/4 Visitas`}</span>
+                             </div>
+                        </td>
+                        <td class="text-right">
+                             <div class="flex items-center justify-end gap-2 text-slate-300">
+                                <button onclick="editProduction('${p.id}')" class="hover:text-blue-500"><i data-lucide="pencil" size="14"></i></button>
+                                <button onclick="deleteProduction('${p.id}')" class="hover:text-red-500"><i data-lucide="trash-2" size="14"></i></button>
+                             </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        async function addProductionRecord() {
+            const tId = document.getElementById('input-prod-tecnico').value;
+            const contId = document.getElementById('input-prod-contrato').value;
+            const aId = document.getElementById('input-prod-atividade').value;
+            const mId = document.getElementById('input-prod-municipio').value;
+            const cId = document.getElementById('input-prod-comunidade').value;
+            const dVal = document.getElementById('input-prod-data').value;
+            
+            if (!contId || !aId || !mId || !dVal) return alert("Preencha todos os campos obrigatórios!");
+
+            if (!editingId) {
+                const dayCount = db.producao.filter(p => p.tecnicoId === tId && p.date === dVal).length;
+                if(dayCount >= 4) return alert("LIMITE DIÁRIO (4) ATINGIDO!");
+
+                const month = dVal.substring(0, 7);
+                const monCount = db.producao.filter(p => p.tecnicoId === tId && p.date.startsWith(month)).length;
+                if(monCount >= 72) return alert("LIMITE MENSAL (72) ATINGIDO!");
+            }
+
+            const payload = { 
+                tecnicoId: tId, 
+                contractId: contId,
+                activityId: aId, 
+                municipalityId: mId,
+                communityId: cId,
+                date: dVal,
+                createdAt: fs_ops.serverTimestamp()
+            };
+
+            try {
+                if (editingId) {
+                    await fs_ops.updateDoc(fs_ops.doc(db_fs, "producao", editingId), payload);
+                    showToast("Lançamento alterado com sucesso!");
+                } else {
+                    await fs_ops.addDoc(fs_ops.collection(db_fs, "producao"), payload);
+                    showToast("Lançamento realizado com sucesso!");
+                }
+                editingId = null;
+                const btn = document.querySelector('button[onclick="addProductionRecord()"]');
+                if(btn) {
+                    btn.innerText = "Lançar";
+                    btn.className = "bg-accent text-white px-6 py-2 rounded-lg font-bold text-sm hover:opacity-90";
+                }
+            } catch(e) {
+                console.error(e);
+                alert("Erro ao salvar.");
+            }
+        }
+
+        // --- Reports & Printing ---
+        function generateReport() {
+            const techFilter = document.getElementById('report-tech-filter');
+            const selectedTechIds = Array.from(techFilter.selectedOptions).map(opt => opt.value);
+            const contractId = document.getElementById('report-contract-filter').value;
+            const start = document.getElementById('report-date-start').value;
+            const end = document.getElementById('report-date-end').value;
+            if (!start || !end) return alert('Datas obrigatórias');
+
+            document.getElementById('report-results').classList.remove('hidden');
+            let prods = db.producao.filter(p => p.date >= start && p.date <= end);
+            
+            // Filter by contract/instrument
+            if (contractId !== 'all') {
+                prods = prods.filter(p => p.contractId === contractId);
+            }
+
+            // Filter by technician(s)
+            if (!selectedTechIds.includes('all')) {
+                prods = prods.filter(p => selectedTechIds.includes(p.tecnicoId));
+            }
+            
+            const techsToRender = selectedTechIds.includes('all') ? db.tecnicos : db.tecnicos.filter(t => selectedTechIds.includes(t.id));
+
+            let totals = { salary: 0, rental: 0, prod: 0 };
+            const tableBody = document.getElementById('report-table-body');
+            const actBody = document.getElementById('report-activities-body');
+            tableBody.innerHTML = ''; actBody.innerHTML = '';
+
+            techsToRender.forEach(t => {
+                const tP = prods.filter(p => p.tecnicoId === t.id);
+                let valP = 0;
+                tP.forEach(p => {
+                    const act = db.atividades.find(a => a.id == p.activityId);
+                    const v = act ? Number(act.value || 0) : 0;
+                    valP += v;
+                    const day = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+                    const cont = db.contratos.find(c => c.id === p.contractId);
+                    const instrument = cont ? cont.instrument : 'N/A';
+
+                    actBody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="font-medium text-slate-700">${t.name}</td>
+                            <td class="capitalize text-slate-500">${day} (${p.date})</td>
+                            <td class="text-xs font-mono font-bold text-slate-400">${instrument}</td>
+                            <td>${act ? act.name : 'N/A'}</td>
+                            <td class="text-xs italic text-slate-400">${db.municipios.find(m => m.id === p.municipalityId)?.name || p.municipality || 'N/A'}</td>
+                            <td class="font-bold text-primary">R$ ${v.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                const fixed = Number(t.fixedSalary || 0);
+                const rent = Number(t.vehicleRental || 0);
+                const total = fixed + rent + valP;
+                totals.salary += fixed; totals.rental += rent; totals.prod += valP;
+
+                tableBody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="font-bold text-slate-800">${t.name}</td>
+                        <td class="text-slate-600">R$ ${fixed.toFixed(2)}</td>
+                        <td class="text-slate-600">R$ ${rent.toFixed(2)}</td>
+                        <td class="font-bold text-primary">R$ ${valP.toFixed(2)}</td>
+                        <td class="bg-slate-50 font-bold text-lg text-primary border-l-2 border-primary/20">R$ ${total.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById('report-summary').innerHTML = `
+                <div class="card p-4 border-l-4 border-primary"><div class="text-[10px] font-bold text-gray-400">SALÁRIOS + ALUGUÉIS</div><div class="text-xl font-bold">R$ ${(totals.salary + totals.rental).toFixed(2)}</div></div>
+                <div class="card p-4 border-l-4 border-emerald-500"><div class="text-[10px] font-bold text-gray-400">PRODUÇÃO TOTAL</div><div class="text-xl font-bold">R$ ${totals.prod.toFixed(2)}</div></div>
+                <div class="card p-4 border-l-4 border-accent"><div class="text-[10px] font-bold text-gray-400">TOTAL GERAL</div><div class="text-xl font-bold">R$ ${(totals.salary + totals.rental + totals.prod).toFixed(2)}</div></div>
+            `;
+            lucide.createIcons();
+        }
+
+        function printReport() {
+            const html = `<html><head><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#f4f4f4}.card{border:1px solid #ccc;padding:10px;margin-bottom:10px}</style></head>
+                <body><h1>RELATÓRIO DE EXECUÇÃO</h1>${document.getElementById('report-results').innerHTML}</body></html>`;
+            const w = window.open('', '_blank'); w.document.write(html); w.document.close(); w.print();
+        }
+
+        function printForm(type, id) {
+            let html = '<div style="font-family:sans-serif;padding:40px;border:1px solid #1b4332;">';
+            if(type==='tecnico'){
+                const t = db.tecnicos.find(x=>x.id===id);
+                const c = db.contratos.find(x => x.id === t.contractId);
+                html += `<h1>FICHA INDIVIDUAL DO TÉCNICO</h1><hr>
+                         <p><strong>Nome:</strong> ${t.name}</p>
+                         <p><strong>Matrícula:</strong> ${t.id}</p>
+                         <p><strong>CPF:</strong> ${t.cpf || 'N/A'}</p>
+                         <p><strong>Função:</strong> ${t.role_type || 'N/A'}</p>
+                         <p><strong>Formação:</strong> ${t.education || 'N/A'}</p>
+                         <p><strong>Salário:</strong> R$ ${Number(t.fixedSalary || 0).toFixed(2)}</p>
+                         <p><strong>Aluguel:</strong> R$ ${Number(t.vehicleRental || 0).toFixed(2)}</p>
+                         <hr>
+                         <p><strong>Programa:</strong> ${c ? c.program : 'N/A'}</p>
+                         <p><strong>Nº Instrumento:</strong> ${c ? c.instrument : 'N/A'}</p>`;
+            } else if(type==='atividade'){
+                const a = db.atividades.find(x=>x.id==id);
+                html += `<h1>DETALHES ATIVIDADE</h1><p>Nome: ${a.name}</p><p>Código Meta: ${a.metaCode}</p><p>Quant. Prevista: ${a.planned}</p><p>Valor Unitário: R$ ${a.value}</p>`;
+            } else if(type==='municipio'){
+                const c = db.comunidades.filter(x=>x.municipality===id);
+                html += `<h1>MUNICÍPIO: ${id}</h1><ul>${c.map(x=>`<li>${x.name}</li>`).join('')}</ul>`;
+            }
+            html += '</div>';
+            const w = window.open('', '_blank'); w.document.write(html); w.document.close(); w.print();
+        }
+
+    </script>
+</body>
+</html>
+

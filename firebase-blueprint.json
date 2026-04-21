@@ -1,0 +1,139 @@
+{
+  "entities": {
+    "Usuario": {
+      "title": "Usuário",
+      "description": "Usuário do sistema com nível de permissão",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "login": { "type": "string" },
+        "password": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "tecnico"] }
+      },
+      "required": ["id", "name", "login", "password", "role"]
+    },
+    "Tecnico": {
+      "title": "Técnico",
+      "description": "Cadastro de técnicos de campo",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "cpf": { "type": "string" },
+        "role_type": { "type": "string" },
+        "education": { "type": "string" },
+        "fixedSalary": { "type": "number" },
+        "vehicleRental": { "type": "number" },
+        "contractId": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "Atividade": {
+      "title": "Atividade",
+      "description": "Catálogo de atividades e valores",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "value": { "type": "number" },
+        "metaCode": { "type": "string" },
+        "planned": { "type": "number" }
+      },
+      "required": ["id", "name", "value"]
+    },
+    "Municipio": {
+      "title": "Município",
+      "description": "Municípios de atuação",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "Comunidade": {
+      "title": "Comunidade",
+      "description": "Comunidades vinculadas a municípios",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "municipality": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["id", "municipality", "name"]
+    },
+    "Contrato": {
+      "title": "Contrato",
+      "description": "Contratos executados pela empresa",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "program": { "type": "string" },
+        "contractor": { "type": "string" },
+        "instrument": { "type": "string" },
+        "validity": { "type": "string", "format": "date" }
+      },
+      "required": ["id", "program", "instrument"]
+    },
+    "Producao": {
+      "title": "Produção",
+      "description": "Lançamento de atividades realizadas",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tecnicoId": { "type": "string" },
+        "activityId": { "type": "string" },
+        "municipality": { "type": "string" },
+        "community": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "tecnicoId", "activityId", "municipality", "community", "date"]
+    },
+    "Empresa": {
+      "title": "Empresa",
+      "description": "Dados institucionais da empresa",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "cnpj": { "type": "string" },
+        "address": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/usuarios/{userId}": {
+      "schema": "Usuario",
+      "description": "Usuários do sistema"
+    },
+    "/tecnicos/{tecnicoId}": {
+      "schema": "Tecnico",
+      "description": "Técnicos cadastrados"
+    },
+    "/atividades/{atividadeId}": {
+      "schema": "Atividade",
+      "description": "Catálogo de atividades"
+    },
+    "/municipios/{municipioId}": {
+      "schema": "Municipio",
+      "description": "Municípios de atuação"
+    },
+    "/comunidades/{comunidadeId}": {
+      "schema": "Comunidade",
+      "description": "Comunidades rurais"
+    },
+    "/contratos/{contratoId}": {
+      "schema": "Contrato",
+      "description": "Contratos vigentes"
+    },
+    "/producao/{producaoId}": {
+      "schema": "Producao",
+      "description": "Registros de produção diária"
+    },
+    "/config/empresa": {
+      "schema": "Empresa",
+      "description": "Dados da empresa"
+    }
+  }
+}

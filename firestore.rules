@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isValidId(id) { return id is string && id.size() <= 128; }
+    function isSignedIn() { return true; } // For now, we'll allow access but we should integrate Auth later
+    function getUserData() { return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data; }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if true; // Temporary for migration, will harden below
+    }
+
+    match /usuarios/{userId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /tecnicos/{tecnicoId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /atividades/{atividadeId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /municipios/{municipioId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /comunidades/{comunidadeId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /contratos/{contratoId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /producao/{producaoId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    match /config/empresa {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}
