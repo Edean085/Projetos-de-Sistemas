@@ -171,6 +171,126 @@
             padding: 32px;
         }
 
+        /* Carousel Styles */
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            background: #000;
+        }
+        .carousel-wrapper {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 500px;
+        }
+        @media (max-width: 768px) {
+            .carousel-wrapper { height: 400px; }
+        }
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+            overflow: hidden;
+        }
+        .slide-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%);
+            transition: background 0.3s ease;
+        }
+        .carousel-slide:hover .slide-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, rgba(0,0,0,0.2) 100%);
+        }
+        .slide-content {
+            position: absolute;
+            bottom: 60px;
+            left: 5%;
+            right: 5%;
+            color: #FFFFFF;
+            transition: transform 0.3s ease;
+            z-index: 2;
+        }
+        .carousel-slide:hover .slide-content {
+            transform: translateY(-5px);
+        }
+        .news-category {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 8px;
+            color: var(--accent);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .news-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            font-family: 'Outfit', sans-serif;
+        }
+        @media (min-width: 768px) {
+            .news-title { font-size: 2.5rem; max-width: 80%; }
+        }
+        .carousel-nav {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 12px;
+            z-index: 10;
+        }
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .nav-dot.active {
+            background: var(--accent);
+            transform: scale(1.2);
+            border-color: #fff;
+        }
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s ease;
+            border: none;
+            opacity: 0;
+        }
+        .carousel-container:hover .carousel-arrow {
+            opacity: 1;
+        }
+        .carousel-arrow:hover {
+            background: var(--accent);
+        }
+        .arrow-prev { left: 20px; }
+        .arrow-next { right: 20px; }
+
+        .news-body-content p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            color: #475569;
+        }
+
         @keyframes slideInRight {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
@@ -223,6 +343,26 @@
                 <a href="#contato" class="py-2 text-accent font-bold">Contato</a>
             </div>
         </header>
+
+        <!-- News Carousel Section -->
+        <section id="news-carousel" class="w-full">
+            <div class="carousel-container" id="news-slider">
+                <div class="carousel-wrapper" id="carousel-track">
+                    <!-- Slides injected by JS -->
+                </div>
+                
+                <button class="carousel-arrow arrow-prev" onclick="moveSlide(-1)">
+                    <i data-lucide="chevron-left"></i>
+                </button>
+                <button class="carousel-arrow arrow-next" onclick="moveSlide(1)">
+                    <i data-lucide="chevron-right"></i>
+                </button>
+
+                <div class="carousel-nav" id="carousel-dots">
+                    <!-- Dots injected by JS -->
+                </div>
+            </div>
+        </section>
 
         <!-- Hero Section -->
         <section id="inicio" class="hero-gradient min-h-screen flex items-center pt-20">
@@ -633,6 +773,30 @@
             <p class="mt-8 text-xs text-slate-500">GRAPAS - 24 Anos de Compromisso com o Campo</p>
         </footer>
     </div>
+
+    <!-- News Detail Page -->
+    <div id="news-page" class="page-section bg-gray-50 min-h-screen">
+        <header class="bg-white shadow-sm sticky top-0 z-40">
+            <div class="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
+                <button onclick="showSection('site')" class="flex items-center gap-2 text-primary font-bold hover:text-accent transition-colors">
+                    <i data-lucide="chevron-left" size="20"></i>
+                    Voltar para o Início
+                </button>
+                <div class="bg-primary px-3 py-1 rounded text-white font-bold text-sm">GRAPAS NOTÍCIAS</div>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 md:px-6 py-12">
+            <div class="max-w-4xl mx-auto" id="news-content-container">
+                <!-- News content will be injected by JavaScript -->
+            </div>
+        </main>
+
+        <footer class="bg-primary py-12 text-center text-white">
+            <p class="text-xs text-white/60">GR Assessoria e Planejamento de Projetos Agropecuários</p>
+        </footer>
+    </div>
+
     <div id="login-page" class="page-section min-h-screen items-center justify-center p-4">
         <div class="max-w-md w-full bg-white rounded-2xl border-2 border-gray-100 p-8 card-shadow mx-auto mt-20">
             <div class="text-center mb-8">
@@ -1144,6 +1308,124 @@
         };
         window.editingId = null;
         window.currentUser = null;
+
+        // --- News Data ---
+        const newsData = [
+            {
+                id: 1,
+                program: "BOLSA VERDE",
+                title: "Equipe técnica da GR Assessoria e ICMBio realizam mutirão com agricultores familiares da comunidade São Domingos",
+                image: "https://images.unsplash.com/photo-1595015610053-62580b8535b4?q=80&w=1200",
+                date: "22/04/2026",
+                content: "Em uma ação conjunta focada na sustentabilidade e no apoio ao produtor rural, a equipe técnica da GR Assessoria se uniu ao ICMBio para realizar um grande mutirão na comunidade de São Domingos. O evento reuniu dezenas de famílias e focou na regularização documental e orientação técnica para o programa Bolsa Verde. <br><br> Durante o mutirão, foram realizados atendimentos personalizados, esclarecimento de dúvidas sobre o manejo sustentável das áreas e a importância da preservação ambiental como fonte de renda. 'Essa parceria é fundamental para levar dignidade e conhecimento ao campo', afirmou um dos coordenadores técnicos presentes."
+            },
+            {
+                id: 2,
+                program: "FLORESTAS PRODUTIVAS",
+                title: "Agricultores familiares da comunidade Resex Marinha de Soure são contemplados com o fomento mulher nesta última sexta-feira (17/04)",
+                image: "https://images.unsplash.com/photo-1593113598332-cd288d6494ee?q=80&w=1200",
+                date: "17/04/2026",
+                content: "A última sexta-feira foi de celebração para as mulheres agricultoras da Resex Marinha de Soure. Através do programa Florestas Produtivas, diversas produtoras receberam o Fomento Mulher, um recurso destinado a impulsionar pequenos empreendimentos rurais liderados por mulheres. <br><br> A GR Assessoria prestou todo o suporte técnico na elaboração dos projetos e continuará acompanhando a aplicação dos recursos para garantir que as metas produtivas sejam alcançadas, fortalecendo a economia local e o protagonismo feminino na região."
+            },
+            {
+                id: 3,
+                program: "BOLSA VERDE",
+                title: "Equipe técnica da GR Assessoria realiza a implantação de uma unidade demonstrativa de referência na comunidade Jaguarary, município de Belterra/PA",
+                image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1200",
+                date: "10/04/2026",
+                content: "A comunidade Jaguarary, em Belterra, agora conta com uma Unidade Demonstrativa (UD) de referência. Implantada pela equipe da GR Assessoria no âmbito do programa Bolsa Verde, a unidade visa servir como campo de aprendizado prático para agricultores da região. <br><br> Na UD, são aplicadas técnicas de agroecologia, manejo de solo e diversificação de culturas. O objetivo é mostrar que é possível produzir com eficiência mantendo a floresta em pé e os recursos naturais preservados para as futuras gerações."
+            },
+            {
+                id: 4,
+                program: "FLORESTAS PRODUTIVAS",
+                title: "Agricultores familiares do PA Abril Vermelho são contemplados com o título dos seus lotes em evento promovido pelo INCRA e o município de Santa Bárbara do Pará",
+                image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=1200",
+                date: "05/04/2026",
+                content: "A segurança jurídica chegou para as famílias do PA Abril Vermelho. Em um evento emocionante realizado em parceria com o INCRA e a prefeitura de Santa Bárbara do Pará, centenas de agricultores receberam os títulos definitivos de seus lotes. <br><br> A GR Assessoria atuou intensamente no georreferenciamento das áreas e na organização da documentação técnica necessária. 'O título da terra é o início de um novo ciclo de investimentos e tranquilidade para o agricultor', destacou a gerência da empresa durante a cerimônia."
+            }
+        ];
+
+        let currentSlide = 0;
+        let slideInterval;
+
+        function initCarousel() {
+            const track = document.getElementById('carousel-track');
+            const dots = document.getElementById('carousel-dots');
+            if(!track || !dots) return;
+
+            track.innerHTML = newsData.map(news => `
+                <div class="carousel-slide" onclick="showNews(${news.id})" style="background-image: url('${news.image}')">
+                    <div class="slide-overlay"></div>
+                    <div class="slide-content">
+                        <div class="news-category">${news.program}</div>
+                        <h2 class="news-title">${news.title}</h2>
+                    </div>
+                </div>
+            `).join('');
+
+            dots.innerHTML = newsData.map((_, i) => `
+                <div class="nav-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></div>
+            `).join('');
+
+            startSlideShow();
+            lucide.createIcons();
+        }
+
+        function startSlideShow() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(() => moveSlide(1), 5000);
+        }
+
+        function moveSlide(dir) {
+            currentSlide = (currentSlide + dir + newsData.length) % newsData.length;
+            updateSlidePosition();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlidePosition();
+            startSlideShow();
+        }
+
+        function updateSlidePosition() {
+            const track = document.getElementById('carousel-track');
+            const dots = document.querySelectorAll('.nav-dot');
+            if(track) track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function showNews(newsId) {
+            const news = newsData.find(n => n.id === newsId);
+            if(!news) return;
+
+            const container = document.getElementById('news-content-container');
+            container.innerHTML = `
+                <div class="bg-white rounded-3xl overflow-hidden shadow-2xl animate-fade-up">
+                    <div class="h-64 md:h-96 w-full bg-cover bg-center" style="background-image: url('${news.image}')"></div>
+                    <div class="p-8 md:p-12">
+                        <div class="inline-block bg-accent/10 text-accent px-3 py-1 rounded-full text-xs font-bold mb-6">${news.program}</div>
+                        <h1 class="text-3xl md:text-5xl font-bold text-primary mb-6 leading-tight">${news.title}</h1>
+                        <div class="flex items-center gap-4 text-gray-400 text-sm mb-10 pb-6 border-b border-gray-100">
+                            <span class="flex items-center gap-1"><i data-lucide="calendar" size="16"></i> ${news.date}</span>
+                            <span class="flex items-center gap-1"><i data-lucide="user" size="16"></i> Equipe GR Assessoria</span>
+                        </div>
+                        <div class="news-body-content prose prose-slate max-w-none">
+                            ${news.content}
+                        </div>
+                    </div>
+                </div>
+            `;
+            showSection('news');
+            window.scrollTo(0, 0);
+            lucide.createIcons();
+        }
+
+        window.initCarousel = initCarousel;
+        window.moveSlide = moveSlide;
+        window.goToSlide = goToSlide;
+        window.showNews = showNews;
 
         // --- Real-time Sync ---
         function setupRealtimeSync() {
@@ -2698,6 +2980,11 @@
             html += '</div>';
             const w = window.open('', '_blank'); w.document.write(html); w.document.close(); w.print();
         }
+
+        // Initialize Carousel
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initCarousel, 1000); // Give time for Lucide and DOM
+        });
 
     </script>
 </body>
