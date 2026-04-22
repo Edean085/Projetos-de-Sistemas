@@ -202,10 +202,10 @@
                 </div>
                 
                 <nav class="hidden md:flex gap-8 font-semibold text-gray-600" id="site-nav">
-                    <a href="#inicio" class="hover:text-primary transition-colors">Início</a>
-                    <a href="#servicos" class="hover:text-primary transition-colors">Serviços</a>
-                    <a href="#projetos" class="hover:text-primary transition-colors">Projetos</a>
-                    <a href="#galeria" class="hover:text-primary transition-colors">Galeria</a>
+                    <a href="javascript:void(0)" onclick="showSection('quemsomos')" class="hover:text-primary transition-colors">Quem Somos</a>
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-primary transition-colors">Serviços</a>
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-primary transition-colors">Projetos</a>
+                    <a href="#galeria" class="hover:text-primary transition-colors hidden">Galeria</a>
                     <button id="site-login-btn" onclick="showSection('login')" class="text-primary border-2 border-primary px-4 py-1 rounded-md hover:bg-primary hover:text-white transition-all">Sistema</button>
                     <a href="#contato" class="bg-accent text-white px-4 py-1 rounded-md hover:opacity-90 transition-all">Contato</a>
                 </nav>
@@ -216,10 +216,9 @@
             </div>
             <!-- Mobile Menu -->
             <div id="mobile-menu" class="hidden md:hidden bg-white border-t p-4 flex flex-col gap-4">
-                <a href="#inicio" class="py-2 text-primary">Início</a>
-                <a href="#servicos" class="py-2 text-primary">Serviços</a>
-                <a href="#projetos" class="py-2 text-primary">Projetos</a>
-                <a href="#galeria" class="py-2 text-primary">Galeria</a>
+                <a href="javascript:void(0)" onclick="showSection('quemsomos')" class="py-2 text-primary">Quem Somos</a>
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="py-2 text-primary">Serviços</a>
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="py-2 text-primary">Projetos</a>
                 <button id="mobile-login-btn" onclick="showSection('login')" class="py-2 text-left text-primary font-bold">Sistema</button>
                 <a href="#contato" class="py-2 text-accent font-bold">Contato</a>
             </div>
@@ -325,27 +324,81 @@
         <section id="galeria" class="py-20 bg-white">
             <div class="container mx-auto px-4 md:px-6">
                 <div class="text-center mb-16">
-                    <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Projetos Concretizados</h2>
+                    <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Projetos</h2>
                     <div class="w-20 h-1 bg-accent mx-auto"></div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
-                        <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80" alt="Projeto 1" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <!-- Projeto 1 -->
+                    <div class="flex flex-col gap-2">
+                        <a href="javascript:void(0)" onclick="openProgramGallery('União Com Municípios')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                            <i data-lucide="external-link" size="14"></i> União Com Municípios
+                        </a>
+                        <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('União Com Municípios')">
+                            <img src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80" alt="União Com Municípios" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                        </div>
                     </div>
-                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
-                        <img src="https://images.unsplash.com/photo-1595841696662-5083d30b3565?auto=format&fit=crop&w=800&q=80" alt="Projeto 2" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    <!-- Projeto 2 -->
+                    <div class="flex flex-col gap-2">
+                        <a href="javascript:void(0)" onclick="openProgramGallery('Florestas Produtivas')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                            <i data-lucide="external-link" size="14"></i> Florestas Produtivas
+                        </a>
+                        <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('Florestas Produtivas')">
+                            <img src="https://images.unsplash.com/photo-1595841696662-5083d30b3565?auto=format&fit=crop&w=800&q=80" alt="Florestas Produtivas" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                        </div>
                     </div>
-                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
-                        <img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=800&q=80" alt="Projeto 3" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    <!-- Projeto 3 -->
+                    <div class="flex flex-col gap-2">
+                        <a href="javascript:void(0)" onclick="openProgramGallery('Bolsa Verde')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                            <i data-lucide="external-link" size="14"></i> Bolsa Verde
+                        </a>
+                        <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('Bolsa Verde')">
+                            <img src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=800&q=80" alt="Bolsa Verde" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                        </div>
                     </div>
-                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
-                        <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80" alt="Projeto 4" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    <!-- Projeto 4 -->
+                    <div class="flex flex-col gap-2">
+                        <a href="javascript:void(0)" onclick="openProgramGallery('Produzir Brasil')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                            <i data-lucide="external-link" size="14"></i> Produzir Brasil
+                        </a>
+                        <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('Produzir Brasil')">
+                            <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80" alt="Produzir Brasil" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                        </div>
                     </div>
-                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
-                        <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=800&q=80" alt="Projeto 5" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    <!-- Projeto 5 -->
+                    <div class="flex flex-col gap-2">
+                        <a href="javascript:void(0)" onclick="openProgramGallery('Brasil Mais Cooperativo')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                            <i data-lucide="external-link" size="14"></i> Brasil Mais Cooperativo
+                        </a>
+                        <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('Brasil Mais Cooperativo')">
+                            <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=800&q=80" alt="Brasil Mais Cooperativo" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                        </div>
                     </div>
-                    <div class="overflow-hidden rounded-xl h-64 shadow-lg group">
-                        <img src="https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80" alt="Projeto 6" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                    <!-- Projeto 6 -->
+                    <div class="flex flex-col gap-2">
+                        <a href="javascript:void(0)" onclick="openProgramGallery('PDHC-Dom Hélder Câmara')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                            <i data-lucide="external-link" size="14"></i> PDHC-Dom Hélder Câmara
+                        </a>
+                        <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('PDHC-Dom Hélder Câmara')">
+                            <img src="https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80" alt="PDHC" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                        </div>
+                    </div>
+                    <!-- Projeto 7 -->
+                    <div class="flex flex-col gap-2">
+                        <a href="javascript:void(0)" onclick="openProgramGallery('PNCF-Crédito Fundiário')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                            <i data-lucide="external-link" size="14"></i> PNCF-Crédito Fundiário
+                        </a>
+                        <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('PNCF-Crédito Fundiário')">
+                            <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80" alt="PNCF" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                        </div>
+                    </div>
+                    <!-- Projeto 8 -->
+                    <div class="flex flex-col gap-2">
+                        <a href="javascript:void(0)" onclick="openProgramGallery('Mais Gestão PA e MA')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                            <i data-lucide="external-link" size="14"></i> Mais Gestão PA e MA
+                        </a>
+                        <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('Mais Gestão PA e MA')">
+                            <img src="https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&w=800&q=80" alt="Mais Gestão" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -355,29 +408,33 @@
         <footer id="contato" class="bg-primary pt-16 pb-8 text-white">
             <div class="container mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                 <div class="col-span-1 md:col-span-1">
-                    <div class="flex items-center gap-2 mb-6">
-                        <div class="bg-white px-3 py-1 rounded-lg shadow-sm">
-                            <span class="text-primary font-bold text-xl tracking-tight">GRAPAS</span>
+                    <div class="flex flex-col items-start leading-tight mb-6">
+                        <div class="bg-white px-3 py-0.5 rounded-lg mb-0.5 shadow-sm">
+                            <span class="text-primary font-bold text-lg tracking-tight">GRAPAS</span>
                         </div>
-                        <span class="font-bold text-white text-lg">GR Assessoria</span>
+                        <span class="font-bold text-white text-[9px] uppercase tracking-tighter">
+                            GR Assessoria e Planejamento de Projetos Agropecuários
+                        </span>
                     </div>
-                    <p class="text-green-100">Compromisso com o desenvolvimento rural e sustentável da região.</p>
+                    <p class="text-green-100/80 text-xs">Compromisso com o desenvolvimento rural e sustentável da região.</p>
                 </div>
                 <div>
                     <h4 class="text-xl font-bold mb-6 text-accent">Navegação</h4>
                     <ul class="space-y-3 text-green-100">
-                        <li><a href="#inicio" class="hover:text-white transition-colors">Início</a></li>
-                        <li><a href="#servicos" class="hover:text-white transition-colors">Serviços</a></li>
-                        <li><a href="#projetos" class="hover:text-white transition-colors">Projetos</a></li>
-                        <li><a href="#galeria" class="hover:text-white transition-colors">Galeria</a></li>
+                        <li><a href="javascript:void(0)" onclick="showSection('quemsomos')" class="hover:text-white transition-colors">Quem Somos</a></li>
+                        <li><a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-white transition-colors">Serviços</a></li>
+                        <li><a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-white transition-colors">Projetos</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="text-xl font-bold mb-6 text-accent">Contato</h4>
                     <ul class="space-y-3 text-green-100">
-                        <li class="flex items-center gap-2"><i data-lucide="mail" size="18"></i> contato@grassessoria.com.br</li>
-                        <li class="flex items-center gap-2"><i data-lucide="phone" size="18"></i> (91) 98765-4321</li>
-                        <li class="flex items-center gap-2"><i data-lucide="map-pin" size="18"></i> Av. Independência, Belém - PA</li>
+                        <li class="flex items-center gap-2"><i data-lucide="mail" size="18"></i> rosaligrapas@yahoo.com.br</li>
+                        <li class="flex items-center gap-2"><i data-lucide="phone" size="18"></i> (91) 99270-7555</li>
+                        <li class="flex items-start gap-2 max-w-xs">
+                            <i data-lucide="map-pin" size="18" class="mt-1 flex-shrink-0"></i> 
+                            Rua Rio Solimões, S/N, Quadra16, Casa 01, Parque Marajó - CEP: 68.473-000 – Novo Repartimento-PA
+                        </li>
                     </ul>
                 </div>
                 <div>
@@ -394,7 +451,188 @@
         </footer>
     </div>
 
-    <!-- Login Page -->
+    <!-- Quem Somos Page -->
+    <div id="quemsomos-page" class="page-section bg-white min-h-screen">
+        <!-- Minimal Header for Internal Page -->
+        <header class="bg-primary text-white py-4 shadow-lg sticky top-0 z-50">
+            <div class="container mx-auto px-4 flex justify-between items-center">
+                <div class="flex flex-col items-start leading-tight cursor-pointer" onclick="showSection('site')">
+                    <div class="bg-white px-2 py-0.5 rounded mb-0.5">
+                        <span class="text-primary font-bold text-sm tracking-tight">GRAPAS</span>
+                    </div>
+                </div>
+                <button onclick="showSection('site')" class="flex items-center gap-2 text-sm font-bold bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition-all">
+                    <i data-lucide="arrow-left" size="18"></i> Voltar ao Site
+                </button>
+            </div>
+        </header>
+
+        <main class="container mx-auto px-4 md:px-6 py-12 md:py-20">
+            <div class="max-w-4xl mx-auto">
+                <!-- A Empresa -->
+                <section class="mb-20">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center">
+                            <i data-lucide="building-2" size="28"></i>
+                        </div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-primary">A Empresa</h2>
+                    </div>
+                    <div class="prose prose-slate max-w-none text-gray-600 leading-relaxed space-y-6">
+                        <p class="text-lg">A GR Assessoria e Planejamento de Projetos Agropecuários, ao longo de sua trajetória, prestou importantes serviços de Assistência Técnica, Social e Ambiental (ATES) para assentados da reforma agrária, em diversas regiões do Estado do Pará, por meio de contratos firmados com o Instituto Nacional de Colonização e Reforma Agrária (INCRA).</p>
+                        <p>Essas ações foram desenvolvidas com o objetivo de promover o desenvolvimento sustentável, a inclusão social e a melhoria das condições de vida das famílias assentadas, sempre em conformidade com os princípios legais e institucionais que regem a política de reforma agrária no Brasil.</p>
+                        <p>Entre os principais projetos desenvolvidos pela entidade, destacam-se as atividades nos Projetos de Assentamento (PA’s) de Tucuruí, Baião e Pacajá, no Estado do Pará, onde, entre 31 de dezembro de 2012 e 31 de dezembro de 2017, foram prestados serviços de ATES, conforme o contrato MB.0000018-12 e seus aditivos anuais. Simultaneamente, no mesmo período, a entidade também atuou nos PA’s de Novo Repartimento, com base no contrato MB.0000019-12, e nos PA’s de Nova Ipixuna e Rondon do Pará, sob o contrato PA.0000025-12, ambos firmados com o INCRA (SR/27).</p>
+                        <p>Outro projeto de destaque foi desenvolvido nos PA’s Pilão Poente I, III e Grotão da Onça, no município de Anapu-PA, Pará, sob a gestão do INCRA a Unidade Avançada de Altamira. Nesse caso, as atividades de ATES ocorreram entre 15 de janeiro de 2015 e 15 de janeiro de 2016, conforme o contrato AT.0100001-13. Em paralelo, a entidade também prestou ATES no PA Itatá, localizado no município de Altamira, no período de 12 de janeiro de 2015 a 11 de janeiro de 2016, conforme o contrato 0000002-14.</p>
+                        <p>Além de sua atuação no âmbito da reforma agrária, a entidade participou do Programa Brasil sem Miséria (PBSM), prestando assistência técnica a agricultores familiares em situação de extrema pobreza. No Território da Cidadania da Transamazônica, no Pará, as atividades ocorreram entre 8 de outubro de 2013 e 8 de março de 2016, conforme o contrato 112/2013. No Território da Cidadania dos Cocais, no Maranhão, a entidade atuou entre 21 de dezembro de 2012 e 21 de junho de 2015, conforme o contrato 126/2012. No Território da Cidadania do Baixo Amazonas, no Pará, as atividades foram realizadas entre 28 de dezembro de 2012 e 28 de dezembro de 2014, conforme o contrato 141/2012.</p>
+                        <p>Outro projeto relevante foi a prestação de ATES nos PA’s Pilão Poente I, III e Grotão da Onça, no município de Anapu, Pará, entre 15 de janeiro de 2014 e 15 de janeiro de 2015, sob o contrato SM.0100001-13, firmado com o INCRA (SR/30). Além disso, a entidade prestou assistência técnica aos agricultores familiares no Território da Cidadania da Transamazônica – PA, em dois períodos distintos: de 31 de dezembro de 2010 a 31 de março de 2012, conforme o contrato 247/2010, e de 31 de dezembro de 2010 a 31 de dezembro de 2011, conforme o contrato 239/2010.</p>
+                        <p>A entidade também desempenhou um papel fundamental na prestação de ATES nos PA’s Zumbi dos Palmares e Pouso Bonito, no município de Pacajá, Pará, beneficiando 152 famílias entre dezembro de 2006 e dezembro de 2008, em convênio com o INCRA (SR/27). De igual importância foi a atuação nos PA’s Cocalândia, Serra Quebrada, Santa Amélia, Jaguatiara, Pajeú e Cigana, na microrregião de Tucuruí e Novo Repartimento, onde, entre setembro de 2004 e março de 2007, foram beneficiadas 314 famílias, conforme convênio com o INCRA (SR/27). Em um período anterior, entre novembro de 2003 e março de 2004, a entidade já havia prestado ATES para 303 famílias nos mesmos PA’s, também em convênio com o INCRA (SR/27).</p>
+                        <p>Além dos serviços de ATES, a entidade se destacou na elaboração de Planos de Desenvolvimento e Recuperação de Assentamentos (PDA e PRA), conforme convênios firmados com o INCRA. Esses planos visaram o estudo e planejamento social, ambiental e econômico de 1.279 famílias nos Projetos de Assentamento Rio Bandeira, Raio do Sol I e II, Nova Vida II, Morada Nova, Morada Nova II, Arataú e Santa Cecília, na microrregião de Tucuruí e Pacajá, no período de dezembro de 2007 a dezembro de 2008. Adicionalmente, a entidade elaborou Planos de Recuperação de Assentamentos (PRA) para os PA’s mencionados, demonstrando sua expertise técnica e institucional na condução de projetos voltados para a reforma agrária e o desenvolvimento sustentável das comunidades atendidas. Em todas essas atividades, a entidade atuou de forma diligente, em estrita conformidade com os normativos legais aplicáveis e com um forte compromisso com a inclusão social.</p>
+                    </div>
+                </section>
+
+                <!-- Missão, Visão e Valores -->
+                <section class="mb-20 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div>
+                            <h3 class="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
+                                <i data-lucide="target" class="text-accent"></i> Missão
+                            </h3>
+                            <p class="text-gray-600">Promover a prosperidade e o desenvolvimento sustentável da agricultura familiar, oferecendo serviços de assistência técnica, planejamento e assessoria que garantam qualidade de vida às famílias rurais e respeito ao meio ambiente. Estamos empenhados em promover o desenvolvimento sustentável no campo, compartilhar conhecimento, tecnologia e boas práticas agrícolas, capacitando agricultores e promovendo o bem-estar das famílias rurais.</p>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
+                                <i data-lucide="eye" class="text-accent"></i> Visão
+                            </h3>
+                            <p class="text-gray-600">Ser reconhecida como referência nacional em assistência técnica e extensão rural, consultoria e regularização fundiária e ambiental, contribuindo para a erradicação da pobreza rural e para a construção de sistemas produtivos sustentáveis e inclusivos.</p>
+                        </div>
+                    </div>
+                    <div class="mt-12 pt-12 border-t border-slate-200">
+                        <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-2">
+                            <i data-lucide="shield-check" class="text-accent"></i> Valores
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                <span class="text-sm font-semibold text-gray-700">Autonomia e protagonismo dos agricultores familiares</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                <span class="text-sm font-semibold text-gray-700">Igualdade e respeito às diversidades culturais e sociais</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                <span class="text-sm font-semibold text-gray-700">Compromisso com a qualidade e eficácia</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                <span class="text-sm font-semibold text-gray-700">Responsabilidade socioambiental em todas as ações</span>
+                            </div>
+                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                <span class="text-sm font-semibold text-gray-700">Ética, cidadania e transparência</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Principais Atividades -->
+                <section class="mb-20">
+                    <h2 class="text-3xl font-bold text-primary mb-12 text-center">Principais Atividades</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
+                            <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="users"></i></div>
+                            <div>
+                                <h4 class="font-bold text-primary mb-1">Assistência Técnica e Extensão Rural</h4>
+                                <p class="text-xs text-gray-500 italic leading-tight">Acompanhamento direto de agricultores familiares, assentados, extrativistas, pescadores, indígenas, quilombolas e demais públicos da agricultura familiar.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
+                            <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="file-text"></i></div>
+                            <div>
+                                <h4 class="font-bold text-primary mb-1">Elaboração de Projetos Agropecuários</h4>
+                                <p class="text-xs text-gray-500 italic leading-tight">Pronaf, Pronamp, FNO e outros programas de financiamento para o fortalecimento produtivo.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
+                            <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="briefcase"></i></div>
+                            <div>
+                                <h4 class="font-bold text-primary mb-1">Consultoria Especializada</h4>
+                                <p class="text-xs text-gray-500 italic leading-tight">Apoio a cooperativas, associações e entidades de ATER em capacitação, formação de equipes técnicas, elaboração de projetos e sistematização de informações.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
+                            <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="map-pin"></i></div>
+                            <div>
+                                <h4 class="font-bold text-primary mb-1">Regularização Cadastral, Fundiária e Ambiental</h4>
+                                <p class="text-xs text-gray-500 italic leading-tight">Apoio aos agricultores e empreendimentos na regularização de documentos como CCIR, ITR, títulos de terra, CAR e licenciamento ambiental.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Estrutura -->
+                <section class="mb-20">
+                    <h2 class="text-3xl font-bold text-primary mb-8">Estrutura da Empresa</h2>
+                    <div class="prose prose-slate max-w-none text-gray-600 mb-8">
+                        <p>A GRAPAS é estruturada como uma sociedade empresarial limitada, formada por profissionais qualificados das áreas de agronomia, engenharia florestal, contabilidade, assistência social, pedagogia e outras áreas correlatas.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-4 bg-primary text-white rounded-xl">
+                            <h5 class="font-bold mb-2">Gestão Estratégica</h5>
+                            <p class="text-xs opacity-80">Conduz o planejamento e supervisão das atividades, garantindo alinhamento com a missão e valores.</p>
+                        </div>
+                        <div class="p-4 bg-primary/90 text-white rounded-xl">
+                            <h5 class="font-bold mb-2">Equipe Técnica Multidisciplinar</h5>
+                            <p class="text-xs opacity-80">Composta por profissionais especializados que atuam diretamente com os agricultores e comunidades rurais.</p>
+                        </div>
+                        <div class="p-4 bg-primary/80 text-white rounded-xl">
+                            <h5 class="font-bold mb-2">Setor Administrativo e Contábil</h5>
+                            <p class="text-xs opacity-80">Responsável pela gestão financeira, contábil e de regularização jurídica dos processos.</p>
+                        </div>
+                        <div class="p-4 bg-primary/70 text-white rounded-xl">
+                            <h5 class="font-bold mb-2">Rede de Parceiros</h5>
+                            <p class="text-xs opacity-80">Envolve associações, cooperativas, órgãos públicos e programas de fomento.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Mercado e Impacto -->
+                <section>
+                    <h2 class="text-3xl font-bold text-primary mb-8">Mercado de Atuação e Impactos</h2>
+                    <div class="bg-accent/10 p-8 rounded-3xl mb-8 border border-accent/20">
+                        <h4 class="font-bold text-primary mb-4">Mercado de Atuação</h4>
+                        <p class="text-sm text-gray-600">A GRAPAS atua há 24 anos no mercado de forma estratégica no fortalecimento da agricultura familiar, comunidades tradicionais e assentamentos da reforma agrária. Sua presença é marcada na execução de projetos por meio de Chamadas Públicas de Ater da ANATER, além de parcerias com o INCRA e MDA, garantindo credibilidade e abrangência nacional.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
+                        <div>
+                            <h4 class="font-bold text-primary mb-6 flex items-center gap-2 border-b pb-2"><i data-lucide="globe" class="text-secondary"></i> Sociedade</h4>
+                            <ul class="space-y-4 text-sm text-gray-600">
+                                <li class="flex gap-2"><span>•</span> Melhora da qualidade de vida das famílias rurais.</li>
+                                <li class="flex gap-2"><span>•</span> Produção de alimentos saudáveis e sustentáveis.</li>
+                                <li class="flex gap-2"><span>•</span> Fortalecimento das organizações sociais do campo.</li>
+                                <li class="flex gap-2"><span>•</span> Preservação do meio ambiente e regularização ambiental.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-primary mb-6 flex items-center gap-2 border-b pb-2"><i data-lucide="award" class="text-secondary"></i> Profissionais</h4>
+                            <ul class="space-y-4 text-sm text-gray-600">
+                                <li class="flex gap-2"><span>•</span> Atuação em projetos de grande relevância social.</li>
+                                <li class="flex gap-2"><span>•</span> Desenvolvimento de competências técnicas e gerenciais.</li>
+                                <li class="flex gap-2"><span>•</span> Integração em equipe multidisciplinar.</li>
+                                <li class="flex gap-2"><span>•</span> Reconhecimento profissional e impacto positivo.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <footer class="bg-slate-900 py-12 text-center text-white">
+             <button onclick="showSection('site')" class="bg-primary text-white border border-white/20 px-8 py-3 rounded-lg font-bold hover:scale-105 transition-all shadow-xl">
+                Voltar à Página Inicial
+            </button>
+            <p class="mt-8 text-xs text-slate-500">GRAPAS - 24 Anos de Compromisso com o Campo</p>
+        </footer>
+    </div>
     <div id="login-page" class="page-section min-h-screen items-center justify-center p-4">
         <div class="max-w-md w-full bg-white rounded-2xl border-2 border-gray-100 p-8 card-shadow mx-auto mt-20">
             <div class="text-center mb-8">
@@ -425,15 +663,14 @@
     <div id="dashboard-page" class="page-section min-h-screen bg-gray-50 overflow-hidden">
         <div class="flex h-screen">
             <!-- Sidebar -->
-            <aside class="sidebar">
+            <aside class="sidebar sticky top-0 h-screen flex-shrink-0">
                 <div class="p-6">
-                    <div class="flex items-center gap-2 mb-8">
-                        <div class="bg-white px-2 py-0.5 rounded shadow-sm">
+                    <div class="flex flex-col items-start leading-tight mb-8">
+                        <div class="bg-white px-3 py-0.5 rounded-lg mb-1 shadow-md">
                             <span class="text-primary font-bold text-lg tracking-tight">GRAPAS</span>
                         </div>
-                        <div class="text-sm leading-tight font-bold">
-                            GR ASSESSORIA<br>
-                            <span class="text-xs opacity-75 font-normal">Projetos Agropecuários</span>
+                        <div class="text-[9px] text-white/70 font-bold uppercase tracking-tight">
+                            GR Assessoria e Planejamento
                         </div>
                     </div>
                 </div>
@@ -1049,7 +1286,8 @@
         // --- Navigation Logic ---
         function showSection(sectionId) {
             document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
-            document.getElementById(`${sectionId}-page`).classList.add('active');
+            const target = document.getElementById(`${sectionId}-page`);
+            if(target) target.classList.add('active');
             
             if (sectionId === 'dashboard') {
                 if(!currentUser) {
@@ -1621,6 +1859,56 @@
                 `;
             }).join('');
             lucide.createIcons();
+        }
+
+        function openProgramGallery(programName) {
+            const programs = {
+                'União Com Municípios': ['https://images.unsplash.com/photo-1464226184884-fa280b87c399', 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09', 'https://images.unsplash.com/photo-1434144893279-2a9fc14e9337'],
+                'Florestas Produtivas': ['https://images.unsplash.com/photo-1595841696662-5083d30b3565', 'https://images.unsplash.com/photo-1501183638710-841dd1904471', 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e'],
+                'Bolsa Verde': ['https://images.unsplash.com/photo-1523348837708-15d4a09cfac2', 'https://images.unsplash.com/photo-1597433333333-31123d463d80', 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc'],
+                'Produzir Brasil': ['https://images.unsplash.com/photo-1592982537447-7440770cbfc9', 'https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a', 'https://images.unsplash.com/photo-1502481851512-e9e2529bbbf9'],
+                'Brasil Mais Cooperativo': ['https://images.unsplash.com/photo-1560493676-04071c5f467b', 'https://images.unsplash.com/photo-1454165833767-027eeed9b76a', 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f'],
+                'PDHC-Dom Hélder Câmara': ['https://images.unsplash.com/photo-1589923188900-85dae523342b', 'https://images.unsplash.com/photo-1500382017468-9049fed747ef', 'https://images.unsplash.com/photo-1473448912268-2022ce9509d8'],
+                'PNCF-Crédito Fundiário': ['https://images.unsplash.com/photo-1500382017468-9049fed747ef', 'https://images.unsplash.com/photo-1502481851512-e9e2529bbbf9', 'https://images.unsplash.com/photo-1542601032-348daefde07c'],
+                'Mais Gestão PA e MA': ['https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5', 'https://images.unsplash.com/photo-1454166159281-175908ce80a1', 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4']
+            };
+
+            const images = programs[programName] || [];
+            
+            // Create temporary lightbox
+            const lightbox = document.createElement('div');
+            lightbox.className = "fixed inset-0 z-[2000] bg-black/95 flex flex-col items-center justify-center p-4 backdrop-blur-sm";
+            lightbox.id = "program-gallery";
+            
+            const content = `
+                <div class="absolute top-4 right-4 flex items-center gap-4">
+                     <span class="text-white font-bold tracking-widest uppercase text-xs">${programName}</span>
+                     <button onclick="document.getElementById('program-gallery').remove()" class="text-white hover:text-accent transition-all p-2 bg-white/10 rounded-full">
+                        <i data-lucide="x"></i>
+                     </button>
+                </div>
+                <div class="flex flex-wrap justify-center gap-4 max-w-6xl w-full overflow-y-auto max-h-[80vh] scrollbar-hide">
+                    ${images.map(url => `
+                        <div class="w-full md:w-[calc(50%-16px)] lg:w-[calc(33.33%-16px)] h-64 overflow-hidden rounded-2xl group border border-white/10">
+                            <img src="${url}?auto=format&fit=crop&w=800&q=80" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="mt-8 text-white/40 text-[10px] uppercase font-bold tracking-[0.2em]">Galeria Institucional - GRAPAS</div>
+            `;
+            
+            lightbox.innerHTML = content;
+            document.body.appendChild(lightbox);
+            lucide.createIcons();
+            
+            // Close on escape
+            const escHandler = (e) => {
+                if(e.key === 'Escape') {
+                    lightbox.remove();
+                    document.removeEventListener('keydown', escHandler);
+                }
+            };
+            document.addEventListener('keydown', escHandler);
         }
 
         function logout() {
