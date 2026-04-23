@@ -1022,12 +1022,90 @@
                             <h2 class="text-2xl font-bold text-gray-800">Cadastro de Atividades</h2>
                             <p class="text-gray-500 text-sm">Defina as atividades técnicas padronizadas vinculadas a instrumentos.</p>
                         </div>
-                        <button onclick="openModal('calendario')" class="bg-accent text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold hover:opacity-90 transition-all shadow-md shadow-accent/20">
-                            <i data-lucide="calendar" size="18"></i> Consultar Calendário do Técnico
+                        <button onclick="openModal('atividade')" class="bg-primary text-white px-6 py-2 rounded-lg flex items-center gap-2 font-semibold hover:opacity-90 transition-all">
+                            <i data-lucide="plus" size="18"></i> Nova Atividade
                         </button>
                     </div>
                     <div id="atividades-contracts-list" class="space-y-4">
                         <!-- Grouped by contract here -->
+                    </div>
+                </div>
+
+                <!-- Panel: Controle de Datas -->
+                <div id="panel-datas" class="dashboard-panel hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Controle de Datas</h2>
+                            <p class="text-gray-500 text-sm">Controle interno de datas das atividades realizadas (Independente do SGA).</p>
+                        </div>
+                        <button onclick="openModal('calendario')" class="bg-accent text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold hover:opacity-90 transition-all shadow-md shadow-accent/20">
+                            <i data-lucide="calendar" size="18"></i> Consultar Calendário do Técnico
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-6">
+                        <div class="card bg-slate-50 border-dashed border-2 border-slate-200">
+                            <h3 class="text-sm font-bold mb-4 uppercase tracking-wider text-slate-500">Lançamento para Controle de Datas</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Programa</label>
+                                    <select id="input-data-contrato" class="w-full p-2 border rounded-lg text-sm" onchange="filterDataPrerequisites()"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Técnico</label>
+                                    <select id="input-data-tecnico" class="w-full p-2 border rounded-lg text-sm" disabled>
+                                        <option value="">Selecione o programa primeiro</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Município</label>
+                                    <select id="input-data-municipio" class="w-full p-2 border rounded-lg text-sm" onchange="updateDataCommunitySelect()" disabled>
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Atividade</label>
+                                    <select id="input-data-atividade" class="w-full p-2 border rounded-lg text-sm" disabled>
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Data Realizada</label>
+                                    <input type="date" id="input-data-valor" class="w-full p-2 border rounded-lg text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Comunidade</label>
+                                    <select id="input-data-comunidade" class="w-full p-2 border rounded-lg text-sm" disabled>
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="addDataRecord()" id="btn-save-data" class="bg-secondary text-white w-full py-2 rounded-lg font-bold text-sm hover:opacity-90 flex items-center justify-center gap-2">
+                                        <i data-lucide="plus-circle" size="16"></i> Registrar Data
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Suas Datas Lançadas</h3>
+                            <div class="table-dashboard-container">
+                                <table class="table-dashboard">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Técnico</th>
+                                            <th>Atividade</th>
+                                            <th>Localidade</th>
+                                            <th class="text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="datas-history">
+                                        <!-- Injected here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1302,7 +1380,8 @@
             atividades: [],
             comunidades: [],
             producao: [],
-            municipios: []
+            municipios: [],
+            controle_datas: []
         };
         window.editingId = null;
         window.currentUser = null;
@@ -1501,6 +1580,7 @@
             syncColl('comunidades', 'comunidades');
             syncColl('producao', 'producao');
             syncColl('municipios', 'municipios');
+            syncColl('controle_datas', 'controle_datas');
         }
 
         // --- Exposure to Legacy code ---
@@ -1581,7 +1661,7 @@
                 if (currentUser.role === 'admin') {
                     showPanel('dashboard');
                 } else {
-                    showPanel('producao');
+                    showPanel('datas'); // Default for technicians
                 }
             } else if (sectionId === 'login') {
                 currentUser = null;
@@ -1640,6 +1720,9 @@
                     <button onclick="showPanel('producao')" id="btn-producao" class="nav-item">
                         <i data-lucide="bar-chart-3" class="mr-3" size="18"></i> Cadastrar Produção
                     </button>
+                    <button onclick="showPanel('datas')" id="btn-datas" class="nav-item">
+                        <i data-lucide="calendar-check-2" class="mr-3" size="18"></i> Controle de Datas
+                    </button>
                     <button onclick="showPanel('municipios')" id="btn-municipios" class="nav-item">
                         <i data-lucide="map-pinned" class="mr-3" size="18"></i> Cadastro de Município
                     </button>
@@ -1653,11 +1736,16 @@
             }
             
             // Common/Technician Menu
-            menu += `
-                <button onclick="showPanel('producao')" id="btn-producao" class="nav-item mt-4 bg-accent/20 border-accent text-accent font-bold">
-                    <i data-lucide="calendar-check-2" class="mr-3" size="18"></i> Controle de Produção
-                </button>
-            `;
+            if (currentUser.role !== 'admin') {
+                menu = `
+                    <button onclick="showPanel('producao')" id="btn-producao" class="nav-item">
+                        <i data-lucide="save" class="mr-3" size="18"></i> Cadastrar Produção
+                    </button>
+                    <button onclick="showPanel('datas')" id="btn-datas" class="nav-item bg-accent/20 border-accent text-accent font-bold">
+                        <i data-lucide="calendar-check-2" class="mr-3" size="18"></i> Controle de Datas
+                    </button>
+                `;
+            }
             
             nav.innerHTML = menu;
             lucide.createIcons();
@@ -1665,7 +1753,7 @@
 
         function showPanel(panelId) {
             // Permission check
-            if (currentUser.role !== 'admin' && panelId !== 'producao') {
+            if (currentUser.role !== 'admin' && !['producao', 'datas'].includes(panelId)) {
                 alert('Acesso restrito ao administrador!');
                 return;
             }
@@ -1691,6 +1779,8 @@
             renderUsuarios();
             populateProductionSelectors();
             renderProductionHistory();
+            populateDataSelectors();
+            renderDatasHistory();
             lucide.createIcons();
         }
 
@@ -2305,9 +2395,15 @@
                                 <input type="number" id="m-planned" placeholder="0" class="w-full p-2 border rounded">
                             </div>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-bold text-gray-400 uppercase">Valor por Produção (R$)</label>
-                            <input type="number" id="m-val" placeholder="0.00" class="w-full p-2 border rounded">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase">Valor Atividade (Anater)</label>
+                                <input type="number" id="m-val-anater" placeholder="0.00" class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-gray-400 uppercase">Valor p/ Técnico (R$)</label>
+                                <input type="number" id="m-val" placeholder="0.00" class="w-full p-2 border rounded">
+                            </div>
                         </div>
                         <button onclick="saveNew('atividade')" class="w-full bg-primary text-white py-2 rounded font-bold">${editingId ? 'Atualizar' : 'Salvar'}</button>
                     </div>
@@ -2316,9 +2412,11 @@
                     const a = db.atividades.find(x => x.id == editingId);
                     if(a) {
                         document.getElementById('m-desc').value = a.name;
+                        document.getElementById('m-val-anater').value = a.valueAnater || 0;
                         document.getElementById('m-val').value = a.value || 0;
                         document.getElementById('m-meta').value = a.metaCode || '';
                         document.getElementById('m-planned').value = a.planned || 0;
+                        document.getElementById('m-contract-id').value = a.contractId || '';
                     }
                 }
             } else if (type === 'contrato') {
@@ -2388,7 +2486,7 @@
                 }
             } else if (type === 'calendario') {
                 const techOptions = db.tecnicos.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
-                modalBox.className = "bg-white rounded-xl max-w-2xl w-full p-8 relative"; 
+                modalBox.className = "bg-white rounded-xl max-w-4xl w-full p-8 relative"; 
                 content.innerHTML = `
                     <h3 class="text-xl font-bold mb-4 text-primary">Consultar Calendário do Técnico</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -2462,7 +2560,7 @@
             let html = `
                 <div class="mb-4 text-center border-b pb-4">
                     <h4 class="font-bold text-slate-800 text-lg uppercase">${monthNames[month-1]} ${year}</h4>
-                    <p class="text-[10px] text-slate-500 font-medium">Cronograma de Atividades: ${tName}</p>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Base de Dados: Controle de Datas</p>
                 </div>
                 
                 <div class="flex gap-4 mb-4 justify-center">
@@ -2493,7 +2591,8 @@
             
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const visits = db.producao.filter(p => p.tecnicoId === techId && p.date === dateString).length;
+                // Using controle_datas for real calendar control
+                const visits = db.controle_datas.filter(p => p.tecnicoId === techId && p.date === dateString).length;
                 const isRed = visits >= 4;
                 const isLastInRow = (firstDay + day) % 7 === 0;
                 
@@ -2552,6 +2651,7 @@
                 if (!name) return alert('Preecha o nome!');
                 data = {
                     name,
+                    valueAnater: parseFloat(document.getElementById('m-val-anater').value) || 0,
                     value: parseFloat(document.getElementById('m-val').value) || 0,
                     metaCode: document.getElementById('m-meta').value,
                     planned: parseInt(document.getElementById('m-planned').value) || 0,
@@ -2649,9 +2749,16 @@
         }
 
         async function deleteProduction(id) {
-            if(confirm("Deseja remover este lançamento?")) {
+            if(confirm("Deseja remover este lançamento (SGA)?")) {
                 await fs_ops.deleteDoc(fs_ops.doc(db_fs, "producao", id));
-                showToast("Lançamento removido com sucesso!");
+                showToast("Lançamento SGA removido com sucesso!");
+            }
+        }
+
+        async function deleteDataRecord(id) {
+            if(confirm("Deseja remover este registro de controle de data?")) {
+                await fs_ops.deleteDoc(fs_ops.doc(db_fs, "controle_datas", id));
+                showToast("Registro de data removido!");
             }
         }
 
@@ -2692,6 +2799,128 @@
         }
 
         // --- Production Logic ---
+        function populateDataSelectors() {
+            const contSel = document.getElementById('input-data-contrato');
+            if(!contSel) return;
+            contSel.innerHTML = '<option value="">Escolha um programa...</option>' + 
+                db.contratos.map(c => `<option value="${c.id}">${c.program} (${c.instrument})</option>`).join('');
+            
+            // If technician, auto-select and trigger filter
+            if(currentUser && currentUser.role === 'tecnico') {
+                const tech = db.tecnicos.find(t => t.id === currentUser.login);
+                if(tech && tech.contractIds && tech.contractIds.length > 0) {
+                     contSel.value = tech.contractIds[0];
+                     filterDataPrerequisites();
+                }
+            }
+        }
+
+        function filterDataPrerequisites() {
+            const contId = document.getElementById('input-data-contrato').value;
+            const tSel = document.getElementById('input-data-tecnico');
+            const aSel = document.getElementById('input-data-atividade');
+            const mSel = document.getElementById('input-data-municipio');
+            
+            if(!contId) {
+                tSel.disabled = aSel.disabled = mSel.disabled = true;
+                return;
+            }
+
+            tSel.disabled = aSel.disabled = mSel.disabled = false;
+
+            // Technicians for this contract
+            const contractTechs = db.tecnicos.filter(t => t.contractIds && t.contractIds.includes(contId));
+            tSel.innerHTML = contractTechs.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            
+            if(currentUser && currentUser.role === 'tecnico') {
+                tSel.value = currentUser.login;
+                tSel.disabled = true;
+            }
+
+            // Activities for this contract
+            const contractActs = db.atividades.filter(a => a.contractId === contId);
+            aSel.innerHTML = contractActs.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+
+            // Municipalities for this contract
+            const contractMuns = db.municipios.filter(m => m.contractId === contId);
+            mSel.innerHTML = '<option value="">Selecione...</option>' + contractMuns.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        }
+
+        function updateDataCommunitySelect() {
+            const munId = document.getElementById('input-data-municipio').value;
+            const cSel = document.getElementById('input-data-comunidade');
+            if(!cSel) return;
+            cSel.disabled = !munId;
+            const communities = db.comunidades.filter(c => c.municipalityId === munId);
+            cSel.innerHTML = communities.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+        }
+
+        function renderDatasHistory() {
+            const history = document.getElementById('datas-history');
+            if(!history) return;
+            let list = [...db.controle_datas];
+            
+            // Filter by tech if not admin
+            if(currentUser && currentUser.role === 'tecnico') {
+                list = list.filter(d => d.tecnicoId === currentUser.login);
+            }
+            
+            list.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+            history.innerHTML = list.map(d => {
+                const tName = db.tecnicos.find(t => t.id === d.tecnicoId)?.name || 'N/A';
+                const aName = db.atividades.find(a => a.id == d.activityId)?.name || 'N/A';
+                return `
+                    <tr class="hover:bg-slate-50">
+                        <td class="text-xs font-mono">${new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                        <td class="font-bold text-slate-800">${tName}</td>
+                        <td>${aName}</td>
+                        <td class="text-xs text-slate-400">${d.municipality} - ${d.community}</td>
+                        <td class="text-right">
+                             <button onclick="deleteDataRecord('${d.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" size="16"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        async function addDataRecord() {
+            const contId = document.getElementById('input-data-contrato').value;
+            const techId = document.getElementById('input-data-tecnico').value;
+            const activityId = document.getElementById('input-data-atividade').value;
+            const munId = document.getElementById('input-data-municipio').value;
+            const comm = document.getElementById('input-data-comunidade').value;
+            const date = document.getElementById('input-data-valor').value;
+
+            if(!contId || !techId || !activityId || !munId || !comm || !date) {
+                return alert('Por favor, preencha todos os campos do Controle de Datas!');
+            }
+
+            const mun = db.municipios.find(m => m.id === munId);
+
+            const payload = {
+                contractId: contId,
+                tecnicoId: techId,
+                activityId,
+                municipalityId: munId,
+                municipality: mun ? mun.name : munId,
+                community: comm,
+                date,
+                timestamp: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db_fs, "controle_datas"), payload);
+                showToast("Data registrada com sucesso no controle interno!");
+                // Clear UI
+                document.getElementById('input-data-valor').value = '';
+            } catch(e) {
+                console.error(e);
+                alert('Erro ao salvar registro de data.');
+            }
+        }
+
         function populateProductionSelectors() {
             const contSel = document.getElementById('input-prod-contrato');
             const cRelSel = document.getElementById('report-contract-filter');
