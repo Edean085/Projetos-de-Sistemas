@@ -40,6 +40,11 @@ service cloud.firestore {
       allow read: if true;
       allow write: if true;
     }
+    
+    match /ufpas/{ufpaId} {
+      allow read: if true;
+      allow write: if true;
+    }
 
     match /producao/{producaoId} {
       allow read: if true;

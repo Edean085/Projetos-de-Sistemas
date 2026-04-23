@@ -36,11 +36,38 @@
       "properties": {
         "id": { "type": "string" },
         "name": { "type": "string" },
+        "valueAnater": { "type": "number" },
         "value": { "type": "number" },
         "metaCode": { "type": "string" },
-        "planned": { "type": "number" }
+        "planned": { "type": "number" },
+        "contractId": { "type": "string" }
       },
       "required": ["id", "name", "value"]
+    },
+    "UFPA": {
+      "title": "UFPA",
+      "description": "Unidade Familiar de Produção Agrária",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "codigo": { "type": "string" },
+        "denominacao": { "type": "string" },
+        "contractId": { "type": "string" },
+        "municipalityId": { "type": "string" },
+        "community": { "type": "string" },
+        "mainActivity": { "type": "string" },
+        "titulares": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "cpf": { "type": "string" }
+            }
+          }
+        }
+      },
+      "required": ["codigo", "denominacao", "contractId", "municipalityId", "community"]
     },
     "Municipio": {
       "title": "Município",
@@ -130,6 +157,10 @@
     "/producao/{producaoId}": {
       "schema": "Producao",
       "description": "Registros de produção diária"
+    },
+    "/ufpas/{ufpaId}": {
+      "schema": "UFPA",
+      "description": "Unidades Familiares de Produção Agrária"
     },
     "/config/empresa": {
       "schema": "Empresa",
