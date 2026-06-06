@@ -10,6 +10,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
     <!-- Lucide Icons (via CDN) -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- SheetJS (Excel Parsing) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- PizZip & Docxtemplater (Word Document Templating) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzip/3.1.6/pizzip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/docxtemplater/3.49.1/docxtemplater.js"></script>
     <style>
         :root {
             --primary: #1b4332;
@@ -1038,9 +1043,14 @@
                             <h2 class="text-2xl font-bold text-gray-800">Controle de Datas</h2>
                             <p class="text-gray-500 text-sm">Controle interno de datas das atividades realizadas (Independente do SGA).</p>
                         </div>
-                        <button onclick="openModal('calendario')" class="bg-accent text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold hover:opacity-90 transition-all shadow-md shadow-accent/20">
-                            <i data-lucide="calendar" size="18"></i> Consultar Calendário do Técnico
-                        </button>
+                        <div class="flex gap-4">
+                            <button onclick="openModal('visualizarDatas')" class="bg-primary text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold hover:opacity-90 transition-all shadow-md shadow-primary/20">
+                                <i data-lucide="eye" size="18"></i> Visualizar Datas (Visitas)
+                            </button>
+                            <button onclick="openModal('calendario')" class="bg-accent text-white px-6 py-2 rounded-lg flex items-center gap-2 font-bold hover:opacity-90 transition-all shadow-md shadow-accent/20">
+                                <i data-lucide="calendar" size="18"></i> Consultar Calendário do Técnico
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="grid grid-cols-1 gap-6">
@@ -1064,6 +1074,20 @@
                                     </select>
                                 </div>
                                 <div>
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Comunidade</label>
+                                    <select id="input-data-comunidade" class="w-full p-2 border rounded-lg text-sm" onchange="enableUFPAAutocomplete()" disabled>
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                                <div class="relative">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">UFPA (Busca Inteligente)</label>
+                                    <input type="text" id="input-data-ufpa-search" placeholder="Digite o nome da UFPA..." class="w-full p-2 border rounded-lg text-sm" disabled oninput="searchUFPAAutocomplete()">
+                                    <input type="hidden" id="input-data-ufpa-id">
+                                    <div id="ufpa-autocomplete-results" class="absolute z-[200] left-0 right-0 mt-1 bg-white border rounded-lg shadow-xl hidden max-h-48 overflow-y-auto">
+                                        <!-- Suggestions injected here -->
+                                    </div>
+                                </div>
+                                <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Atividade</label>
                                     <select id="input-data-atividade" class="w-full p-2 border rounded-lg text-sm" disabled>
                                         <option value="">-</option>
@@ -1072,12 +1096,6 @@
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Data Realizada</label>
                                     <input type="date" id="input-data-valor" class="w-full p-2 border rounded-lg text-sm">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Comunidade</label>
-                                    <select id="input-data-comunidade" class="w-full p-2 border rounded-lg text-sm" disabled>
-                                        <option value="">-</option>
-                                    </select>
                                 </div>
                                 <div class="flex items-end">
                                     <button onclick="addDataRecord()" id="btn-save-data" class="bg-secondary text-white w-full py-2 rounded-lg font-bold text-sm hover:opacity-90 flex items-center justify-center gap-2">
@@ -1093,10 +1111,10 @@
                                 <table class="table-dashboard">
                                     <thead>
                                         <tr>
-                                            <th>Data</th>
                                             <th>Técnico</th>
-                                            <th>Atividade</th>
                                             <th>Localidade</th>
+                                            <th>UFPA</th>
+                                            <th>Data</th>
                                             <th class="text-right">Ações</th>
                                         </tr>
                                     </thead>
@@ -1409,14 +1427,466 @@
                                             <th>Atividade</th>
                                             <th>Qtd</th>
                                             <th>Localidade</th>
-                                            <th>Valor Total</th>
-                                            <th class="text-right">Ações</th>
+                                     <!-- Panel: Gerar RTA -->
+                <div id="panel-rta" class="dashboard-panel hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-800">Gerador Smart de RTA (Relatório de Visita)</h2>
+                            <p class="text-gray-500 text-sm">Organize as visitas técnicas às UFPAs, elabore encaminhamentos com Inteligência Artificial e exporte relatórios profissionais.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-6">
+                        <!-- Secção 1: Uploads de Entrada (Planilha Excel e Modelo Word) -->
+                        <div class="card p-6 bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-[#1b4332] flex items-center gap-2">
+                                <i data-lucide="upload-cloud"></i> 1. Upload de Arquivos Obrigatórios (UFPAs e Modelo RTA)
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- Lado Esquerdo: Upload da planilha Excel de UFPAs -->
+                                <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg flex flex-col gap-3 justify-between">
+                                    <div>
+                                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1 mb-2">
+                                            <i data-lucide="file-spreadsheet" class="text-green-600"></i> Planilha Excel (.xlsx, .xls) de UFPAs
+                                        </h4>
+                                        <div class="space-y-1.5 mb-3">
+                                            <label class="block text-[10px] font-bold text-gray-500 uppercase">Associar ao Programa / Contrato</label>
+                                            <select id="imp-rta-excel-contract" class="w-full p-2 border rounded bg-white text-xs font-bold">
+                                                <option value="">Selecione o programa...</option>
+                                            </select>
+                                        </div>
+                                        <div class="py-6 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center gap-2 bg-white relative hover:bg-slate-100 transition-all cursor-pointer">
+                                            <input type="file" id="rta-excel-file" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer" onchange="window.onRTAExcelFileSelect(this)">
+                                            <i data-lucide="file-up" size="24" class="text-slate-400"></i>
+                                            <p class="text-[11px] font-bold text-slate-500 text-center px-2" id="rta-excel-status-lbl">Arraste ou clique para selecionar arquivo Excel</p>
+                                        </div>
+                                    </div>
+                                    <button onclick="window.importRTAExcelDataRef()" id="btn-rta-excel-import" class="w-full bg-[#1b4332] hover:opacity-90 text-white py-2.5 rounded-lg font-bold text-xs flex items-center justify-center gap-1 transition-all opacity-50 cursor-not-allowed" disabled>
+                                        <i data-lucide="upload-cloud" size="14"></i> Importar Famílias da Planilha
+                                    </button>
+                                </div>
+
+                                <!-- Lado Direito: Upload do RTA modelo Word -->
+                                <div class="p-4 bg-slate-50 border border-slate-200 rounded-lg flex flex-col gap-3 justify-between">
+                                    <div class="flex flex-col gap-3">
+                                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wide flex items-center gap-1">
+                                            <i data-lucide="file-audio-2" class="text-blue-600"></i> Modelo de RTA em Formato Word (.docx)
+                                        </h4>
+                                        <div class="py-8 border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center gap-2 bg-white relative hover:bg-slate-100 transition-all cursor-pointer shadow-inner" id="rta-docx-dragarea">
+                                            <input type="file" id="input-rta-docx-template" class="absolute inset-0 opacity-0 cursor-pointer" accept=".docx" onchange="onRTADocxLoaded(this)">
+                                            <div class="text-center" id="rta-docx-prompt">
+                                                <i data-lucide="upload" class="mx-auto text-slate-400 mb-1" size="24"></i>
+                                                <p class="text-[11px] font-bold text-slate-500 text-center px-2">Clique para carregar o modelo Word (.docx)</p>
+                                            </div>
+                                            <div class="text-center hidden" id="rta-docx-success">
+                                                <i data-lucide="file-check" class="mx-auto text-green-600 mb-1" size="24"></i>
+                                                <p class="text-xs font-bold text-green-700 max-w-[180px] truncate mx-auto" id="rta-docx-filename">Modelo.docx</p>
+                                                <p class="text-[9px] text-gray-500" id="rta-docx-filesize">0 KB - Clique para trocar</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="text-[10px] text-slate-400 leading-tight">Envie sua planilha de UFPAs (colunas código e denominação obrigatórias) e seu modelo de documento Word (.docx) contendo as variáveis padrão.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Secção 2: Configurações e Campos do RTA -->
+                        <div class="card p-6 bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col gap-4">
+                            <h3 class="text-sm font-bold uppercase tracking-wider text-[#1b4332] flex items-center gap-2">
+                                <i data-lucide="edit"></i> 2. Parâmetros e Campos de Identificação da Visita
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
+                                <!-- Denominação da UFPA (Combobox) -->
+                                <div class="relative md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nome da UFPA (Família) *</label>
+                                    <div class="relative">
+                                        <input type="text" id="rta-search-ufpa-combobox" class="w-full p-2.5 border rounded-lg text-sm font-extrabold uppercase bg-white pr-10 outline-none focus:ring-2 focus:ring-primary/20" placeholder="Selecione ou comece a digitar..." onclick="window.onRTAUFPAInputClick()" oninput="window.onRTAUFPAInputType(this.value)">
+                                        <div class="absolute right-3 top-3 pointer-events-none text-slate-400">
+                                            <i data-lucide="chevrons-up-down" size="16"></i>
+                                        </div>
+                                    </div>
+                                    <div id="rta-combobox-dropdown" class="absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-lg z-50 hidden divide-y divide-slate-100">
+                                        <!-- Dynamic items -->
+                                    </div>
+                                </div>
+
+                                <!-- Município -->
+                                <div class="md:col-span-1">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Município</label>
+                                    <input type="text" id="rta-municipio-input" class="w-full p-2.5 border rounded-lg text-sm font-semibold bg-white" placeholder="Município">
+                                </div>
+
+                                <!-- Comunidade -->
+                                <div class="md:col-span-1">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Comunidade</label>
+                                    <input type="text" id="rta-comunidade-input" class="w-full p-2.5 border rounded-lg text-sm font-semibold bg-white" placeholder="Comunidade">
+                                </div>
+
+                                <!-- Número da Visita -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Número da Visita</label>
+                                    <input type="text" id="rta-visita-numero" class="w-full p-2.5 border rounded-lg text-sm font-bold bg-white text-center text-[#1b4332]" value="1" placeholder="Ex: 1" oninput="updateRTAMetadata()">
+                                </div>
+
+                                <!-- Código da Meta -->
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Código da Meta</label>
+                                    <input type="text" id="rta-meta-codigo" class="w-full p-2.5 border rounded-lg text-sm font-semibold bg-white" value="18527">
+                                </div>
+
+                                <!-- Descrição da Meta -->
+                                <div class="md:col-span-4">
+                                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Descrição da Meta</label>
+                                    <input type="text" id="rta-meta-descricao" class="w-full p-2.5 border rounded-lg text-sm font-semibold bg-white" value="VISITAS INDIVIDUAIS ÀS UFPAS (P1) - CADASTRATIVA">
+                                </div>
+                            </div>
+
+                            <!-- Legacy support fields (hidden in DOM to satisfy older JS references) -->
+                            <select id="rta-contrato" class="hidden"></select>
+                            <input type="hidden" id="rta-search-ufpa" data-selected-id="">
+                            <select id="rta-ufpa-select" class="hidden"></select>
+                            <div id="rta-dropdown-suggestions" class="hidden"></div>
+                            <div id="rta-selected-ufpa-card" class="hidden"></div>
+
+                            <div class="mt-4 flex justify-center">
+                                <button onclick="generateRTATexts()" id="btn-rta-main-generate" class="w-full max-w-md bg-accent hover:opacity-95 text-white py-3 px-6 rounded-lg font-bold flex items-center justify-center gap-2 shadow-md transition-all text-sm uppercase tracking-wider">
+                                    <i data-lucide="sparkles"></i> Gerar RTA
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Secção 3: Editor e Visualizador do RTA Pronto -->
+                        <div class="card p-6 bg-white rounded-xl shadow-sm border border-slate-100 min-h-[350px] flex flex-col justify-between">
+                            <div class="mb-4 flex justify-between items-center pb-3 border-b">
+                                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                                    <i data-lucide="sparkles" class="text-yellow-500 animate-pulse"></i> Redação Técnica do RTA Pronto
+                                </h3>
+                            </div>
+
+                            <!-- Loading Screen during AI process -->
+                            <div id="rta-ai-loading" class="hidden flex-1 flex flex-col items-center justify-center py-16 text-center text-slate-500">
+                                <div class="relative w-20 h-20 mb-6 mx-auto">
+                                    <div class="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+                                    <div class="absolute inset-0 rounded-full border-4 border-solid border-[#1b4332] border-t-transparent animate-spin"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <i data-lucide="leaf" class="text-[#1b4332] animate-bounce" size="24"></i>
+                                    </div>
+                                </div>
+                                <h4 class="text-md font-bold text-slate-800 tracking-tight" id="rta-loading-status">Analisando dados da UFPA...</h4>
+                                <p class="text-xs text-slate-400 mt-1 max-w-sm" id="rta-loading-subtext">Isso pode levar alguns segundos. Estamos estruturando o relatório respeitando todas as regras governamentais.</p>
+                            </div>
+
+                            <!-- Empty State before process -->
+                            <div id="rta-empty-preview" class="flex-1 flex flex-col items-center justify-center py-16 text-center text-slate-400">
+                                <i data-lucide="file-signature" class="mb-4 text-slate-200" size="48"></i>
+                                <h4 class="font-bold text-slate-700 text-sm">Pronto para Redigir</h4>
+                                <p class="text-xs text-slate-400 mt-1 max-w-[340px]">Selecione uma UFPA, informe qual a visita na barra de parâmetros acima e clique em <b>Gerar RTA</b> para redigir o corpo completo da visita.</p>
+                            </div>
+
+                            <!-- Full Form Interactive Editor/Preview -->
+                            <div id="rta-interactive-editor" class="hidden flex-1 flex flex-col gap-6">
+                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-emerald-50 border border-emerald-100 p-4 rounded-xl">
+                                    <div>
+                                        <h3 class="font-bold text-[#1b4332] text-sm uppercase tracking-wider flex items-center gap-1.5">
+                                            <i data-lucide="file-check"></i> Relatório Prontinho para Exportação!
+                                        </h3>
+                                        <p class="text-slate-500 text-xs font-semibold">O rascunho completo de redação foi gerado pela IA. Revise os eixos ou clique nos botões para baixar o arquivo.</p>
+                                    </div>
+                                    <div class="flex items-center gap-2 w-full md:w-auto">
+                                        <!-- Baixar RTA Button -->
+                                        <button onclick="compileDocxTemplate()" class="bg-green-700 hover:bg-green-800 text-white font-bold text-xs py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 shadow shadow-green-700/20 w-full md:w-auto">
+                                            <i data-lucide="file-down" size="14"></i> Baixar RTA (.docx)
+                                        </button>
+                                        <button onclick="saveRTAToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 shadow shadow-blue-600/20 w-full md:w-auto">
+                                            <i data-lucide="save" size="14"></i> Salvar no Banco
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Tabs for Eixos -->
+                                <div class="flex border-b text-sm font-semibold">
+                                    <button onclick="switchRTAPreviewTab('produtivo')" id="btn-rta-tab-produtivo" class="py-2.5 px-4 text-primary border-b-2 border-primary">Eixo Produtivo</button>
+                                    <button onclick="switchRTAPreviewTab('social')" id="btn-rta-tab-social" class="py-2.5 px-4 text-slate-500 border-b-2 border-transparent hover:text-slate-800">Eixo Social</button>
+                                    <button onclick="switchRTAPreviewTab('ambiental')" id="btn-rta-tab-ambiental" class="py-2.5 px-4 text-slate-500 border-b-2 border-transparent hover:text-slate-800">Eixo Ambiental</button>
+                                    <button onclick="switchRTAPreviewTab('indicadores')" id="btn-rta-tab-indicadores" class="py-2.5 px-4 text-slate-500 border-b-2 border-transparent hover:text-slate-800">Indicadores</button>
+                                </div>
+
+                                <!-- Content Tab: Eixo Produtivo -->
+                                <div id="rta-content-produtivo" class="rta-tab-content grid grid-cols-1 gap-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Ação</label>
+                                            <input type="text" id="rta-prod-tipo-acao" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Atividade Produtiva</label>
+                                            <input type="text" id="rta-prod-atividade" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Etapa da Atividade</label>
+                                            <input type="text" id="rta-prod-etapa" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Impacto das orientações anteriores</label>
+                                        <textarea id="rta-prod-impactos" rows="2" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Desenvolvimento da Atividade (Exatamente 2 Parágrafos)</label>
+                                        <textarea id="rta-prod-desenv-1" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary mb-2" placeholder="Parágrafo 1 de desenvolvimento"></textarea>
+                                        <textarea id="rta-prod-desenv-2" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary" placeholder="Parágrafo 2 de desenvolvimento"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Problemas Observados</label>
+                                        <textarea id="rta-prod-problemas" rows="2" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Recomendações e Orientações Técnicas (Exatamente 4 Parágrafos)</label>
+                                        <textarea id="rta-prod-recom-1" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary mb-2" placeholder="Parágrafo 1 de recomendações"></textarea>
+                                        <textarea id="rta-prod-recom-2" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary mb-2" placeholder="Parágrafo 2 de recomendações"></textarea>
+                                        <textarea id="rta-prod-recom-3" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary mb-2" placeholder="Parágrafo 3 de recomendações"></textarea>
+                                        <textarea id="rta-prod-recom-4" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary" placeholder="Parágrafo 4 de recomendações - Preparação para o próximo encontro"></textarea>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                        <h4 class="text-xs font-bold text-slate-600 mb-2 uppercase tracking-wide">Resultados de Campo</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                            <div class="md:col-span-2">
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Descrição do resultado</label>
+                                                <input type="text" id="rta-prod-res-desc" class="w-full p-2 border rounded bg-white text-xs font-semibold">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Qtd / Unidade</label>
+                                                <div class="flex gap-1">
+                                                    <input type="number" id="rta-prod-res-qtd" class="w-16 p-2 border rounded bg-white text-xs font-mono text-center font-bold">
+                                                    <input type="text" id="rta-prod-res-un" class="w-full p-2 border rounded bg-white text-xs font-semibold">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Estado</label>
+                                                <select id="rta-prod-res-est" class="w-full p-2 border rounded bg-white text-xs font-bold">
+                                                    <option value="Projetado">Projetado</option>
+                                                    <option value="Parcialmente realizado">Parcialmente realizado</option>
+                                                    <option value="Realizado">Realizado</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Content Tab: Eixo Social -->
+                                <div id="rta-content-social" class="rta-tab-content hidden grid grid-cols-1 gap-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Ação</label>
+                                            <input type="text" id="rta-soc-tipo-acao" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Atividade Social</label>
+                                            <input type="text" id="rta-soc-atividade" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Etapa da Atividade</label>
+                                            <input type="text" id="rta-soc-etapa" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Impactos observados</label>
+                                        <textarea id="rta-soc-impactos" rows="2" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Desenvolvimento da Atividade (Exatamente 1 Parágrafo)</label>
+                                        <textarea id="rta-soc-desenv" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Problemas Observados</label>
+                                        <textarea id="rta-soc-problemas" rows="2" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Recomendações e Encaminhamentos Sociais (Exatamente 3 Parágrafos)</label>
+                                        <textarea id="rta-soc-recom-1" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary mb-2" placeholder="Parágrafo 1 de recomendações sociais"></textarea>
+                                        <textarea id="rta-soc-recom-2" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary mb-2" placeholder="Parágrafo 2 de recomendações sociais"></textarea>
+                                        <textarea id="rta-soc-recom-3" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary" placeholder="Parágrafo 3 de recomendações sociais"></textarea>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                        <h4 class="text-xs font-bold text-slate-600 mb-2 uppercase tracking-wide">Resultados (Social)</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                            <div class="md:col-span-2">
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Descrição do resultado</label>
+                                                <input type="text" id="rta-soc-res-desc" class="w-full p-2 border rounded bg-white text-xs font-semibold">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Qtd / Unidade</label>
+                                                <div class="flex gap-1">
+                                                    <input type="number" id="rta-soc-res-qtd" class="w-16 p-2 border rounded bg-white text-xs font-mono text-center font-bold">
+                                                    <input type="text" id="rta-soc-res-un" class="w-full p-2 border rounded bg-white text-xs font-semibold">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Estado</label>
+                                                <select id="rta-soc-res-est" class="w-full p-2 border rounded bg-white text-xs font-bold">
+                                                    <option value="Projetado">Projetado</option>
+                                                    <option value="Parcialmente realizado">Parcialmente realizado</option>
+                                                    <option value="Realizado">Realizado</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Content Tab: Eixo Ambiental -->
+                                <div id="rta-content-ambiental" class="rta-tab-content hidden grid grid-cols-1 gap-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Tipo de Ação</label>
+                                            <input type="text" id="rta-amb-tipo-acao" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Atividade Ambiental</label>
+                                            <input type="text" id="rta-amb-atividade" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Etapa da Atividade</label>
+                                            <input type="text" id="rta-amb-etapa" class="w-full p-2 border rounded-lg text-xs font-semibold bg-slate-50">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Impactos das orientações anteriores</label>
+                                        <textarea id="rta-amb-impactos" rows="2" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Desenvolvimento da Atividade (Exatamente 1 Parágrafo)</label>
+                                        <textarea id="rta-amb-desenv" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Problemas Observados</label>
+                                        <textarea id="rta-amb-problemas" rows="2" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Recomendações Agroambientais (Exatamente 3 Parágrafos)</label>
+                                        <textarea id="rta-amb-recom-1" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary mb-2" placeholder="Parágrafo 1 de recomendações ambientais"></textarea>
+                                        <textarea id="rta-amb-recom-2" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary mb-2" placeholder="Parágrafo 2 de recomendações ambientais"></textarea>
+                                        <textarea id="rta-amb-recom-3" rows="3" class="w-full p-3 border rounded-lg text-xs font-medium focus:ring-1 focus:ring-primary" placeholder="Parágrafo 3 de recomendações ambientais"></textarea>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
+                                        <h4 class="text-xs font-bold text-slate-600 mb-2 uppercase tracking-wide">Resultados (Ambiental)</h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                            <div class="md:col-span-2">
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Descrição do resultado</label>
+                                                <input type="text" id="rta-amb-res-desc" class="w-full p-2 border rounded bg-white text-xs font-semibold">
+                                            </div>
+                                            <div>
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Qtd / Unidade</label>
+                                                <div class="flex gap-1">
+                                                    <input type="number" id="rta-amb-res-qtd" class="w-16 p-2 border rounded bg-white text-xs font-mono text-center font-bold">
+                                                    <input type="text" id="rta-amb-res-un" class="w-full p-2 border rounded bg-white text-xs font-semibold">
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label class="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Estado</label>
+                                                <select id="rta-amb-res-est" class="w-full p-2 border rounded bg-white text-xs font-bold">
+                                                    <option value="Projetado">Projetado</option>
+                                                    <option value="Parcialmente realizado">Parcialmente realizado</option>
+                                                    <option value="Realizado">Realizado</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Content Tab: Indicadores -->
+                                <div id="rta-content-indicadores" class="rta-tab-content hidden grid grid-cols-1 gap-4">
+                                    <h4 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Resumo da Visita em Indicadores (1 parágrafo cada)</h4>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Segurança Alimentar e Nutricional</label>
+                                            <textarea id="rta-ind-seguranca" rows="3" class="w-full p-2 border rounded text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Propriedade com práticas sustentáveis</label>
+                                            <textarea id="rta-ind-sustentavel" rows="3" class="w-full p-2 border rounded text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Diversificação da produção agroecológica</label>
+                                            <textarea id="rta-ind-diversificacao" rows="3" class="w-full p-2 border rounded text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Serviços Sociais Básicos</label>
+                                            <textarea id="rta-ind-servicos" rows="3" class="w-full p-2 border rounded text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Valor bruto da produção (Últimos 12 meses)</label>
+                                            <textarea id="rta-ind-valor-bruto" rows="3" class="w-full p-2 border rounded text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Família com acesso a política pública</label>
+                                            <textarea id="rta-ind-acesso-politica" rows="3" class="w-full p-2 border rounded text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Canais de comercialização</label>
+                                            <textarea id="rta-ind-comercializacao" rows="3" class="w-full p-2 border rounded text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-[10px] font-bold text-slate-600 mb-1">Sociobiodiversidade</label>
+                                            <textarea id="rta-ind-sociobiodiversidade" rows="3" class="w-full p-2 border rounded text-xs font-medium focus:ring-1 focus:ring-primary"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Bottom Action Buttons for Exporters -->
+                                <div class="mt-8 pt-4 border-t flex flex-col md:flex-row items-center justify-end gap-3">
+                                    <button onclick="saveRTAToDatabase()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all w-full md:w-auto">
+                                        <i data-lucide="save" size="14"></i> 1. Salvar no Banco de Dados
+                                    </button>
+                                    <button onclick="compileDocxTemplate()" id="btn-rta-download-docx" class="bg-green-700 hover:bg-green-800 text-white font-bold text-xs py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all w-full md:w-auto">
+                                        <i data-lucide="file-down" size="14"></i> 2. Preencher e Baixar Word (.docx)
+                                    </button>
+                                    <button onclick="exportRTAToPDF()" class="bg-red-600 hover:bg-red-700 text-white font-bold text-xs py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-all w-full md:w-auto">
+                                        <i data-lucide="file-pdf" size="14"></i> 3. Exportar PDF Completo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Secção 4: Histórico de RTAs Gerados -->
+                        <div class="card p-6 bg-white rounded-xl shadow-sm border border-slate-100 min-h-[220px]">
+                            <h3 class="font-bold text-slate-700 text-sm mb-4 uppercase tracking-wider flex items-center gap-2">
+                                <i data-lucide="history" class="text-[#1b4332]" size="16"></i> Histórico de RTAs Gerados desta UFPA
+                            </h3>
+
+                            <div id="rta-history-loading" class="text-center py-6 hidden">
+                                <p class="text-slate-400 text-xs font-semibold">Aguarde, listando históricos de visitas...</p>
+                            </div>
+                            <div id="rta-history-empty" class="text-center py-8 text-slate-400 text-xs font-semibold">
+                                Nenhum relatório RTA gerado ou salvo no sistema ainda para a família selecionada.
+                            </div>
+                            <div id="rta-history-container" class="table-dashboard-container hidden">
+                                <table class="table-dashboard text-left">
+                                    <thead>
+                                        <tr>
+                                            <th class="py-2 text-[10px]">Visita nº</th>
+                                            <th class="py-2 text-[10px]">Data Geração</th>
+                                            <th class="py-2 text-[10px]">Técnico Responsável</th>
+                                            <th class="py-2 text-[10px] text-right">Ações</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="production-history">
-                                        <!-- Injected here -->
+                                    <tbody id="table-rta-history-body" class="text-xs">
+                                        <!-- Dynamic history rows -->
                                     </tbody>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>="py-2 text-[10px]">Técnico Responsável</th>
+                                                <th class="py-2 text-[10px] text-right">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="table-rta-history-body" class="text-xs">
+                                            <!-- Dynamic history rows -->
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1442,6 +1912,12 @@
             getFirestore, collection, doc, setDoc, addDoc, getDoc, getDocs, 
             onSnapshot, updateDoc, deleteDoc, query, orderBy, serverTimestamp 
         } from "firebase/firestore";
+        // Import jsPDF from node_modules if needed, or assume global if it was installed
+        // However, in this environment, it's better to use a CDN-like import if we are in index.html script module
+        // But since I installed it via npm, I should try to import it.
+        // Actually, for direct script tags, often window.jspdf is used.
+        import { jsPDF } from "jspdf";
+        import "jspdf-autotable";
 
         const firebaseConfig = {
           apiKey: "AIzaSyAghu8qI0FdAG2BF4mcXmWzfviidpeIJoA",
@@ -1467,7 +1943,8 @@
             producao: [],
             municipios: [],
             controle_datas: [],
-            ufpas: []
+            ufpas: [],
+            rtas: []
         };
         window.editingId = null;
         window.currentUser = null;
@@ -1646,11 +2123,13 @@
                                 name: "Administrador Geral",
                                 login: adminLogin,
                                 password: adminPass,
-                                role: "admin"
+                                role: "admin",
+                                passwordChanged: false
                             });
-                        } else if (adminUser.password !== adminPass) {
+                        } else if (!adminUser.passwordChanged && adminUser.password !== adminPass) {
                             await updateDoc(doc(db_fs, "usuarios", adminUser.id), {
-                                password: adminPass
+                                password: adminPass,
+                                passwordChanged: false
                             });
                         }
                     }
@@ -1668,6 +2147,7 @@
             syncColl('municipios', 'municipios');
             syncColl('controle_datas', 'controle_datas');
             syncColl('ufpas', 'ufpas');
+            syncColl('rtas', 'rtas');
         }
 
         // --- Exposure to Legacy code ---
@@ -1813,6 +2293,9 @@
                     <button onclick="showPanel('ufpa')" id="btn-ufpa" class="nav-item">
                         <i data-lucide="home" class="mr-3" size="18"></i> UFPA
                     </button>
+                    <button onclick="showPanel('rta')" id="btn-rta" class="nav-item">
+                        <i data-lucide="clipboard-signature" class="mr-3" size="18"></i> GERAR RTA
+                    </button>
                     <button onclick="showPanel('municipios')" id="btn-municipios" class="nav-item">
                         <i data-lucide="map-pinned" class="mr-3" size="18"></i> Cadastro de Município
                     </button>
@@ -1837,6 +2320,9 @@
                     <button onclick="showPanel('ufpa')" id="btn-ufpa" class="nav-item">
                         <i data-lucide="home" class="mr-3" size="18"></i> UFPA
                     </button>
+                    <button onclick="showPanel('rta')" id="btn-rta" class="nav-item">
+                        <i data-lucide="clipboard-signature" class="mr-3" size="18"></i> GERAR RTA
+                    </button>
                 `;
             }
             
@@ -1846,7 +2332,7 @@
 
         function showPanel(panelId) {
             // Permission check
-            if (currentUser.role !== 'admin' && !['producao', 'datas', 'ufpa'].includes(panelId)) {
+            if (currentUser.role !== 'admin' && !['producao', 'datas', 'ufpa', 'rta'].includes(panelId)) {
                 alert('Acesso restrito ao administrador!');
                 return;
             }
@@ -1875,6 +2361,7 @@
             populateDataSelectors();
             renderDatasHistory();
             populateUFPASelectors();
+            populateRTAPanelSelectors();
             lucide.createIcons();
         }
 
@@ -2406,6 +2893,12 @@
 
         // --- CRUD Logic ---
         function openModal(type, extraId) {
+            if (type === 'usuario') {
+                if (!window.currentUser || window.currentUser.role !== 'admin') {
+                    alert('Acesso negado: Somente administradores podem gerenciar usuários.');
+                    return;
+                }
+            }
             const container = document.getElementById('modal-container');
             const content = document.getElementById('modal-content');
             const modalBox = content.parentElement;
@@ -2762,6 +3255,86 @@
                         document.getElementById('u-role').value = u.role;
                     }
                 }
+            } else if (type === 'visualizarDatas') {
+                const contractOptions = db.contratos.map(c => `<option value="${c.id}">${c.program} (${c.instrument})</option>`).join('');
+                modalBox.className = "bg-white rounded-xl max-w-7xl w-full p-8 relative"; 
+                content.innerHTML = `
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <h3 class="text-2xl font-bold text-primary">Acompanhamento de Visitas (UFPA)</h3>
+                            <p class="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Gere o cronograma de visitas por comunidade</p>
+                        </div>
+                        <button onclick="exportVisitReportToPDF()" class="bg-red-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-bold hover:bg-red-600 transition-all shadow-md">
+                            <i data-lucide="file-text" size="16"></i> Exportar PDF
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Programa / Instrumento</label>
+                            <select id="rep-visita-contrato" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20" onchange="filterUFPASelectors('report-visita')">
+                                <option value="">Selecione...</option>
+                                ${contractOptions}
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Município</label>
+                            <select id="rep-visita-municipio" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20" onchange="updateUFPACommunitySelect('report-visita')" disabled>
+                                <option value="">Selecione o programa...</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2 items-end">
+                            <div class="flex-1">
+                                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Comunidade</label>
+                                <select id="rep-visita-comunidade" class="w-full p-2.5 border rounded-lg text-sm outline-none focus:ring-2 focus:ring-primary/20" disabled>
+                                    <option value="">-</option>
+                                </select>
+                            </div>
+                            <button onclick="generateVisitReport()" class="bg-primary text-white p-2.5 rounded-lg font-bold hover:opacity-90 flex items-center justify-center gap-2 min-w-[120px]">
+                                <i data-lucide="search" size="18"></i> Visualizar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="visit-report-container" class="overflow-x-auto rounded-xl border border-slate-200 shadow-inner bg-slate-50 p-1 min-h-[400px]">
+                        <div class="flex flex-col items-center justify-center py-24 text-slate-300">
+                             <i data-lucide="table" size="48" class="mb-4 opacity-50"></i>
+                             <p class="font-bold uppercase tracking-widest text-sm">Selecione os filtros e clique em visualizar</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+            } else if (type === 'importar-rta-excel') {
+                const contractOptions = db.contratos.map(c => `<option value="${c.id}">${c.program} (${c.instrument})</option>`).join('');
+                content.innerHTML = `
+                    <h3 class="text-xl font-bold mb-4 text-primary">Importar Planilha Excel de UFPAs</h3>
+                    <div class="space-y-4">
+                        <div class="p-3 bg-blue-50 border border-blue-100 rounded text-[10px] text-blue-700 leading-tight mb-4">
+                             <p class="font-bold mb-1 uppercase">Instruções para Importação:</p>
+                             Sua planilha Excel (.xlsx, .xls) deve conter uma aba com as seguintes colunas de cabeçalho: 
+                             <div class="font-mono mt-2 break-all font-bold text-slate-800">MUNICIPIO, COMUNIDADE, CÓDIGO DA UFPA, DENOMINAÇÃO DA UFPA, ATIVIDADE PRINCIPAL, TITULO DO PROJETO, DENOMINAÇÃO DO GRUPO</div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">1. Selecione o Programa</label>
+                            <select id="imp-rta-excel-contract" class="w-full p-2 border rounded-lg text-sm bg-slate-50 font-medium">
+                                <option value="">Selecione...</option>
+                                ${contractOptions}
+                            </select>
+                        </div>
+                        
+                        <div class="py-4 border-2 border-dashed rounded-xl flex flex-col items-center justify-center gap-3 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-all overflow-hidden relative">
+                             <input type="file" id="rta-excel-file" accept=".xlsx, .xls" class="absolute inset-0 opacity-0 cursor-pointer" onchange="window.onRTAExcelFileSelect(this)">
+                             <i data-lucide="file-up" size="32" class="text-slate-400"></i>
+                             <p class="text-xs font-bold text-slate-500" id="rta-excel-status-lbl">Clique para selecionar o arquivo Excel</p>
+                        </div>
+
+                        <button onclick="window.importRTAExcelDataRef()" id="btn-rta-excel-import" class="w-full bg-accent text-white py-3 rounded-lg font-bold flex items-center justify-center gap-2 transition-all opacity-50 cursor-not-allowed" disabled>
+                            <i data-lucide="upload-cloud" size="18"></i> Iniciar Importação
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
             }
             lucide.createIcons();
         }
@@ -2914,11 +3487,16 @@
                 };
                 toastMsg = editingId ? "Comunidade alterada com sucesso!" : "Comunidade cadastrada com sucesso!";
             } else if (type === 'usuario') {
+                if (!window.currentUser || window.currentUser.role !== 'admin') {
+                    alert('Acesso negado: Somente administradores podem gerenciar usuários.');
+                    return;
+                }
                 data = {
                     name: document.getElementById('u-name').value,
                     login: document.getElementById('u-login').value,
                     password: document.getElementById('u-pass').value,
-                    role: document.getElementById('u-role').value
+                    role: document.getElementById('u-role').value,
+                    passwordChanged: true
                 };
                 toastMsg = editingId ? "Usuário alterado com sucesso!" : "Usuário cadastrado com sucesso!";
             }
@@ -2938,6 +3516,10 @@
         }
 
         async function deleteUsuario(id) {
+            if (!window.currentUser || window.currentUser.role !== 'admin') {
+                alert('Acesso negado: Somente administradores podem gerenciar usuários.');
+                return;
+            }
             if(confirm("Deseja remover este usuário?")) {
                 await fs_ops.deleteDoc(fs_ops.doc(db_fs, "usuarios", id));
                 showToast("Usuário removido com sucesso!");
@@ -3374,27 +3956,248 @@
             
             // Filter by tech if not admin
             if(currentUser && currentUser.role === 'tecnico') {
-                list = list.filter(d => d.tecnicoId === currentUser.login);
+                list = list.filter(d => d.tecnicoId === currentUser.login || d.tecnicoId === db.tecnicos.find(t => t.cpf === currentUser.login)?.id);
             }
             
             list.sort((a,b) => new Date(b.date) - new Date(a.date));
 
             history.innerHTML = list.map(d => {
                 const tName = db.tecnicos.find(t => t.id === d.tecnicoId)?.name || 'N/A';
-                const aName = db.atividades.find(a => a.id == d.activityId)?.name || 'N/A';
+                const ufpaName = db.ufpas.find(u => u.id === d.ufpaId)?.denominacao || 'N/A';
                 return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="text-xs font-mono">${new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
-                        <td class="font-bold text-slate-800">${tName}</td>
-                        <td>${aName}</td>
-                        <td class="text-xs text-slate-400">${d.municipality} - ${d.community}</td>
-                        <td class="text-right">
-                             <button onclick="deleteDataRecord('${d.id}')" class="text-slate-300 hover:text-red-500"><i data-lucide="trash-2" size="16"></i></button>
+                    <tr class="hover:bg-slate-50 border-b last:border-0 transition-colors">
+                        <td class="font-bold text-slate-800 p-3">${tName}</td>
+                        <td class="text-xs text-slate-500 uppercase p-3">${d.community}</td>
+                        <td class="text-xs font-bold text-primary uppercase p-3">${ufpaName}</td>
+                        <td class="text-xs font-mono text-slate-400 p-3">${new Date(d.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                        <td class="text-right p-3">
+                             <div class="flex justify-end gap-2">
+                                 <button onclick="window.editDataRecord('${d.id}')" class="text-slate-300 hover:text-amber-500 transition-colors" title="Editar"><i data-lucide="pencil" size="15"></i></button>
+                                 <button onclick="deleteDataRecord('${d.id}')" class="text-slate-300 hover:text-red-500 transition-colors" title="Excluir"><i data-lucide="trash-2" size="15"></i></button>
+                             </div>
                         </td>
                     </tr>
                 `;
             }).join('');
             lucide.createIcons();
+        }
+
+        // --- Autocomplete UFPA logic ---
+        function enableUFPAAutocomplete() {
+            const input = document.getElementById('input-data-ufpa-search');
+            if(input) {
+                input.disabled = !document.getElementById('input-data-comunidade').value;
+                input.value = '';
+                document.getElementById('input-data-ufpa-id').value = '';
+            }
+        }
+
+        function searchUFPAAutocomplete() {
+            const input = document.getElementById('input-data-ufpa-search');
+            const results = document.getElementById('ufpa-autocomplete-results');
+            const comm = document.getElementById('input-data-comunidade').value;
+            const mun = document.getElementById('input-data-municipio').value;
+            
+            if(!input.value || !comm) {
+                results.classList.add('hidden');
+                return;
+            }
+
+            const term = input.value.toUpperCase();
+            const matches = db.ufpas.filter(u => 
+                u.municipalityId === mun && 
+                u.community === comm && 
+                u.denominacao.toUpperCase().includes(term)
+            );
+
+            if(matches.length > 0) {
+                results.classList.remove('hidden');
+                results.innerHTML = matches.map(u => `
+                    <div onclick="selectUFPAForData('${u.id}', '${u.denominacao}')" class="p-3 hover:bg-slate-50 cursor-pointer border-b last:border-b-0 text-sm">
+                        <div class="font-bold text-slate-800">${u.denominacao}</div>
+                        <div class="text-[10px] text-slate-400 uppercase">CÓD: ${u.codigo}</div>
+                    </div>
+                `).join('');
+            } else {
+                results.classList.add('hidden');
+            }
+        }
+
+        function selectUFPAForData(id, name) {
+            document.getElementById('input-data-ufpa-search').value = name;
+            document.getElementById('input-data-ufpa-id').value = id;
+            document.getElementById('ufpa-autocomplete-results').classList.add('hidden');
+        }
+
+        // --- Visit Report Logic ---
+        function generateVisitReport() {
+            const contId = document.getElementById('rep-visita-contrato').value;
+            const munId = document.getElementById('rep-visita-municipio').value;
+            const comm = document.getElementById('rep-visita-comunidade').value;
+
+            if(!contId || !munId || !comm) return alert("Selecione Programa, Município e Comunidade!");
+
+            const ufpas = db.ufpas.filter(u => u.contractId === contId && u.municipalityId === munId && u.community === comm);
+            const container = document.getElementById('visit-report-container');
+            
+            if(ufpas.length === 0) {
+                container.innerHTML = `<div class="py-24 text-center text-slate-400 italic font-bold uppercase tracking-widest text-sm">Nenhuma UFPA encontrada nestes critérios.</div>`;
+                return;
+            }
+
+            // Identify visit activities (Visita 3 to Visita 8)
+            const visitActivities = db.atividades.filter(a => a.contractId === contId && /VISITA\s*[3-8]/i.test(a.name))
+                .sort((a,b) => {
+                    const numMatchA = a.name.match(/\d+/);
+                    const numMatchB = b.name.match(/\d+/);
+                    const numA = numMatchA ? parseInt(numMatchA[0]) : 0;
+                    const numB = numMatchB ? parseInt(numMatchB[0]) : 0;
+                    return numA - numB;
+                });
+
+            if(visitActivities.length === 0) {
+                container.innerHTML = `<div class="py-24 text-center text-red-400 italic font-bold">Nenhuma atividade 'VISITA 3-8' encontrada para este programa.</div>`;
+                return;
+            }
+
+            // Create table
+            let tableHtml = `
+                <table id="table-visit-report" class="table-dashboard min-w-full bg-white text-left">
+                    <thead class="sticky top-0 z-10">
+                        <tr class="bg-primary text-white">
+                            <th class="p-3 whitespace-nowrap text-xs">CÓDIGO</th>
+                            <th class="p-3 whitespace-nowrap text-xs">UFPA</th>
+                            ${visitActivities.map(a => `<th class="p-3 text-center uppercase whitespace-nowrap text-xs border-l border-white/20 px-4">${a.name}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            ufpas.forEach(u => {
+                tableHtml += `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="font-mono text-[10px] font-bold text-slate-400 p-3">${u.codigo}</td>
+                        <td class="font-bold text-slate-800 text-[10px] uppercase p-3 max-w-[200px] break-words">${u.denominacao}</td>
+                `;
+
+                let lastRealVisitDate = null;
+
+                visitActivities.forEach((act, idx) => {
+                    const record = db.controle_datas.find(r => r.ufpaId === u.id && r.activityId === act.id);
+                    
+                    if(record) {
+                        lastRealVisitDate = record.date;
+                        const tech = db.tecnicos.find(t => t.id === record.tecnicoId);
+                        const techName = tech ? tech.name.split(' ').slice(0, 2).join(' ') : '-';
+                        tableHtml += `
+                            <td class="text-center p-3 border-l border-slate-100 bg-emerald-50/10">
+                                <div class="text-[10px] font-bold text-emerald-600">${new Date(record.date + 'T00:00:00').toLocaleDateString('pt-BR')}</div>
+                                <div class="text-[9px] text-slate-400 uppercase font-bold tracking-tighter">${techName}</div>
+                            </td>
+                        `;
+                    } else {
+                        let predHTML = '-';
+                        if(lastRealVisitDate) {
+                            const d = new Date(lastRealVisitDate + 'T00:00:00');
+                            d.setDate(d.getDate() + 30);
+                            const diaStr = String(d.getDate()).padStart(2, '0');
+                            const mesStr = String(d.getMonth() + 1).padStart(2, '0');
+                            const anoStr = d.getFullYear();
+                            predHTML = `<span class="text-red-500 font-bold">${diaStr}/${mesStr}/${anoStr}</span>`;
+                            lastRealVisitDate = `${anoStr}-${mesStr}-${diaStr}`;
+                        }
+                        tableHtml += `
+                            <td class="text-center p-3 border-l border-slate-100 bg-slate-50/50">
+                                <div class="text-[10px]">${predHTML}</div>
+                                <div class="text-[9px] text-slate-300 font-bold">-</div>
+                            </td>
+                        `;
+                    }
+                });
+
+                tableHtml += `</tr>`;
+            });
+
+            tableHtml += `</tbody></table>`;
+            container.innerHTML = tableHtml;
+            lucide.createIcons();
+        }
+
+        async function exportVisitReportToPDF() {
+            const table = document.getElementById('table-visit-report');
+            if(!table) return alert("Gere o relatório primeiro!");
+
+            const doc = new jsPDF('l', 'mm', 'a4');
+            const prog = document.getElementById('rep-visita-contrato').options[document.getElementById('rep-visita-contrato').selectedIndex].text;
+            const mun = document.getElementById('rep-visita-municipio').options[document.getElementById('rep-visita-municipio').selectedIndex].text;
+            const com = document.getElementById('rep-visita-comunidade').options[document.getElementById('rep-visita-comunidade').selectedIndex].text;
+
+            doc.setFontSize(14);
+            doc.setTextColor(46, 125, 50);
+            doc.text("ACOMPANHAMENTO DE VISITAS (UFPA)", 14, 15);
+            doc.setFontSize(10);
+            doc.setTextColor(100, 116, 139);
+            doc.text(`Programa: ${prog} | Município: ${mun} | Comunidade: ${com}`, 14, 22);
+            doc.text(`Gerado em: ${new Date().toLocaleString('pt-BR')}`, 14, 27);
+
+            doc.autoTable({ 
+                html: '#table-visit-report',
+                startY: 32,
+                theme: 'grid',
+                headStyles: { fillColor: [46, 125, 50], textColor: [255, 255, 255], fontSize: 8 },
+                bodyStyles: { fontSize: 7, cellPadding: 2 },
+                columnStyles: {
+                    0: { cellWidth: 20 },
+                    1: { cellWidth: 35 }
+                },
+                didParseCell: function(data) {
+                    if (data.section === 'body' && data.column.index >= 2) {
+                        if (data.cell.text.length === 2 && data.cell.text[1] === '-') {
+                            data.cell.styles.textColor = [183, 28, 28];
+                            data.cell.styles.fontStyle = 'bold';
+                        }
+                    }
+                }
+            });
+
+            doc.save(`Visitas_${com.replace(/\s+/g, '_')}.pdf`);
+        }
+
+        window.editDataId = null;
+
+        function editDataRecord(id) {
+            const r = db.controle_datas.find(x => x.id === id);
+            if(!r) return alert("Registro não encontrado!");
+
+            window.editDataId = r.id;
+
+            // Fill selectors one by one
+            document.getElementById('input-data-contrato').value = r.contractId || '';
+            filterDataPrerequisites(); // Populate technicos, atividades, municipios
+
+            // Now we can select municipality and técnico
+            document.getElementById('input-data-tecnico').value = r.tecnicoId || '';
+            document.getElementById('input-data-atividade').value = r.activityId || '';
+            document.getElementById('input-data-municipio').value = r.municipalityId || '';
+            updateDataCommunitySelect();
+
+            document.getElementById('input-data-comunidade').value = r.community || '';
+            enableUFPAAutocomplete();
+
+            document.getElementById('input-data-valor').value = r.date || '';
+            document.getElementById('input-data-ufpa-id').value = r.ufpaId || '';
+
+            const ufpa = db.ufpas.find(u => u.id === r.ufpaId);
+            document.getElementById('input-data-ufpa-search').value = ufpa ? ufpa.denominacao : '';
+
+            // Update save button visual
+            const btn = document.getElementById('btn-save-data');
+            if(btn) {
+                btn.innerHTML = `<i data-lucide="save" size="16"></i> Salvar Alterações`;
+                btn.className = "bg-amber-600 text-white w-full py-2 rounded-lg font-bold text-sm hover:opacity-90 flex items-center justify-center gap-2";
+                lucide.createIcons();
+            }
+            showToast("Edição iniciada. Altere os campos e salve!");
         }
 
         async function addDataRecord() {
@@ -3403,10 +4206,11 @@
             const activityId = document.getElementById('input-data-atividade').value;
             const munId = document.getElementById('input-data-municipio').value;
             const comm = document.getElementById('input-data-comunidade').value;
+            const ufpaId = document.getElementById('input-data-ufpa-id').value;
             const date = document.getElementById('input-data-valor').value;
 
-            if(!contId || !techId || !activityId || !munId || !comm || !date) {
-                return alert('Por favor, preencha todos os campos do Controle de Datas!');
+            if(!contId || !techId || !activityId || !munId || !comm || !date || !ufpaId) {
+                return alert('Por favor, preencha todos os campos, incluindo a UFPA!');
             }
 
             const mun = db.municipios.find(m => m.id === munId);
@@ -3418,15 +4222,32 @@
                 municipalityId: munId,
                 municipality: mun ? mun.name : munId,
                 community: comm,
+                ufpaId: ufpaId,
                 date,
                 timestamp: serverTimestamp()
             };
 
             try {
-                await addDoc(collection(db_fs, "controle_datas"), payload);
-                showToast("Data registrada com sucesso no controle interno!");
+                if (window.editDataId) {
+                    await updateDoc(doc(db_fs, "controle_datas", window.editDataId), payload);
+                    showToast("Registro de data atualizado com sucesso!");
+                    window.editDataId = null;
+
+                    // Reset save button visual
+                    const btn = document.getElementById('btn-save-data');
+                    if(btn) {
+                        btn.innerHTML = `<i data-lucide="plus-circle" size="16"></i> Registrar Data`;
+                        btn.className = "bg-secondary text-white w-full py-2 rounded-lg font-bold text-sm hover:opacity-90 flex items-center justify-center gap-2";
+                        lucide.createIcons();
+                    }
+                } else {
+                    await addDoc(collection(db_fs, "controle_datas"), payload);
+                    showToast("Data registrada com sucesso!");
+                }
                 // Clear UI
                 document.getElementById('input-data-valor').value = '';
+                document.getElementById('input-data-ufpa-search').value = '';
+                document.getElementById('input-data-ufpa-id').value = '';
             } catch(e) {
                 console.error(e);
                 alert('Erro ao salvar registro de data.');
@@ -3720,38 +4541,1158 @@
             lucide.createIcons();
         }
 
-        function printReport() {
-            const html = `<html><head><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ddd;padding:8px}th{background:#f4f4f4}.card{border:1px solid #ccc;padding:10px;margin-bottom:10px}</style></head>
-                <body><h1>RELATÓRIO DE EXECUÇÃO</h1>${document.getElementById('report-results').innerHTML}</body></html>`;
-            const w = window.open('', '_blank'); w.document.write(html); w.document.close(); w.print();
+        // ==========================================
+        //         SISTEMA SMART DE GERAR RTA        
+        // ==========================================
+        window.rtaDocxTemplateBinary = null;
+        window.uploadedRTAExcelFile = null;
+
+        function populateRTAPanelSelectors() {
+            const select = document.getElementById("rta-contrato");
+            const impSelect = document.getElementById("imp-rta-excel-contract");
+            const ufpaSelect = document.getElementById("rta-ufpa-select");
+            
+            let html = '<option value="">Escolha um programa/contrato...</option>';
+            if (window.db && window.db.contratos) {
+                window.db.contratos.forEach(c => {
+                    html += `<option value="${c.id}">${c.program} - ${c.instrument}</option>`;
+                });
+            }
+            
+            if (select) {
+                const curVal = select.value;
+                select.innerHTML = html;
+                if (curVal) select.value = curVal;
+            }
+            
+            if (impSelect) {
+                const curVal = impSelect.value;
+                impSelect.innerHTML = `<option value="">Selecione o programa...</option>` + (window.db && window.db.contratos ? window.db.contratos.map(c => `<option value="${c.id}">${c.program} - ${c.instrument}</option>`).join('') : '');
+                if (curVal) impSelect.value = curVal;
+            }
+
+            if (ufpaSelect) {
+                const curVal = ufpaSelect.value;
+                let ufpaHtml = '<option value="">Selecione a UFPA (Família)...</option>';
+                if (window.db && window.db.ufpas) {
+                    const sortedUfpas = [...window.db.ufpas].sort((a,b) => (a.denominacao || "").localeCompare(b.denominacao || ""));
+                    sortedUfpas.forEach(u => {
+                        ufpaHtml += `<option value="${u.id}">${u.denominacao} (${u.codigo || 'S/ CÓDIGO'})</option>`;
+                    });
+                }
+                ufpaSelect.innerHTML = ufpaHtml;
+                if (curVal) ufpaSelect.value = curVal;
+            }
+
+            // Sync autocomplete combobox with updated DB
+            if (typeof window.filterRTAUFPACombobox === "function") {
+                window.filterRTAUFPACombobox("");
+            }
         }
 
-        function printForm(type, id) {
-            let html = '<div style="font-family:sans-serif;padding:40px;border:1px solid #1b4332;">';
-            if(type==='tecnico'){
-                const t = db.tecnicos.find(x=>x.id===id);
-                const c = db.contratos.find(x => x.id === t.contractId);
-                html += `<h1>FICHA INDIVIDUAL DO TÉCNICO</h1><hr>
-                         <p><strong>Nome:</strong> ${t.name}</p>
-                         <p><strong>Matrícula:</strong> ${t.id}</p>
-                         <p><strong>CPF:</strong> ${t.cpf || 'N/A'}</p>
-                         <p><strong>Função:</strong> ${t.role_type || 'N/A'}</p>
-                         <p><strong>Formação:</strong> ${t.education || 'N/A'}</p>
-                         <p><strong>Salário:</strong> R$ ${Number(t.fixedSalary || 0).toFixed(2)}</p>
-                         <p><strong>Aluguel:</strong> R$ ${Number(t.vehicleRental || 0).toFixed(2)}</p>
-                         <hr>
-                         <p><strong>Programa:</strong> ${c ? c.program : 'N/A'}</p>
-                         <p><strong>Nº Instrumento:</strong> ${c ? c.instrument : 'N/A'}</p>`;
-            } else if(type==='atividade'){
-                const a = db.atividades.find(x=>x.id==id);
-                html += `<h1>DETALHES ATIVIDADE</h1><p>Nome: ${a.name}</p><p>Código Meta: ${a.metaCode}</p><p>Quant. Prevista: ${a.planned}</p><p>Valor Unitário: R$ ${a.value}</p>`;
-            } else if(type==='municipio'){
-                const c = db.comunidades.filter(x=>x.municipality===id);
-                html += `<h1>MUNICÍPIO: ${id}</h1><ul>${c.map(x=>`<li>${x.name}</li>`).join('')}</ul>`;
+        function selectRTAFamilyFromSelect(ufpaId) {
+            const hiddenInput = document.getElementById("rta-search-ufpa");
+            if (!ufpaId) {
+                if (hiddenInput) {
+                    hiddenInput.setAttribute("data-selected-id", "");
+                    hiddenInput.value = "";
+                }
+                clearRTASelectedUFPA();
+                return;
             }
-            html += '</div>';
-            const w = window.open('', '_blank'); w.document.write(html); w.document.close(); w.print();
+
+            if (hiddenInput) {
+                hiddenInput.setAttribute("data-selected-id", ufpaId);
+                const ufpa = window.db.ufpas.find(u => u.id === ufpaId);
+                hiddenInput.value = ufpa ? ufpa.denominacao : "";
+            }
+
+            // Sync dropdown just in case
+            const selectEl = document.getElementById("rta-ufpa-select");
+            if (selectEl && selectEl.value !== ufpaId) {
+                selectEl.value = ufpaId;
+            }
+
+            selectRTAFamily(ufpaId);
         }
+
+        function resetRTAFamilySelection() {
+            clearRTASelectedUFPA();
+            const input = document.getElementById("rta-search-ufpa");
+            if (input) {
+                input.value = "";
+                input.removeAttribute("data-selected-id");
+            }
+            const selectEl = document.getElementById("rta-ufpa-select");
+            if (selectEl) {
+                selectEl.value = "";
+            }
+        }
+
+        function onRTASearchInput() {
+            const input = document.getElementById("rta-search-ufpa");
+            const dropdown = document.getElementById("rta-dropdown-suggestions");
+            const contractId = document.getElementById("rta-contrato").value;
+
+            if (!input || !dropdown) return;
+            const query = input.value.trim().toUpperCase();
+
+            if (!contractId) {
+                dropdown.innerHTML = `<div class="p-3 text-xs font-bold text-red-500 text-center uppercase">Por favor, selecione primeiro um programa/contrato!</div>`;
+                dropdown.classList.remove("hidden");
+                return;
+            }
+
+            if (!query) {
+                dropdown.innerHTML = "";
+                dropdown.classList.add("hidden");
+                return;
+            }
+
+            const matchingUfpas = window.db.ufpas.filter(u => {
+                const sameContract = u.contractId === contractId;
+                const matchQuery = (u.codigo && u.codigo.toUpperCase().includes(query)) || 
+                                   (u.denominacao && u.denominacao.toUpperCase().includes(query));
+                return sameContract && matchQuery;
+            });
+
+            if (matchingUfpas.length === 0) {
+                dropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 font-semibold text-center uppercase">Nenhuma família cadastrada neste programa que combine com o termo buscado.</div>`;
+                dropdown.classList.remove("hidden");
+                return;
+            }
+
+            let html = "";
+            matchingUfpas.forEach(u => {
+                html += `
+                    <div onclick="window.selectRTAFamily('${u.id}')" class="p-3 border-b text-xs hover:bg-[#1b4332]/5 cursor-pointer flex flex-col gap-1 transition-all">
+                        <div class="flex justify-between items-center">
+                            <span class="font-mono font-bold text-emerald-800 text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded">${u.codigo || 'N/A'}</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase">${u.community || '-'}</span>
+                        </div>
+                        <div class="font-bold text-slate-800 uppercase tracking-tight">${u.denominacao || '-'}</div>
+                        <div class="text-[10px] text-slate-500 font-semibold">Atividade: ${u.mainActivity || '-'}</div>
+                    </div>
+                `;
+            });
+            dropdown.innerHTML = html;
+            dropdown.classList.remove("hidden");
+        }
+
+        function selectRTAFamily(ufpaId) {
+            const input = document.getElementById("rta-search-ufpa");
+            const dropdown = document.getElementById("rta-dropdown-suggestions");
+            const card = document.getElementById("rta-selected-ufpa-card");
+
+            if (!input) return;
+
+            const ufpa = window.db.ufpas.find(u => u.id === ufpaId);
+            if (!ufpa) return;
+
+            input.value = ufpa.denominacao;
+            input.setAttribute("data-selected-id", ufpaId);
+            if (dropdown) dropdown.classList.add("hidden");
+
+            // Automate program mapping from selected family to hidden contract selector
+            const contractSelect = document.getElementById("rta-contrato");
+            if (contractSelect) {
+                contractSelect.value = ufpa.contractId || "";
+            }
+
+            // Sync select dropdown in main panel UI
+            const ufpaSelect = document.getElementById("rta-ufpa-select");
+            if (ufpaSelect && ufpaSelect.value !== ufpaId) {
+                ufpaSelect.value = ufpaId;
+            }
+
+            const badgeCode = document.getElementById("rta-badge-code");
+            if (badgeCode) badgeCode.innerText = `CÓDIGO: ${ufpa.codigo || 'N/A'}`;
+
+            const lblDenom = document.getElementById("rta-lbl-denom");
+            if (lblDenom) lblDenom.innerText = ufpa.denominacao;
+            
+            const municipalStr = window.db.municipios.find(m => m.id === ufpa.municipalityId)?.name || ufpa.municipalityId || '-';
+            const lblCommunity = document.getElementById("rta-lbl-community");
+            if (lblCommunity) lblCommunity.innerText = `Comunidade: ${ufpa.community || '-'} | Município: ${municipalStr}`;
+
+            const lblActivity = document.getElementById("rta-lbl-activity");
+            if (lblActivity) lblActivity.innerText = `Atividade: ${ufpa.mainActivity || '-'}`;
+
+            if (card) card.classList.remove("hidden");
+
+            // Populate our new combobox, municipality and community inputs
+            const combobox = document.getElementById("rta-search-ufpa-combobox");
+            if (combobox) {
+                combobox.value = ufpa.denominacao;
+            }
+            const munInput = document.getElementById("rta-municipio-input");
+            if (munInput) {
+                munInput.value = municipalStr;
+            }
+            const comInput = document.getElementById("rta-comunidade-input");
+            if (comInput) {
+                comInput.value = ufpa.community || "";
+            }
+
+            updateRTAMetadata();
+            renderRTAHistory(ufpaId);
+            showToast("Família selecionada com sucesso!");
+        }
+
+        window.onRTAUFPAInputClick = function() {
+            const dropdown = document.getElementById("rta-combobox-dropdown");
+            if (!dropdown) return;
+            window.filterRTAUFPACombobox(document.getElementById("rta-search-ufpa-combobox").value);
+            dropdown.classList.remove("hidden");
+        };
+
+        window.onRTAUFPAInputType = function(val) {
+            window.filterRTAUFPACombobox(val);
+            const dropdown = document.getElementById("rta-combobox-dropdown");
+            if (dropdown) dropdown.classList.remove("hidden");
+        };
+
+        window.filterRTAUFPACombobox = function(filterText) {
+            const dropdown = document.getElementById("rta-combobox-dropdown");
+            if (!dropdown) return;
+
+            if (!window.db || !window.db.ufpas) {
+                dropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 font-semibold text-center italic">Nenhuma família de UFPA cadastrada</div>`;
+                return;
+            }
+
+            const searchLow = (filterText || "").toLowerCase().trim();
+            const filtered = window.db.ufpas.filter(u => {
+                const nameMatch = (u.denominacao || "").toLowerCase().includes(searchLow);
+                const codeMatch = (u.codigo || "").toLowerCase().includes(searchLow);
+                return nameMatch || codeMatch;
+            });
+
+            if (filtered.length === 0) {
+                dropdown.innerHTML = `<div class="p-3 text-xs text-slate-400 font-medium text-center italic">Nenhuma família correspondente</div>`;
+                return;
+            }
+
+            let html = "";
+            filtered.forEach(u => {
+                const munName = window.db.municipios.find(m => m.id === u.municipalityId)?.name || u.municipalityId || '-';
+                html += `
+                    <div onclick="window.onSelectRTAComboboxFamily('${u.id}')" class="p-3 hover:bg-slate-50 cursor-pointer flex flex-col gap-1 transition-all text-left">
+                        <div class="flex justify-between items-center gap-2">
+                            <span class="font-mono font-bold text-emerald-800 text-[10px] bg-emerald-50 px-1.5 py-0.5 rounded">${u.codigo || 'S/ CÓDIGO'}</span>
+                            <span class="text-[10px] text-slate-400 font-bold uppercase truncate max-w-[150px]">${u.community || ''}</span>
+                        </div>
+                        <div class="font-bold text-slate-800 uppercase text-xs truncate title-row">${u.denominacao || ''}</div>
+                        <div class="text-[10px] font-semibold text-slate-500 truncate">Município: ${munName}</div>
+                    </div>
+                `;
+            });
+            dropdown.innerHTML = html;
+        };
+
+        window.onSelectRTAComboboxFamily = function(ufpaId) {
+            selectRTAFamily(ufpaId);
+            const dropdown = document.getElementById("rta-combobox-dropdown");
+            if (dropdown) dropdown.classList.add("hidden");
+        };
+
+        // Click outside handler to close dropdown
+        document.addEventListener("click", function(e) {
+            const dropdown = document.getElementById("rta-combobox-dropdown");
+            const combobox = document.getElementById("rta-search-ufpa-combobox");
+            if (dropdown && combobox && !dropdown.contains(e.target) && e.target !== combobox) {
+                dropdown.classList.add("hidden");
+            }
+        });
+
+        function clearRTASelectedUFPA() {
+            const card = document.getElementById("rta-selected-ufpa-card");
+            const input = document.getElementById("rta-search-ufpa");
+            if (card) card.classList.add("hidden");
+            if (input) {
+                input.value = "";
+                input.removeAttribute("data-selected-id");
+            }
+            
+            document.getElementById("rta-empty-preview").classList.remove("hidden");
+            document.getElementById("rta-interactive-editor").classList.add("hidden");
+            
+            const histEmpty = document.getElementById("rta-history-empty");
+            const histContainer = document.getElementById("rta-history-container");
+            if (histEmpty) histEmpty.classList.remove("hidden");
+            if (histContainer) histContainer.classList.add("hidden");
+        }
+
+        function updateRTAMetadata() {
+            const visitNum = parseInt(document.getElementById("rta-visita-numero").value) || 1;
+            const metaCodeEl = document.getElementById("rta-meta-codigo");
+            const metaDescEl = document.getElementById("rta-meta-descricao");
+
+            if (!metaCodeEl || !metaDescEl) return;
+
+            let code = "18528";
+            let desc = `ORIENTAÇÃO TÉCNICA E ACOMPANHAMENTO (P${visitNum})`;
+
+            if (visitNum === 1) {
+                code = "18527";
+                desc = "VISITAS INDIVIDUAIS ÀS UFPAS (P1) - CADASTRATIVA";
+            } else if (visitNum === 2) {
+                code = "18527";
+                desc = "ELABORAÇÃO DO PROJETO PRODUTIVO (P2)";
+            }
+
+            if (metaCodeEl.tagName === 'INPUT') {
+                metaCodeEl.value = code;
+            } else {
+                metaCodeEl.innerText = code;
+            }
+
+            if (metaDescEl.tagName === 'INPUT') {
+                metaDescEl.value = desc;
+            } else {
+                metaDescEl.innerText = desc;
+            }
+        }
+
+        function onRTADocxLoaded(input) {
+            const file = input.files[0];
+            const promptZone = document.getElementById("rta-docx-prompt");
+            const successZone = document.getElementById("rta-docx-success");
+            const filenameEl = document.getElementById("rta-docx-filename");
+            const filesizeEl = document.getElementById("rta-docx-filesize");
+
+            if (!file) return;
+
+            if (!file.name.endsWith('.docx')) {
+                alert("Por favor, carregue somente arquivos .docx do MS Word.");
+                input.value = "";
+                return;
+            }
+
+            const kb = (file.size / 1024).toFixed(1);
+            filenameEl.innerText = file.name;
+            filesizeEl.innerText = `${kb} KB - Clique para substituir`;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                window.rtaDocxTemplateBinary = e.target.result;
+                promptZone.classList.add("hidden");
+                successZone.classList.remove("hidden");
+                showToast("Modelo Word (.docx) carregado com sucesso!");
+            };
+            reader.onerror = function() {
+                alert("Falha ao ler o arquivo selecionado.");
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function openRTAExcelImportModal() {
+            closeModal();
+            setTimeout(() => {
+                openModal('importar-rta-excel');
+            }, 150);
+        }
+
+        function onRTAExcelFileSelect(input) {
+            const file = input.files[0];
+            const importBtn = document.getElementById("btn-rta-excel-import");
+            const statusLbl = document.getElementById("rta-excel-status-lbl");
+
+            if (!file) return;
+            window.uploadedRTAExcelFile = file;
+
+            statusLbl.innerHTML = `<span class="text-green-700 font-extrabold">${file.name}</span> <br> <span class="text-[10px] text-slate-400">Pronto para iniciar processamento</span>`;
+            importBtn.disabled = false;
+            importBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        }
+
+        async function importRTAExcelDataRef() {
+            const file = window.uploadedRTAExcelFile;
+            const contractId = document.getElementById("imp-rta-excel-contract").value;
+
+            if (!contractId) {
+                return alert("Selecione primeiro o Programa ao qual as famílias serão associadas!");
+            }
+            if (!file) {
+                return alert("Por favor, selecione um arquivo Excel primeiro.");
+            }
+
+            const importBtn = document.getElementById("btn-rta-excel-import");
+            importBtn.innerText = "Processando planilha...";
+            importBtn.disabled = true;
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheetName = workbook.SheetNames[0];
+                    const worksheet = workbook.Sheets[firstSheetName];
+                    const rows = XLSX.utils.sheet_to_json(worksheet);
+
+                    if (rows.length === 0) {
+                        alert("O arquivo Excel correspondente está vazio.");
+                        return;
+                    }
+
+                    const cols = Object.keys(rows[0]);
+                    console.log("Excel import cols: ", cols);
+
+                    const colMap = {
+                        municipio: cols.find(c => c.toLowerCase().trim() === 'municipio' || c.toLowerCase().trim() === 'município'),
+                        comunidade: cols.find(c => c.toLowerCase().trim() === 'comunidade'),
+                        codigo: cols.find(c => c.toLowerCase().trim().replace(/ /g, '') === 'codigodaufpa' || c.toLowerCase().trim().replace(/ /g, '') === 'códigodaufpa'),
+                        denominacao: cols.find(c => c.toLowerCase().trim().replace(/ /g, '') === 'denominacaodaufpa' || c.toLowerCase().trim().replace(/ /g, '') === 'denominaçãodaufpa'),
+                        atividade: cols.find(c => c.toLowerCase().trim().replace(/ /g, '') === 'atividadeprincipal'),
+                        titulo: cols.find(c => c.toLowerCase().trim().replace(/ /g, '') === 'titulodoprojeto' || c.toLowerCase().trim().replace(/ /g, '') === 'títulodoprojeto'),
+                        grupo: cols.find(c => c.toLowerCase().trim().replace(/ /g, '') === 'denominacaodogrupo' || c.toLowerCase().trim().replace(/ /g, '') === 'denominaçãodogrupo')
+                    };
+
+                    if (!colMap.codigo || !colMap.denominacao) {
+                        alert("Incompatibilidade estrutural! A planilha deve conter as colunas fundamentais: 'CÓDIGO DA UFPA' e 'DENOMINAÇÃO DA UFPA'.");
+                        importBtn.innerText = "Iniciar Importação";
+                        importBtn.disabled = false;
+                        return;
+                    }
+
+                    let addedCount = 0;
+                    let updatedCount = 0;
+
+                    for (const row of rows) {
+                        const codeVal = String(row[colMap.codigo] || '').trim();
+                        const denomVal = String(row[colMap.denominacao] || '').trim();
+                        const munVal = String(row[colMap.municipio] || '').trim();
+                        const comVal = String(row[colMap.comunidade] || '').trim();
+                        const actVal = String(row[colMap.atividade] || '').trim();
+                        const projVal = String(row[colMap.titulo] || '').trim();
+                        const groupVal = String(row[colMap.grupo] || '').trim();
+
+                        if (!codeVal || !denomVal) continue;
+
+                        let munId = munVal.toUpperCase();
+                        const existingMun = window.db.municipios.find(m => m.name.toUpperCase() === munId && m.contractId === contractId);
+                        if (!existingMun && munVal) {
+                            await fs_ops.addDoc(fs_ops.collection(db_fs, "municipios"), {
+                                name: munVal.toUpperCase(),
+                                contractId: contractId
+                            });
+                        }
+
+                        const existingCom = window.db.comunidades.find(co => co.name.toUpperCase() === comVal.toUpperCase() && co.municipalityId === munId);
+                        if (!existingCom && comVal && munVal) {
+                            await fs_ops.addDoc(fs_ops.collection(db_fs, "comunidades"), {
+                                name: comVal.toUpperCase(),
+                                municipalityId: munId,
+                                contractId: contractId
+                            });
+                        }
+
+                        const existingUfpa = window.db.ufpas.find(u => u.codigo === codeVal);
+                        
+                        const ufpaData = {
+                            codigo: codeVal,
+                            denominacao: denomVal.toUpperCase(),
+                            contractId: contractId,
+                            municipalityId: munId,
+                            community: comVal.toUpperCase(),
+                            mainActivity: actVal || "AGROPECUARIA",
+                            projectTitle: projVal || "",
+                            groupName: groupVal || "",
+                            titulares: [{ name: denomVal.toUpperCase(), cpf: "" }]
+                        };
+
+                        if (existingUfpa) {
+                            await fs_ops.updateDoc(fs_ops.doc(db_fs, "ufpas", existingUfpa.id), ufpaData);
+                            updatedCount++;
+                        } else {
+                            await fs_ops.addDoc(fs_ops.collection(db_fs, "ufpas"), ufpaData);
+                            addedCount++;
+                        }
+                    }
+
+                    closeModal();
+                    alert(`Importação concluída com sucesso! \nAdicionadas: ${addedCount} UFPAs \nAtualizadas: ${updatedCount} UFPAs`);
+                    showToast("Planilha de UFPAs importada!");
+                } catch (err) {
+                    console.error("Erro ao ler planilha excel:", err);
+                    alert("Erro interno durante o processamento do arquivo de importação: " + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        async function generateRTATexts() {
+            const selectedUfpaId = document.getElementById("rta-search-ufpa").getAttribute("data-selected-id");
+            const visitNum = parseInt(document.getElementById("rta-visita-numero").value) || 1;
+            const contractId = document.getElementById("rta-contrato").value;
+
+            if (!selectedUfpaId) {
+                return alert("Selecione primeiro a Unidade Familiar (UFPA/Família) na barra lateral de pesquisa.");
+            }
+
+            const ufpa = window.db.ufpas.find(u => u.id === selectedUfpaId);
+            if (!ufpa) return;
+
+            const contract = window.db.contratos.find(c => c.id === contractId);
+
+            document.getElementById("rta-empty-preview").classList.add("hidden");
+            document.getElementById("rta-interactive-editor").classList.add("hidden");
+            
+            const loadingScreen = document.getElementById("rta-ai-loading");
+            const loadingStatus = document.getElementById("rta-loading-status");
+            const loadingSubtext = document.getElementById("rta-loading-subtext");
+
+            loadingScreen.classList.remove("hidden");
+            loadingStatus.innerText = "Interagindo com a Inteligência Artificial...";
+            loadingSubtext.innerText = "Analisando histórico da família, meta do convênio governamental e redigindo os eixos agroecológicos...";
+
+            const pastRTAs = window.db.rtas.filter(r => r.ufpaId === selectedUfpaId).sort((a,b) => a.visitaNumero - b.visitaNumero);
+            const rtasMetadataText = pastRTAs.map(r => `Visita ${r.visitaNumero} (${r.atividadeMeta}): Eixo Produtivo: ${r.eixoProdutivo?.atividadeProdutiva || 'N/A'}. Conclusões: ${r.eixoProdutivo?.desenvolvimentoParagrafo1 || 'N/A'}.`).join("\n");
+
+            try {
+                const response = await fetch('/api/generate-rta', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        ufpa: {
+                            codigo: ufpa.codigo,
+                            denominacao: ufpa.denominacao,
+                            mainActivity: ufpa.mainActivity,
+                            community: ufpa.community,
+                            municipalityId: ufpa.municipalityId,
+                            projectTitle: ufpa.projectTitle || "",
+                            groupName: ufpa.groupName || ""
+                        },
+                        visitaNumero: visitNum,
+                        programa: contract ? contract.programKey || contract.program : "Florestas Produtivas",
+                        historicoVisitasAnteriores: rtasMetadataText
+                    })
+                });
+
+                if (!response.ok) {
+                    const errPayload = await response.json();
+                    throw new Error(errPayload.error || "Erro de geração no servidor.");
+                }
+
+                const payload = await response.json();
+                console.log("RTA Smart Generation Success: ", payload);
+
+                document.getElementById("rta-prod-tipo-acao").value = payload.eixoProdutivo.tipoAcao || "";
+                document.getElementById("rta-prod-atividade").value = payload.eixoProdutivo.atividadeProdutiva || "";
+                document.getElementById("rta-prod-etapa").value = payload.eixoProdutivo.etapaAtividade || "";
+                document.getElementById("rta-prod-impactos").value = payload.eixoProdutivo.impactoOrientacoesAnteriores || "";
+                document.getElementById("rta-prod-desenv-1").value = payload.eixoProdutivo.desenvolvimentoParagrafo1 || "";
+                document.getElementById("rta-prod-desenv-2").value = payload.eixoProdutivo.desenvolvimentoParagrafo2 || "";
+                document.getElementById("rta-prod-problemas").value = payload.eixoProdutivo.problemasObservados || "";
+                document.getElementById("rta-prod-recom-1").value = payload.eixoProdutivo.recomendacoesParagrafo1 || "";
+                document.getElementById("rta-prod-recom-2").value = payload.eixoProdutivo.recomendacoesParagrafo2 || "";
+                document.getElementById("rta-prod-recom-3").value = payload.eixoProdutivo.recomendacoesParagrafo3 || "";
+                document.getElementById("rta-prod-recom-4").value = payload.eixoProdutivo.recomendacoesParagrafo4PreparoProximoEncontro || "";
+                document.getElementById("rta-prod-res-desc").value = payload.eixoProdutivo.resultadoCampoDescricao || "";
+                document.getElementById("rta-prod-res-qtd").value = payload.eixoProdutivo.resultadoCampoQuantidade || "";
+                document.getElementById("rta-prod-res-un").value = payload.eixoProdutivo.resultadoCampoUnidade || "";
+                document.getElementById("rta-prod-res-est").value = payload.eixoProdutivo.resultadoCampoEstado || "Realizado";
+
+                document.getElementById("rta-soc-tipo-acao").value = payload.eixoSocial.tipoAcao || "";
+                document.getElementById("rta-soc-atividade").value = payload.eixoSocial.atividadeSocial || "";
+                document.getElementById("rta-soc-etapa").value = payload.eixoSocial.etapaAtividade || "";
+                document.getElementById("rta-soc-impactos").value = payload.eixoSocial.impactosObservados || "";
+                document.getElementById("rta-soc-desenv").value = payload.eixoSocial.desenvolvimentoParagrafoUnico || "";
+                document.getElementById("rta-soc-problemas").value = payload.eixoSocial.problemasObservados || "";
+                document.getElementById("rta-soc-recom-1").value = payload.eixoSocial.recomendacoesParagrafo1 || "";
+                document.getElementById("rta-soc-recom-2").value = payload.eixoSocial.recomendacoesParagrafo2 || "";
+                document.getElementById("rta-soc-recom-3").value = payload.eixoSocial.recomendacoesParagrafo3 || "";
+                document.getElementById("rta-soc-res-desc").value = payload.eixoSocial.resultadoDescricao || "";
+                document.getElementById("rta-soc-res-qtd").value = payload.eixoSocial.resultadoQuantidade || "";
+                document.getElementById("rta-soc-res-un").value = payload.eixoSocial.resultadoUnidade || "";
+                document.getElementById("rta-soc-res-est").value = payload.eixoSocial.resultadoEstado || "Realizado";
+
+                document.getElementById("rta-amb-tipo-acao").value = payload.eixoAmbiental.tipoAcao || "";
+                document.getElementById("rta-amb-atividade").value = payload.eixoAmbiental.atividadeAmbiental || "";
+                document.getElementById("rta-amb-etapa").value = payload.eixoAmbiental.etapaAtividade || "";
+                document.getElementById("rta-amb-impactos").value = payload.eixoAmbiental.impactosOrientacoesAnteriores || "";
+                document.getElementById("rta-amb-desenv").value = payload.eixoAmbiental.desenvolvimentoParagrafoUnico || "";
+                document.getElementById("rta-amb-problemas").value = payload.eixoAmbiental.problemasObservados || "";
+                document.getElementById("rta-amb-recom-1").value = payload.eixoAmbiental.recomendacoesParagrafo1 || "";
+                document.getElementById("rta-amb-recom-2").value = payload.eixoAmbiental.recomendacoesParagrafo2 || "";
+                document.getElementById("rta-amb-recom-3").value = payload.eixoAmbiental.recomendacoesParagrafo3 || "";
+                document.getElementById("rta-amb-res-desc").value = payload.eixoAmbiental.resultadoDescricao || "";
+                document.getElementById("rta-amb-res-qtd").value = payload.eixoAmbiental.resultadoQuantidade || "";
+                document.getElementById("rta-amb-res-un").value = payload.eixoAmbiental.resultadoUnidade || "";
+                document.getElementById("rta-amb-res-est").value = payload.eixoAmbiental.resultadoEstado || "Realizado";
+
+                document.getElementById("rta-ind-seguranca").value = payload.indicadores.segurancaAlimentar || "";
+                document.getElementById("rta-ind-sustentavel").value = payload.indicadores.propriedadePraticasSustentaveis || "";
+                document.getElementById("rta-ind-diversificacao").value = payload.indicadores.diversificacaoAgroecologica || "";
+                document.getElementById("rta-ind-servicos").value = payload.indicadores.servicosSociaisBasicos || "";
+                document.getElementById("rta-ind-valor-bruto").value = payload.indicadores.valorBrutoProducao || "";
+                document.getElementById("rta-ind-acesso-politica").value = payload.indicadores.acessoPoliticaPublica || "";
+                document.getElementById("rta-ind-comercializacao").value = payload.indicadores.canaisComercializacao || "";
+                document.getElementById("rta-ind-sociobiodiversidade").value = payload.indicadores.sociobiodiversidade || "";
+
+                loadingScreen.classList.add("hidden");
+                document.getElementById("rta-interactive-editor").classList.remove("hidden");
+                switchRTAPreviewTab('produtivo');
+                showToast("Redação gerada pela IA com sucesso!");
+            } catch (err) {
+                console.error("Erro AI generate:", err);
+                alert("Ocorreu um erro ao consultar a IA Generativa: " + err.message);
+                loadingScreen.classList.add("hidden");
+                document.getElementById("rta-empty-preview").classList.remove("hidden");
+            }
+        }
+
+        function switchRTAPreviewTab(tabName) {
+            document.querySelectorAll(".rta-tab-content").forEach(c => c.classList.add("hidden"));
+            document.getElementById("btn-rta-tab-produtivo").className = "py-2.5 px-4 text-slate-500 border-b-2 border-transparent hover:text-slate-800";
+            document.getElementById("btn-rta-tab-social").className = "py-2.5 px-4 text-slate-500 border-b-2 border-transparent hover:text-slate-800";
+            document.getElementById("btn-rta-tab-ambiental").className = "py-2.5 px-4 text-slate-500 border-b-2 border-transparent hover:text-slate-800";
+            document.getElementById("btn-rta-tab-indicadores").className = "py-2.5 px-4 text-slate-500 border-b-2 border-transparent hover:text-slate-800";
+
+            document.getElementById(`rta-content-${tabName}`).classList.remove("hidden");
+            document.getElementById(`btn-rta-tab-${tabName}`).className = "py-2.5 px-4 text-primary border-b-2 border-primary font-bold";
+        }
+
+        async function saveRTAToDatabase() {
+            const selectedUfpaId = document.getElementById("rta-search-ufpa").getAttribute("data-selected-id");
+            if (!selectedUfpaId) return alert("Selecione uma UFPA!");
+
+            const progressBtn = document.querySelector('[onclick="saveRTAToDatabase()"]');
+            const origHTML = progressBtn.innerHTML;
+            progressBtn.innerText = "Salvando relatório...";
+            progressBtn.disabled = true;
+
+            const val = (id) => document.getElementById(id).value;
+
+            const rtaDoc = {
+                ufpaId: selectedUfpaId,
+                visitaNumero: parseInt(document.getElementById("rta-visita-numero").value) || 1,
+                contractId: document.getElementById("rta-contrato").value,
+                metaCodigo: (document.getElementById("rta-meta-codigo").value || document.getElementById("rta-meta-codigo").innerText),
+                atividadeMeta: (document.getElementById("rta-meta-descricao").value || document.getElementById("rta-meta-descricao").innerText),
+                tecnicoId: window.currentUser ? window.currentUser.id || "tecnico-admin" : "tecnico-admin",
+                tecnicoNome: window.currentUser ? window.currentUser.name : "Administrador",
+                dataGeracao: new Date().toISOString(),
+
+                eixoProdutivo: {
+                    tipoAcao: val("rta-prod-tipo-acao"),
+                    atividadeProdutiva: val("rta-prod-atividade"),
+                    etapaAtividade: val("rta-prod-etapa"),
+                    impactoOrientacoesAnteriores: val("rta-prod-impactos"),
+                    desenvolvimentoParagrafo1: val("rta-prod-desenv-1"),
+                    desenvolvimentoParagrafo2: val("rta-prod-desenv-2"),
+                    problemasObservados: val("rta-prod-problemas"),
+                    recomendacoesParagrafo1: val("rta-prod-recom-1"),
+                    recomendacoesParagrafo2: val("rta-prod-recom-2"),
+                    recomendacoesParagrafo3: val("rta-prod-recom-3"),
+                    recomendacoesParagrafo4PreparoProximoEncontro: val("rta-prod-recom-4"),
+                    resultadoCampoDescricao: val("rta-prod-res-desc"),
+                    resultadoCampoQuantidade: parseFloat(val("rta-prod-res-qtd")) || 0,
+                    resultadoCampoUnidade: val("rta-prod-res-un"),
+                    resultadoCampoEstado: val("rta-prod-res-est")
+                },
+
+                eixoSocial: {
+                    tipoAcao: val("rta-soc-tipo-acao"),
+                    atividadeSocial: val("rta-soc-atividade"),
+                    etapaAtividade: val("rta-soc-etapa"),
+                    impactosObservados: val("rta-soc-impactos"),
+                    desenvolvimentoParagrafoUnico: val("rta-soc-desenv"),
+                    problemasObservados: val("rta-soc-problemas"),
+                    recomendacoesParagrafo1: val("rta-soc-recom-1"),
+                    recomendacoesParagrafo2: val("rta-soc-recom-2"),
+                    recomendacoesParagrafo3: val("rta-soc-recom-3"),
+                    resultadoDescricao: val("rta-soc-res-desc"),
+                    resultadoQuantidade: parseFloat(val("rta-soc-res-qtd")) || 0,
+                    resultadoUnidade: val("rta-soc-res-un"),
+                    resultadoEstado: val("rta-soc-res-est")
+                },
+
+                eixoAmbiental: {
+                    tipoAcao: val("rta-amb-tipo-acao"),
+                    atividadeAmbiental: val("rta-amb-atividade"),
+                    etapaAtividade: val("rta-amb-etapa"),
+                    impactosOrientacoesAnteriores: val("rta-amb-impactos"),
+                    desenvolvimentoParagrafoUnico: val("rta-amb-desenv"),
+                    problemasObservados: val("rta-amb-problemas"),
+                    recomendacoesParagrafo1: val("rta-amb-recom-1"),
+                    recomendacoesParagrafo2: val("rta-amb-recom-2"),
+                    recomendacoesParagrafo3: val("rta-amb-recom-3"),
+                    resultadoDescricao: val("rta-amb-res-desc"),
+                    resultadoQuantidade: parseFloat(val("rta-amb-res-qtd")) || 0,
+                    resultadoUnidade: val("rta-amb-res-un"),
+                    resultadoEstado: val("rta-amb-res-est")
+                },
+
+                indicadores: {
+                    segurancaAlimentar: val("rta-ind-seguranca"),
+                    propriedadePraticasSustentaveis: val("rta-ind-sustentavel"),
+                    diversificacaoAgroecologica: val("rta-ind-diversificacao"),
+                    servicosSociaisBasicos: val("rta-ind-servicos"),
+                    valorBrutoProducao: val("rta-ind-valor-bruto"),
+                    acessoPoliticaPublica: val("rta-ind-acesso-politica"),
+                    canaisComercializacao: val("rta-ind-comercializacao"),
+                    sociobiodiversidade: val("rta-ind-sociobiodiversidade")
+                }
+            };
+
+            try {
+                const matchOld = window.db.rtas.find(r => r.ufpaId === selectedUfpaId && r.visitaNumero === rtaDoc.visitaNumero);
+
+                if (matchOld) {
+                    await fs_ops.updateDoc(fs_ops.doc(db_fs, "rtas", matchOld.id), rtaDoc);
+                    showToast("Relatório de RTA atualizado com sucesso no banco de dados!");
+                } else {
+                    await fs_ops.addDoc(fs_ops.collection(db_fs, "rtas"), rtaDoc);
+                    showToast("Relatório de RTA salvo com sucesso no banco de dados!");
+                }
+
+                renderRTAHistory(selectedUfpaId);
+            } catch (err) {
+                console.error("DB Save failure:", err);
+                alert("Erro ao persistir relatório no banco Firebase Firestore: " + err.message);
+            } finally {
+                progressBtn.innerHTML = origHTML;
+                progressBtn.disabled = false;
+            }
+        }
+
+        function renderRTAHistory(ufpaId) {
+            const loading = document.getElementById("rta-history-loading");
+            const empty = document.getElementById("rta-history-empty");
+            const container = document.getElementById("rta-history-container");
+            const tableBody = document.getElementById("table-rta-history-body");
+
+            if (!ufpaId || !tableBody) return;
+
+            loading.classList.remove("hidden");
+            empty.classList.add("hidden");
+            container.classList.add("hidden");
+
+            const matchingRtas = window.db.rtas.filter(r => r.ufpaId === ufpaId).sort((a,b) => b.visitaNumero - a.visitaNumero);
+
+            if (matchingRtas.length === 0) {
+                loading.classList.add("hidden");
+                empty.classList.remove("hidden");
+                return;
+            }
+
+            let html = "";
+            matchingRtas.forEach((r, idx) => {
+                const dateStr = new Date(r.dataGeracao).toLocaleDateString("pt-BR");
+                html += `
+                    <tr class="hover:bg-slate-50 border-b">
+                        <td class="p-3 text-center font-bold text-slate-700">Visita ${r.visitaNumero}</td>
+                        <td class="p-3 uppercase font-medium max-w-[200px] truncate">${r.eixoProdutivo?.atividadeProdutiva || 'N/A'}</td>
+                        <td class="p-3 font-semibold text-slate-500 text-[11px]">${r.tecnicoNome || "Administrador"}</td>
+                        <td class="p-3 font-mono text-slate-400 text-center font-semibold">${dateStr}</td>
+                        <td class="p-3 text-right">
+                            <div class="flex gap-2 justify-end">
+                                <button onclick="window.loadRTARecordIntoEditor('${r.id}')" class="bg-[#1b4332]/10 hover:bg-[#1b4332]/20 text-[#1b4332] font-bold text-[10px] py-1 px-2.5 rounded-lg transition-all" title="Ver / Editar">
+                                    Visualizar No Editor
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+            loading.classList.add("hidden");
+            container.classList.remove("hidden");
+        }
+
+        function loadRTARecordIntoEditor(rtaId) {
+            const r = window.db.rtas.find(x => x.id === rtaId);
+            if (!r) return alert("Erro ao localizar registro.");
+
+            document.getElementById("rta-contrato").value = r.contractId || "";
+            document.getElementById("rta-visita-numero").value = String(r.visitaNumero || 1);
+            updateRTAMetadata();
+
+            document.getElementById("rta-prod-tipo-acao").value = r.eixoProdutivo?.tipoAcao || "";
+            document.getElementById("rta-prod-atividade").value = r.eixoProdutivo?.atividadeProdutiva || "";
+            document.getElementById("rta-prod-etapa").value = r.eixoProdutivo?.etapaAtividade || "";
+            document.getElementById("rta-prod-impactos").value = r.eixoProdutivo?.impactoOrientacoesAnteriores || "";
+            document.getElementById("rta-prod-desenv-1").value = r.eixoProdutivo?.desenvolvimentoParagrafo1 || "";
+            document.getElementById("rta-prod-desenv-2").value = r.eixoProdutivo?.desenvolvimentoParagrafo2 || "";
+            document.getElementById("rta-prod-problemas").value = r.eixoProdutivo?.problemasObservados || "";
+            document.getElementById("rta-prod-recom-1").value = r.eixoProdutivo?.recomendacoesParagrafo1 || "";
+            document.getElementById("rta-prod-recom-2").value = r.eixoProdutivo?.recomendacoesParagrafo2 || "";
+            document.getElementById("rta-prod-recom-3").value = r.eixoProdutivo?.recomendacoesParagrafo3 || "";
+            document.getElementById("rta-prod-recom-4").value = r.eixoProdutivo?.recomendacoesParagrafo4PreparoProximoEncontro || "";
+            document.getElementById("rta-prod-res-desc").value = r.eixoProdutivo?.resultadoCampoDescricao || "";
+            document.getElementById("rta-prod-res-qtd").value = r.eixoProdutivo?.resultadoCampoQuantidade || "";
+            document.getElementById("rta-prod-res-un").value = r.eixoProdutivo?.resultadoCampoUnidade || "";
+            document.getElementById("rta-prod-res-est").value = r.eixoProdutivo?.resultadoCampoEstado || "Realizado";
+
+            document.getElementById("rta-soc-tipo-acao").value = r.eixoSocial?.tipoAcao || "";
+            document.getElementById("rta-soc-atividade").value = r.eixoSocial?.atividadeSocial || "";
+            document.getElementById("rta-soc-etapa").value = r.eixoSocial?.etapaAtividade || "";
+            document.getElementById("rta-soc-impactos").value = r.eixoSocial?.impactosObservados || "";
+            document.getElementById("rta-soc-desenv").value = r.eixoSocial?.desenvolvimentoParagrafoUnico || "";
+            document.getElementById("rta-soc-problemas").value = r.eixoSocial?.problemasObservados || "";
+            document.getElementById("rta-soc-recom-1").value = r.eixoSocial?.recomendacoesParagrafo1 || "";
+            document.getElementById("rta-soc-recom-2").value = r.eixoSocial?.recomendacoesParagrafo2 || "";
+            document.getElementById("rta-soc-recom-3").value = r.eixoSocial?.recomendacoesParagrafo3 || "";
+            document.getElementById("rta-soc-res-desc").value = r.eixoSocial?.resultadoDescricao || "";
+            document.getElementById("rta-soc-res-qtd").value = r.eixoSocial?.resultadoQuantidade || "";
+            document.getElementById("rta-soc-res-un").value = r.eixoSocial?.resultadoUnidade || "";
+            document.getElementById("rta-soc-res-est").value = r.eixoSocial?.resultadoEstado || "Realizado";
+
+            document.getElementById("rta-amb-tipo-acao").value = r.eixoAmbiental?.tipoAcao || "";
+            document.getElementById("rta-amb-atividade").value = r.eixoAmbiental?.atividadeAmbiental || "";
+            document.getElementById("rta-amb-etapa").value = r.eixoAmbiental?.etapaAtividade || "";
+            document.getElementById("rta-amb-impactos").value = r.eixoAmbiental?.impactosOrientacoesAnteriores || "";
+            document.getElementById("rta-amb-desenv").value = r.eixoAmbiental?.desenvolvimentoParagrafoUnico || "";
+            document.getElementById("rta-amb-problemas").value = r.eixoAmbiental?.problemasObservados || "";
+            document.getElementById("rta-amb-recom-1").value = r.eixoAmbiental?.recomendacoesParagrafo1 || "";
+            document.getElementById("rta-amb-recom-2").value = r.eixoAmbiental?.recomendacoesParagrafo2 || "";
+            document.getElementById("rta-amb-recom-3").value = r.eixoAmbiental?.recomendacoesParagrafo3 || "";
+            document.getElementById("rta-amb-res-desc").value = r.eixoAmbiental?.resultadoDescricao || "";
+            document.getElementById("rta-amb-res-qtd").value = r.eixoAmbiental?.resultadoQuantidade || "";
+            document.getElementById("rta-amb-res-un").value = r.eixoAmbiental?.resultadoUnidade || "";
+            document.getElementById("rta-amb-res-est").value = r.eixoAmbiental?.resultadoEstado || "Realizado";
+
+            document.getElementById("rta-ind-seguranca").value = r.indicadores?.segurancaAlimentar || "";
+            document.getElementById("rta-ind-sustentavel").value = r.indicadores?.propriedadePraticasSustentaveis || "";
+            document.getElementById("rta-ind-diversificacao").value = r.indicadores?.diversificacaoAgroecologica || "";
+            document.getElementById("rta-ind-servicos").value = r.indicadores?.servicosSociaisBasicos || "";
+            document.getElementById("rta-ind-valor-bruto").value = r.indicadores?.valorBrutoProducao || "";
+            document.getElementById("rta-ind-acesso-politica").value = r.indicadores?.acessoPoliticaPublica || "";
+            document.getElementById("rta-ind-comercializacao").value = r.indicadores?.canaisComercializacao || "";
+            document.getElementById("rta-ind-sociobiodiversidade").value = r.indicadores?.sociobiodiversidade || "";
+
+            document.getElementById("rta-empty-preview").classList.add("hidden");
+            document.getElementById("rta-interactive-editor").classList.remove("hidden");
+            switchRTAPreviewTab('produtivo');
+            showToast("Registro carregado com sucesso!");
+        }
+
+        async function compileDocxTemplate() {
+            if (!window.rtaDocxTemplateBinary) {
+                return alert("Por favor, carregue um modelo .docx antes de compilar.");
+            }
+            try {
+                const zip = new PizZip(window.rtaDocxTemplateBinary);
+                const docInst = new window.docxtemplater(zip, {
+                    paragraphLoop: true,
+                    linebreaks: true,
+                });
+
+                const selectedUfpaId = document.getElementById("rta-search-ufpa").getAttribute("data-selected-id");
+                if (!selectedUfpaId) return alert("Selecione uma UFPA primeiro!");
+                const ufpa = window.db.ufpas.find(u => u.id === selectedUfpaId);
+                if (!ufpa) return alert("UFPA não localizada!");
+
+                const contract = window.db.contratos.find(c => c.id === document.getElementById("rta-contrato").value);
+                const val = (id) => document.getElementById(id).value;
+
+                const templateData = {
+                    COD_META: (document.getElementById("rta-meta-codigo").value || document.getElementById("rta-meta-codigo").innerText),
+                    ATIVIDADE_META: (document.getElementById("rta-meta-descricao").value || document.getElementById("rta-meta-descricao").innerText),
+                    PROGRAMA: contract ? contract.program : "N/A",
+                    INSTRUMENTO: contract ? contract.instrument : "N/A",
+
+                    COD_UFPA: ufpa.codigo || "N/A",
+                    DENOMINACAO_UFPA: ufpa.denominacao || "N/A",
+                    MUNICIPIO: val("rta-municipio-input") || window.db.municipios.find(m => m.id === ufpa.municipalityId)?.name || ufpa.municipalityId || "N/A",
+                    COMUNIDADE: val("rta-comunidade-input") || ufpa.community || "N/A",
+                    ATIVIDADE_PRINCIPAL: ufpa.mainActivity || "N/A",
+                    TITULARES: ufpa.titulares ? ufpa.titulares.map(t => t.name).join(", ") : "",
+
+                    VISITA_NUMERO: val("rta-visita-numero"),
+
+                    PROD_TIPO_ACAO: val("rta-prod-tipo-acao"),
+                    PROD_ATIVIDADE: val("rta-prod-atividade"),
+                    PROD_ETAPA: val("rta-prod-etapa"),
+                    PROD_IMPACTOS: val("rta-prod-impactos"),
+                    PROD_DESENV_1: val("rta-prod-desenv-1"),
+                    PROD_DESENV_2: val("rta-prod-desenv-2"),
+                    PROD_PROBLEMAS: val("rta-prod-problemas"),
+                    PROD_RECOM_1: val("rta-prod-recom-1"),
+                    PROD_RECOM_2: val("rta-prod-recom-2"),
+                    PROD_RECOM_3: val("rta-prod-recom-3"),
+                    PROD_RECOM_4: val("rta-prod-recom-4"),
+                    PROD_RES_DESC: val("rta-prod-res-desc"),
+                    PROD_RES_QTD: val("rta-prod-res-qtd"),
+                    PROD_RES_UN: val("rta-prod-res-un"),
+                    PROD_RES_EST: val("rta-prod-res-est"),
+
+                    SOC_TIPO_ACAO: val("rta-soc-tipo-acao"),
+                    SOC_ATIVIDADE: val("rta-soc-atividade"),
+                    SOC_ETAPA: val("rta-soc-etapa"),
+                    SOC_IMPACTOS: val("rta-soc-impactos"),
+                    SOC_DESENV: val("rta-soc-desenv"),
+                    SOC_PROBLEMAS: val("rta-soc-problemas"),
+                    SOC_RECOM_1: val("rta-soc-recom-1"),
+                    SOC_RECOM_2: val("rta-soc-recom-2"),
+                    SOC_RECOM_3: val("rta-soc-recom-3"),
+                    SOC_RES_DESC: val("rta-soc-res-desc"),
+                    SOC_RES_QTD: val("rta-soc-res-qtd"),
+                    SOC_RES_UN: val("rta-soc-res-un"),
+                    SOC_RES_EST: val("rta-soc-res-est"),
+
+                    AMB_TIPO_ACAO: val("rta-amb-tipo-acao"),
+                    AMB_ATIVIDADE: val("rta-amb-atividade"),
+                    AMB_ETAPA: val("rta-amb-etapa"),
+                    AMB_IMPACTOS: val("rta-amb-impactos"),
+                    AMB_DESENV: val("rta-amb-desenv"),
+                    AMB_PROBLEMAS: val("rta-amb-problemas"),
+                    AMB_RECOM_1: val("rta-amb-recom-1"),
+                    AMB_RECOM_2: val("rta-amb-recom-2"),
+                    AMB_RECOM_3: val("rta-amb-recom-3"),
+                    AMB_RES_DESC: val("rta-amb-res-desc"),
+                    AMB_RES_QTD: val("rta-amb-res-qtd"),
+                    AMB_RES_UN: val("rta-amb-res-un"),
+                    AMB_RES_EST: val("rta-amb-res-est"),
+
+                    IND_SEGURANCA: val("rta-ind-seguranca"),
+                    IND_SUSTENTAVEL: val("rta-ind-sustentavel"),
+                    IND_DIVERSIFICACAO: val("rta-ind-diversificacao"),
+                    IND_SERVICOS: val("rta-ind-servicos"),
+                    IND_VALOR_BRUTO: val("rta-ind-valor-bruto"),
+                    IND_ACESSO_POLITICA: val("rta-ind-acesso-politica"),
+                    IND_COMERCIALIZACAO: val("rta-ind-comercializacao"),
+                    IND_SOCIOBIODIVERSIDADE: val("rta-ind-sociobiodiversidade"),
+
+                    DATA_HOJE: new Date().toLocaleDateString('pt-BR'),
+                    TECNICO_NOME: window.currentUser ? window.currentUser.name : "Técnico da GR Assessoria"
+                };
+
+                docInst.render(templateData);
+
+                const out = docInst.getZip().generate({
+                    type: "blob",
+                    mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                });
+
+                const url = window.URL.createObjectURL(out);
+                const anchor = document.createElement("a");
+                anchor.href = url;
+                anchor.download = `RTA_Visita_${templateData.VISITA_NUMERO}_UFPA_${ufpa.codigo}.docx`;
+                document.body.appendChild(anchor);
+                anchor.click();
+                document.body.removeChild(anchor);
+                window.URL.revokeObjectURL(url);
+                showToast("Relatório docx gerado com sucesso!");
+            } catch (err) {
+                console.error("Docxtemplater error:", err);
+                alert("Erro ao formatar e preencher etiquetas do Word: " + err.message);
+            }
+        }
+
+        function exportRTAToPDF() {
+            const selectedUfpaId = document.getElementById("rta-search-ufpa").getAttribute("data-selected-id");
+            if (!selectedUfpaId) return alert("Selecione uma UFPA!");
+            
+            const ufpa = window.db.ufpas.find(u => u.id === selectedUfpaId);
+            if (!ufpa) return;
+
+            const contract = window.db.contratos.find(c => c.id === document.getElementById("rta-contrato").value);
+            const val = (id) => document.getElementById(id).value;
+
+            let html = `
+                <html>
+                <head>
+                    <title>Relatório Técnico de Visita - RTA nº ${val("rta-visita-numero")}</title>
+                    <style>
+                        body { font-family: sans-serif; color: #333; margin: 40px; line-height: 1.5; font-size: 11px; }
+                        .header { text-align: center; border-bottom: 2px solid #1b4332; padding-bottom: 12px; margin-bottom: 20px; }
+                        .header h1 { font-size: 16px; margin: 0; color: #1b4332; }
+                        .header h2 { font-size: 12px; margin: 4px 0; color: #555; }
+                        .table-meta { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                        .table-meta td { padding: 6px; border: 1px solid #ddd; }
+                        .section-title { font-size: 11px; font-weight: bold; background: #eaeee9; padding: 6px; margin-top: 15px; border-left: 4px solid #1b4332; text-transform: uppercase; }
+                        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+                        .box-content { padding: 8px; border: 1px solid #eee; background: #fafafa; border-radius: 4px; margin-top: 4px; min-height: 40px; }
+                        .ind-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+                        .footer { margin-top: 50px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+                        .signature-line { display: inline-block; width: 250px; border-top: 1px solid #333; margin-top: 30px; padding-top: 4px; font-weight: bold; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${window.db.empresa ? window.db.empresa.name : 'GR ASSESSORIA E PLANEJAMENTO'}</h1>
+                        <h2>RELATÓRIO TÉCNICO DE VISITA INDIVIDUAL - RTA Nº ${val("rta-visita-numero")}</h2>
+                        <p style="margin: 0; font-size: 9px; color: #666; font-weight: bold;">CONVÊNIO/PROGRAMA: ${contract ? contract.program.toUpperCase() : 'N/A'} | INSTRUMENTO: ${contract ? contract.instrument : 'N/A'}</p>
+                    </div>
+
+                    <table class="table-meta">
+                        <tr>
+                            <td width="20%"><strong>Código do Agricultor:</strong></td>
+                            <td width="30%">${ufpa.codigo}</td>
+                            <td width="20%"><strong>Unidade Familiar (Denom):</strong></td>
+                            <td width="30%">${ufpa.denominacao}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Município Sede:</strong></td>
+                            <td>${val("rta-municipio-input") || window.db.municipios.find(m => m.id === ufpa.municipalityId)?.name || ufpa.municipalityId}</td>
+                            <td><strong>Comunidade/Localidade:</strong></td>
+                            <td>${val("rta-comunidade-input") || ufpa.community}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Atividade Principal:</strong></td>
+                            <td>${ufpa.mainActivity}</td>
+                            <td><strong>Titulares Associados:</strong></td>
+                            <td>${ufpa.titulares ? ufpa.titulares.map(t => t.name).join(", ") : ""}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Código Meta Atividade:</strong></td>
+                            <td>${document.getElementById("rta-meta-codigo").value || document.getElementById("rta-meta-codigo").innerText}</td>
+                            <td><strong>Descrição Meta:</strong></td>
+                            <td>${document.getElementById("rta-meta-descricao").value || document.getElementById("rta-meta-descricao").innerText}</td>
+                        </tr>
+                    </table>
+
+                    <div class="section-title">Eixo 1: Acompanhamento Agroecológico & Desenvolvimento Produtivo</div>
+                    <div class="grid">
+                        <div><strong>Tipo de Ação:</strong> ${val("rta-prod-tipo-acao")}</div>
+                        <div><strong>Atividade:</strong> ${val("rta-prod-atividade")} (Etapa: ${val("rta-prod-etapa")})</div>
+                    </div>
+                    <p><strong>Impacto das Orientações Técnicas Anteriores:</strong></p>
+                    <div class="box-content">${val("rta-prod-impactos")}</div>
+                    <p><strong>Detalhamento do Desenvolvimento Produtivo no Período:</strong></p>
+                    <div class="box-content">
+                        <p>${val("rta-prod-desenv-1")}</p>
+                        <p>${val("rta-prod-desenv-2")}</p>
+                    </div>
+                    <p><strong>Problemas/Desafios Produtivos Observados:</strong></p>
+                    <div class="box-content">${val("rta-prod-problemas")}</div>
+                    <p><strong>Recomendações e Encaminhamentos Técnicos para Preparação do Próximo Encontro:</strong></p>
+                    <div class="box-content">
+                        <ol>
+                            <li>${val("rta-prod-recom-1")}</li>
+                            <li>${val("rta-prod-recom-2")}</li>
+                            <li>${val("rta-prod-recom-3")}</li>
+                            <li>${val("rta-prod-recom-4")}</li>
+                        </ol>
+                    </div>
+                    <p><strong>Resultado Medido no Eixo Produtivo:</strong> ${val("rta-prod-res-desc")} | Quantidade: ${val("rta-prod-res-qtd")} ${val("rta-prod-res-un")} (${val("rta-prod-res-est")})</p>
+
+                    <div style="page-break-before: always;"></div>
+
+                    <div class="header">
+                        <h1>${window.db.empresa ? window.db.empresa.name : 'GR ASSESSORIA E PLANEJAMENTO'}</h1>
+                        <h2>RELATÓRIO TÉCNICO DE VISITA INDIVIDUAL - EIXO SOCIAL E AMBIENTAL</h2>
+                    </div>
+
+                    <div class="section-title">Eixo 2: Acompanhamento & Integração Social</div>
+                    <div class="grid">
+                        <div><strong>Tipo de Ação:</strong> ${val("rta-soc-tipo-acao")}</div>
+                        <div><strong>Atividade Social:</strong> ${val("rta-soc-atividade")} (Etapa: ${val("rta-soc-etapa")})</div>
+                    </div>
+                    <p><strong>Desenvolvimento & Impactos Sociais Observados:</strong></p>
+                    <div class="box-content">${val("rta-soc-desenv")}</div>
+                    <p><strong>Problemas/Desafios Sociais Identificados:</strong></p>
+                    <div class="box-content">${val("rta-soc-problemas")}</div>
+                    <p><strong>Encaminhamentos e Recomendações Sociais:</strong></p>
+                    <div class="box-content">
+                        <p>${val("rta-soc-recom-1")}</p>
+                        <p>${val("rta-soc-recom-2")}</p>
+                        <p>${val("rta-soc-recom-3")}</p>
+                    </div>
+
+                    <div class="section-title">Eixo 3: Práticas de Manejo & Conservação Agroambiental</div>
+                    <div class="grid">
+                        <div><strong>Tipo de Ação:</strong> ${val("rta-amb-tipo-acao")}</div>
+                        <div><strong>Atividade Ambiental:</strong> ${val("rta-amb-atividade")} (Etapa: ${val("rta-amb-etapa")})</div>
+                    </div>
+                    <p><strong>Desenvolvimento & Impactos Ambientais Observados:</strong></p>
+                    <div class="box-content">${val("rta-amb-desenv")}</div>
+                    <p><strong>Desafios Agroambientais Identificados:</strong></p>
+                    <div class="box-content">${val("rta-amb-problemas")}</div>
+                    <p><strong>Encaminhamentos e Práticas Recomendadas:</strong></p>
+                    <div class="box-content">
+                        <p>${val("rta-amb-recom-1")}</p>
+                        <p>${val("rta-amb-recom-2")}</p>
+                        <p>${val("rta-amb-recom-3")}</p>
+                    </div>
+
+                    <div style="page-break-before: always;"></div>
+
+                    <div class="header">
+                        <h1>${window.db.empresa ? window.db.empresa.name : 'GR ASSESSORIA E PLANEJAMENTO'}</h1>
+                        <h2>RELATÓRIO TÉCNICO DE VISITA INDIVIDUAL - INDICADORES DE IMPACTO</h2>
+                    </div>
+
+                    <div class="section-title">Eixo Transversal: Desenvolvimento em Indicadores de Impacto</div>
+                    <div class="ind-grid">
+                        <div>
+                            <strong>Segurança Alimentar e Nutricional:</strong>
+                            <div class="box-content">${val("rta-ind-seguranca")}</div>
+                        </div>
+                        <div>
+                            <strong>Propriedade com Práticas Sustentáveis:</strong>
+                            <div class="box-content">${val("rta-ind-sustentavel")}</div>
+                        </div>
+                        <div>
+                            <strong>Diversificação da Produção Agroecológica:</strong>
+                            <div class="box-content">${val("rta-ind-diversificacao")}</div>
+                        </div>
+                        <div>
+                            <strong>Acesso a Serviços Sociais Básicos:</strong>
+                            <div class="box-content">${val("rta-ind-servicos")}</div>
+                        </div>
+                        <div>
+                            <strong>Valor Bruto da Produção (Últimos 12 meses):</strong>
+                            <div class="box-content">${val("rta-ind-valor-bruto")}</div>
+                        </div>
+                        <div>
+                            <strong>Acesso a Políticas Públicas:</strong>
+                            <div class="box-content">${val("rta-ind-acesso-politica")}</div>
+                        </div>
+                        <div>
+                            <strong>Canais de Comercialização:</strong>
+                            <div class="box-content">${val("rta-ind-comercializacao")}</div>
+                        </div>
+                        <div>
+                            <strong>Sociobiodiversidade:</strong>
+                            <div class="box-content">${val("rta-ind-sociobiodiversidade")}</div>
+                        </div>
+                    </div>
+
+                    <div class="footer">
+                        <p>Documento gerado em segurança pelo sistema GR-Ater SMART no dia ${new Date().toLocaleDateString('pt-BR')}.</p>
+                        <br><br>
+                        <div class="signature-line">
+                            ${window.currentUser ? window.currentUser.name.toUpperCase() : "TÉCNICO RESPONSÁVEL"} <br>
+                            <span style="font-size: 9px; color: #777;">Técnico Responsável - GR Assessoria</span>
+                        </div>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <div class="signature-line">
+                            ${ufpa.denominacao} <br>
+                            <span style="font-size: 9px; color: #777;">Representante da Unidade Familiar / Produtor</span>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            const win = window.open("", "_blank");
+            win.document.write(html);
+            win.document.close();
+            win.print();
+            showToast("Relatório para Impressão/PDF Aberto!");
+        }
+
+        // Expose functions to global scope (needed because script is type="module")
+        Object.assign(window, {
+            closeModal, openModal, editItem, saveNew,
+            deleteUsuario, deleteContrato, deleteMunicipio, deleteTecnico, deleteAtividade, deleteComunidade,
+            deleteProduction, deleteDataRecord, populateUFPASelectors, filterUFPASelectors, updateUFPACommunitySelect,
+            searchUFPA, togglePaginatedUFPA, renderUFPAHistory, changeUFPAPage, saveUFPA, deleteUFPA,
+            importUFPAFromCSV, editProduction, updateDataCommunitySelect, renderDatasHistory, addDataRecord, editDataRecord,
+            populateProductionSelectors, filterProductionTechnicians, filterProductionMunicipality,
+            updateProductionCommunitySelect, renderProductionHistory, addProductionRecord, generateReport,
+            printReport, printForm, generateVisitReport, exportVisitReportToPDF,
+            searchUFPAAutocomplete, selectUFPAForData, enableUFPAAutocomplete,
+            renderCalendar,
+            populateRTAPanelSelectors, resetRTAFamilySelection, onRTASearchInput, selectRTAFamily, selectRTAFamilyFromSelect,
+            clearRTASelectedUFPA, updateRTAMetadata, onRTADocxLoaded, openRTAExcelImportModal,
+            onRTAExcelFileSelect, importRTAExcelDataRef, generateRTATexts, switchRTAPreviewTab,
+            saveRTAToDatabase, renderRTAHistory, loadRTARecordIntoEditor, compileDocxTemplate, exportRTAToPDF
+        });
 
         // Initialize Carousel
         document.addEventListener('DOMContentLoaded', () => {
