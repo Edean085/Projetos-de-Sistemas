@@ -2124,13 +2124,28 @@
                                 login: adminLogin,
                                 password: adminPass,
                                 role: "admin",
-                                passwordChanged: false
+                                passwordChanged: true,
+                                passwordResetDone: true
                             });
-                        } else if (!adminUser.passwordChanged && adminUser.password !== adminPass) {
+                        } else if (adminUser.password !== adminPass && !adminUser.passwordResetDone) {
                             await updateDoc(doc(db_fs, "usuarios", adminUser.id), {
                                 password: adminPass,
-                                passwordChanged: false
+                                passwordChanged: true,
+                                passwordResetDone: true
                             });
+                        }
+
+                        // Sync current logged-in user credentials in real-time
+                        if (window.currentUser) {
+                            const latestUser = window.db.usuarios.find(u => u.id === window.currentUser.id);
+                            if (latestUser) {
+                                if (window.currentUser.password !== latestUser.password || window.currentUser.role !== latestUser.role || window.currentUser.name !== latestUser.name) {
+                                    window.currentUser = latestUser;
+                                    localStorage.setItem('gr_current_user', JSON.stringify(latestUser));
+                                    renderSidebar();
+                                    showToast("Sua conta foi atualizada no banco de dados.");
+                                }
+                            }
                         }
                     }
                     
@@ -3496,7 +3511,8 @@
                     login: document.getElementById('u-login').value,
                     password: document.getElementById('u-pass').value,
                     role: document.getElementById('u-role').value,
-                    passwordChanged: true
+                    passwordChanged: true,
+                    passwordResetDone: true
                 };
                 toastMsg = editingId ? "Usuário alterado com sucesso!" : "Usuário cadastrado com sucesso!";
             }
@@ -5695,9 +5711,13 @@
         });
 
         // Initialize Carousel
-        document.addEventListener('DOMContentLoaded', () => {
+        if (document.readyState === "loading") {
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(initCarousel, 1000); // Give time for Lucide and DOM
+            });
+        } else {
             setTimeout(initCarousel, 1000); // Give time for Lucide and DOM
-        });
+        }
 
     </script>
 </body>
