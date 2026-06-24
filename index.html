@@ -39,6 +39,28 @@
         .text-accent { color: var(--accent); }
         .border-accent { border-color: var(--accent); }
         
+        /* Destaque visual na cor laranja nas bordas ao passar o mouse pelos botões principais e links da home page */
+        #site-page a, #site-page button:not(#mobile-menu-btn) {
+            transition: all 0.2s ease-in-out;
+        }
+        #site-page a:hover, #site-page button:not(#mobile-menu-btn):hover {
+            outline: 2px solid var(--accent) !important;
+            outline-offset: 3px;
+            border-radius: 4px;
+        }
+        
+        /* Destaque laranja ao passar o mouse nas Frentes de Atuação (cards de serviços) */
+        #projetos .card-shadow {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        #projetos .card-shadow:hover {
+            outline: 3px solid var(--accent) !important;
+            outline-offset: 4px;
+            box-shadow: 0 15px 30px -5px rgba(255, 140, 0, 0.3), 0 10px 15px -6px rgba(255, 140, 0, 0.3) !important;
+            border-bottom-color: var(--accent) !important;
+        }
+        
         .hero-gradient {
             background: linear-gradient(rgba(27, 67, 50, 0.8), rgba(27, 67, 50, 0.6)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
             background-size: cover;
@@ -1909,8 +1931,19 @@
     <script type="module">
         import { initializeApp } from "firebase/app";
         import { 
-            getFirestore, collection, doc, setDoc, addDoc, getDoc, getDocs, 
-            onSnapshot, updateDoc, deleteDoc, query, orderBy, serverTimestamp 
+            getFirestore, 
+            collection as fb_collection, 
+            doc as fb_doc, 
+            setDoc as fb_setDoc, 
+            addDoc as fb_addDoc, 
+            getDoc as fb_getDoc, 
+            getDocs as fb_getDocs, 
+            onSnapshot as fb_onSnapshot, 
+            updateDoc as fb_updateDoc, 
+            deleteDoc as fb_deleteDoc, 
+            query as fb_query, 
+            orderBy as fb_orderBy, 
+            serverTimestamp as fb_serverTimestamp 
         } from "firebase/firestore";
         // Import jsPDF from node_modules if needed, or assume global if it was installed
         // However, in this environment, it's better to use a CDN-like import if we are in index.html script module
@@ -1928,8 +1961,321 @@
           appId: "1:895397185923:web:b4e69c59d9335de21d0eb6"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db_fs = getFirestore(app, "ai-studio-afc308e9-5766-47cc-82e4-d006512e64b8");
+        // Initialize Firebase safely
+        let app, db_fs;
+        try {
+            app = initializeApp(firebaseConfig);
+            db_fs = getFirestore(app, "ai-studio-afc308e9-5766-47cc-82e4-d006512e64b8");
+        } catch (e) {
+            console.warn("Could not initialize Firebase. Falling back to local mode automatically.", e);
+        }
+
+        // --- Database Gateway & Local persistence ---
+        const isGitHubPages = window.location.hostname.includes("github.io");
+        const preferLocal = localStorage.getItem("grapas_prefer_local_db") === "true";
+        window.useLocalDatabase = preferLocal || isGitHubPages || !db_fs;
+
+        const LOCAL_STORAGE_DB_PREFIX = "grapas_db_";
+        const localSnapshotListeners = {};
+
+        function getLocalCollection(name) {
+            const data = localStorage.getItem(LOCAL_STORAGE_DB_PREFIX + name);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function saveLocalCollection(name, data) {
+            localStorage.setItem(LOCAL_STORAGE_DB_PREFIX + name, JSON.stringify(data));
+            triggerLocalSnapshot(name);
+        }
+
+        function triggerLocalSnapshot(name) {
+            if (localSnapshotListeners[name]) {
+                localSnapshotListeners[name].forEach(cb => {
+                    try { cb(); } catch (e) { console.error(e); }
+                });
+            }
+        }
+
+        function seedLocalStorageIfEmpty() {
+            const adminLogin = "00587945303";
+            const adminPass = "admin123";
+            
+            // Seed default admin user
+            let users = getLocalCollection("usuarios");
+            if (!users || users.length === 0) {
+                users = [{
+                    id: "admin-default",
+                    name: "Administrador Geral",
+                    login: adminLogin,
+                    password: adminPass,
+                    role: "admin",
+                    passwordChanged: true,
+                    passwordResetDone: true
+                }];
+                saveLocalCollection("usuarios", users);
+            } else if (!users.find(u => u.login === adminLogin)) {
+                users.push({
+                    id: "admin-default",
+                    name: "Administrador Geral",
+                    login: adminLogin,
+                    password: adminPass,
+                    role: "admin",
+                    passwordChanged: true,
+                    passwordResetDone: true
+                });
+                saveLocalCollection("usuarios", users);
+            }
+
+            // Seed placeholder lists if empty
+            const cols = ["contratos", "tecnicos", "atividades", "comunidades", "producao", "municipios", "controle_datas", "ufpas", "rtas"];
+            cols.forEach(col => {
+                if (!localStorage.getItem(LOCAL_STORAGE_DB_PREFIX + col)) {
+                    saveLocalCollection(col, []);
+                }
+            });
+        }
+
+        function emulatedOnSnapshot(ref, onNext, onError) {
+            if (window.useLocalDatabase) {
+                const pathParts = ref && ref.path ? ref.path.split('/') : [];
+                if (pathParts.length === 2) {
+                    const [collName, docId] = pathParts;
+                    const trigger = () => {
+                        const localData = localStorage.getItem(LOCAL_STORAGE_DB_PREFIX + collName + "_" + docId);
+                        const docSnap = {
+                            exists: () => localData !== null,
+                            data: () => localData ? JSON.parse(localData) : null,
+                            id: docId
+                        };
+                        onNext(docSnap);
+                    };
+                    const listenerKey = `${collName}_${docId}`;
+                    if (!localSnapshotListeners[listenerKey]) localSnapshotListeners[listenerKey] = [];
+                    localSnapshotListeners[listenerKey].push(trigger);
+                    setTimeout(trigger, 30);
+                    return () => {
+                        localSnapshotListeners[listenerKey] = localSnapshotListeners[listenerKey].filter(cb => cb !== trigger);
+                    };
+                } else {
+                    const collName = pathParts[0] || (ref ? ref.id : "empty");
+                    const trigger = () => {
+                        const items = getLocalCollection(collName);
+                        const snap = {
+                            docs: items.map(item => ({
+                                id: item.id,
+                                data: () => item
+                            }))
+                        };
+                        onNext(snap);
+                    };
+                    if (!localSnapshotListeners[collName]) localSnapshotListeners[collName] = [];
+                    localSnapshotListeners[collName].push(trigger);
+                    setTimeout(trigger, 30);
+                    return () => {
+                        localSnapshotListeners[collName] = localSnapshotListeners[collName].filter(cb => cb !== trigger);
+                    };
+                }
+            } else {
+                return fb_onSnapshot(ref, onNext, (error) => {
+                    console.warn("Firestore onSnapshot error:", error);
+                    switchToLocalDatabaseMode();
+                    if (onError) {
+                        try { onError(error); } catch(e) {}
+                    }
+                });
+            }
+        }
+
+        const collection = (db, name) => {
+            if (window.useLocalDatabase) {
+                return { path: name, id: name };
+            } else {
+                try {
+                    return fb_collection(db, name);
+                } catch (e) {
+                    return { path: name, id: name };
+                }
+            }
+        };
+
+        const doc = (db, pathOrColl, ...more) => {
+            if (window.useLocalDatabase) {
+                let path = "";
+                if (typeof pathOrColl === 'string') {
+                    path = [pathOrColl, ...more].join('/');
+                } else {
+                    path = [pathOrColl.path, ...more].join('/');
+                }
+                return { path, id: path.split('/').pop() };
+            } else {
+                try {
+                    return fb_doc(db, pathOrColl, ...more);
+                } catch (e) {
+                    let path = "";
+                    if (typeof pathOrColl === 'string') {
+                        path = [pathOrColl, ...more].join('/');
+                    } else {
+                        path = [pathOrColl.path, ...more].join('/');
+                    }
+                    return { path, id: path.split('/').pop() };
+                }
+            }
+        };
+
+        const setDoc = async (ref, data, options) => {
+            if (window.useLocalDatabase) {
+                const pathParts = ref.path.split('/');
+                if (pathParts.length === 2) {
+                    const [collName, docId] = pathParts;
+                    let mergedData = data;
+                    if (options && options.merge) {
+                        const existing = localStorage.getItem(LOCAL_STORAGE_DB_PREFIX + collName + "_" + docId);
+                        if (existing) {
+                            mergedData = { ...JSON.parse(existing), ...data };
+                        }
+                    }
+                    localStorage.setItem(LOCAL_STORAGE_DB_PREFIX + collName + "_" + docId, JSON.stringify(mergedData));
+                    
+                    let items = getLocalCollection(collName);
+                    const idx = items.findIndex(item => item.id === docId);
+                    if (idx >= 0) {
+                        items[idx] = { ...items[idx], ...mergedData, id: docId };
+                    } else {
+                        items.push({ ...mergedData, id: docId });
+                    }
+                    saveLocalCollection(collName, items);
+
+                    const listenerKey = `${collName}_${docId}`;
+                    if (localSnapshotListeners[listenerKey]) {
+                        localSnapshotListeners[listenerKey].forEach(cb => cb());
+                    }
+                }
+                return;
+            } else {
+                try {
+                    return await fb_setDoc(ref, data, options);
+                } catch (e) {
+                    console.warn("Firestore setDoc failed, falling back to Local Mode:", e);
+                    switchToLocalDatabaseMode();
+                    return await setDoc(ref, data, options);
+                }
+            }
+        };
+
+        const addDoc = async (collRef, data) => {
+            if (window.useLocalDatabase) {
+                const collName = collRef.path;
+                const id = "local_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+                const docData = { ...data, id };
+                const items = getLocalCollection(collName);
+                items.push(docData);
+                saveLocalCollection(collName, items);
+                return { id };
+            } else {
+                try {
+                    return await fb_addDoc(collRef, data);
+                } catch (e) {
+                    console.warn("Firestore addDoc failed, falling back to Local Mode:", e);
+                    switchToLocalDatabaseMode();
+                    return await addDoc(collRef, data);
+                }
+            }
+        };
+
+        const updateDoc = async (ref, data) => {
+            if (window.useLocalDatabase) {
+                const pathParts = ref.path.split('/');
+                if (pathParts.length === 2) {
+                    const [collName, docId] = pathParts;
+                    const existing = localStorage.getItem(LOCAL_STORAGE_DB_PREFIX + collName + "_" + docId);
+                    let updated = data;
+                    if (existing) {
+                        updated = { ...JSON.parse(existing), ...data };
+                    }
+                    localStorage.setItem(LOCAL_STORAGE_DB_PREFIX + collName + "_" + docId, JSON.stringify(updated));
+                    
+                    const items = getLocalCollection(collName);
+                    const idx = items.findIndex(item => item.id === docId);
+                    if (idx >= 0) {
+                        items[idx] = { ...items[idx], ...data, id: docId };
+                        saveLocalCollection(collName, items);
+                    }
+                    
+                    const listenerKey = `${collName}_${docId}`;
+                    if (localSnapshotListeners[listenerKey]) {
+                        localSnapshotListeners[listenerKey].forEach(cb => cb());
+                    }
+                }
+                return;
+            } else {
+                try {
+                    return await fb_updateDoc(ref, data);
+                } catch (e) {
+                    console.warn("Firestore updateDoc failed, falling back to Local Mode:", e);
+                    switchToLocalDatabaseMode();
+                    return await updateDoc(ref, data);
+                }
+            }
+        };
+
+        const deleteDoc = async (ref) => {
+            if (window.useLocalDatabase) {
+                const pathParts = ref.path.split('/');
+                if (pathParts.length === 2) {
+                    const [collName, docId] = pathParts;
+                    localStorage.removeItem(LOCAL_STORAGE_DB_PREFIX + collName + "_" + docId);
+                    
+                    let items = getLocalCollection(collName);
+                    items = items.filter(item => item.id !== docId);
+                    saveLocalCollection(collName, items);
+                    
+                    const listenerKey = `${collName}_${docId}`;
+                    if (localSnapshotListeners[listenerKey]) {
+                        localSnapshotListeners[listenerKey].forEach(cb => cb());
+                    }
+                }
+                return;
+            } else {
+                try {
+                    return await fb_deleteDoc(ref);
+                } catch (e) {
+                    console.warn("Firestore deleteDoc failed, falling back to Local Mode:", e);
+                    switchToLocalDatabaseMode();
+                    return await deleteDoc(ref);
+                }
+            }
+        };
+
+        const serverTimestamp = () => {
+            if (window.useLocalDatabase) {
+                return new Date().toISOString();
+            } else {
+                try {
+                    return fb_serverTimestamp();
+                } catch (e) {
+                    return new Date().toISOString();
+                }
+            }
+        };
+
+        const onSnapshot = emulatedOnSnapshot;
+
+        function switchToLocalDatabaseMode() {
+            if (window.useLocalDatabase === true) return;
+            window.useLocalDatabase = true;
+            localStorage.setItem("grapas_prefer_local_db", "true");
+            console.log("Ativando Modo de Banco Local...");
+            
+            seedLocalStorageIfEmpty();
+            setupRealtimeSync();
+            updateDbStatusIndicator();
+            showToast("Banco Local Ativado (Grátis & Offline para GitHub Pages)");
+        }
+
+        window.switchToLocalDatabaseMode = switchToLocalDatabaseMode;
+
+        // Auto seed local storage database on load
+        seedLocalStorageIfEmpty();
 
         // Global DB state (Reactive update from Firestore)
         window.INITIAL_MUNICIPALITIES = [];
@@ -2386,11 +2732,132 @@
         window.db_fs = db_fs;
         window.fs_ops = { setDoc, addDoc, doc, collection, deleteDoc, updateDoc, serverTimestamp };
 
+        function initDbStatusIndicator() {
+            if (document.getElementById('db-mode-badge')) return;
+            
+            const badge = document.createElement('div');
+            badge.id = 'db-mode-badge';
+            badge.className = 'fixed bottom-4 right-4 z-[9999] flex items-center gap-2 bg-slate-900/95 hover:bg-slate-900 text-white px-3 py-1.5 rounded-full text-[11px] font-semibold shadow-xl border border-white/10 cursor-pointer transition-all hover:scale-105 duration-200';
+            badge.onclick = () => {
+                document.getElementById('db-mode-modal').classList.remove('hidden');
+            };
+            badge.innerHTML = `
+                <span class="w-2 h-2 rounded-full bg-emerald-500" id="db-status-dot"></span>
+                <span id="db-status-text">Banco: Cloud</span>
+            `;
+            document.body.appendChild(badge);
+            
+            const modal = document.createElement('div');
+            modal.id = 'db-mode-modal';
+            modal.className = 'fixed inset-0 z-[10000] hidden bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4';
+            modal.innerHTML = `
+                <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 relative">
+                    <button id="close-db-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                    
+                    <div class="flex items-center gap-2.5 mb-3">
+                        <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-800">Seletor de Banco de Dados</h3>
+                    </div>
+                    
+                    <p class="text-xs text-slate-500 mb-5 leading-relaxed">
+                        Este sistema suporta tanto a sincronização em nuvem em tempo real (Firebase) quanto o armazenamento local gratuito em navegador. Para o GitHub Pages, recomendamos o Modo Local para acesso rápido e livre.
+                    </p>
+                    
+                    <div class="flex flex-col gap-2.5">
+                        <button id="btn-db-cloud" class="flex items-center justify-between p-3.5 rounded-xl border-2 text-left transition-all hover:bg-slate-50">
+                            <div>
+                                <div class="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Banco em Nuvem (Firestore)
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Sincronização em tempo real para equipes.</p>
+                            </div>
+                            <span class="text-emerald-600 font-bold text-xs" id="check-db-cloud">✔</span>
+                        </button>
+                        
+                        <button id="btn-db-local" class="flex items-center justify-between p-3.5 rounded-xl border-2 text-left transition-all hover:bg-slate-50">
+                            <div>
+                                <div class="font-bold text-slate-700 text-xs flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-amber-500"></span> Banco Local (Navegador - Grátis)
+                                </div>
+                                <p class="text-[10px] text-slate-400 mt-0.5">Salva seus dados localmente. Ideal para o GitHub Pages.</p>
+                            </div>
+                            <span class="text-amber-600 font-bold text-xs" id="check-db-local">✔</span>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-5 pt-3.5 border-t border-slate-100 text-[10px] text-slate-400 leading-relaxed flex items-start gap-1">
+                        <span>💡</span>
+                        <span>Selecione <strong>Banco Local</strong> para usar o sistema gratuitamente no GitHub Pages sem depender de servidores adicionais.</span>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            document.getElementById('close-db-modal-btn').onclick = () => {
+                document.getElementById('db-mode-modal').classList.add('hidden');
+            };
+            
+            document.getElementById('btn-db-cloud').onclick = () => {
+                localStorage.removeItem("grapas_prefer_local_db");
+                window.useLocalDatabase = false;
+                updateDbStatusIndicator();
+                showToast("Conectando ao Firestore Cloud...");
+                setupRealtimeSync();
+                document.getElementById('db-mode-modal').classList.add('hidden');
+            };
+            
+            document.getElementById('btn-db-local').onclick = () => {
+                localStorage.setItem("grapas_prefer_local_db", "true");
+                window.useLocalDatabase = true;
+                seedLocalStorageIfEmpty();
+                updateDbStatusIndicator();
+                showToast("Ativado Modo Local (Navegador)");
+                setupRealtimeSync();
+                document.getElementById('db-mode-modal').classList.add('hidden');
+            };
+            
+            updateDbStatusIndicator();
+        }
+
+        function updateDbStatusIndicator() {
+            const dot = document.getElementById('db-status-dot');
+            const text = document.getElementById('db-status-text');
+            const btnCloud = document.getElementById('btn-db-cloud');
+            const btnLocal = document.getElementById('btn-db-local');
+            const checkCloud = document.getElementById('check-db-cloud');
+            const checkLocal = document.getElementById('check-db-local');
+            
+            if (!dot || !text) return;
+            
+            if (window.useLocalDatabase) {
+                dot.className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+                text.innerText = 'Banco: Local (Grátis)';
+                
+                if (btnCloud) btnCloud.className = 'flex items-center justify-between p-3.5 rounded-xl border-2 border-slate-100 text-left transition-all hover:bg-slate-50';
+                if (btnLocal) btnLocal.className = 'flex items-center justify-between p-3.5 rounded-xl border-2 border-amber-500 bg-amber-50/20 text-left transition-all';
+                if (checkCloud) checkCloud.classList.add('hidden');
+                if (checkLocal) checkLocal.classList.remove('hidden');
+            } else {
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+                text.innerText = 'Banco: Nuvem (Cloud)';
+                
+                if (btnCloud) btnCloud.className = 'flex items-center justify-between p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50/20 text-left transition-all';
+                if (btnLocal) btnLocal.className = 'flex items-center justify-between p-3.5 rounded-xl border-2 border-slate-100 text-left transition-all hover:bg-slate-50';
+                if (checkCloud) checkCloud.classList.remove('hidden');
+                if (checkLocal) checkLocal.classList.add('hidden');
+            }
+        }
+
         // Start Sync
         setupRealtimeSync();
 
         // Standard initialization
         document.addEventListener('DOMContentLoaded', () => {
+             initDbStatusIndicator();
              // Check session
              const savedUser = localStorage.getItem('gr_current_user');
              if (savedUser) {
@@ -2525,9 +2992,6 @@
                     <button onclick="showPanel('ufpa')" id="btn-ufpa" class="nav-item">
                         <i data-lucide="home" class="mr-3" size="18"></i> UFPA
                     </button>
-                    <button onclick="showPanel('rta')" id="btn-rta" class="nav-item">
-                        <i data-lucide="clipboard-signature" class="mr-3" size="18"></i> GERAR RTA
-                    </button>
                     <button onclick="showPanel('municipios')" id="btn-municipios" class="nav-item">
                         <i data-lucide="map-pinned" class="mr-3" size="18"></i> Cadastro de Município
                     </button>
@@ -2552,9 +3016,6 @@
                     <button onclick="showPanel('ufpa')" id="btn-ufpa" class="nav-item">
                         <i data-lucide="home" class="mr-3" size="18"></i> UFPA
                     </button>
-                    <button onclick="showPanel('rta')" id="btn-rta" class="nav-item">
-                        <i data-lucide="clipboard-signature" class="mr-3" size="18"></i> GERAR RTA
-                    </button>
                 `;
             }
             
@@ -2564,7 +3025,7 @@
 
         function showPanel(panelId) {
             // Permission check
-            if (currentUser.role !== 'admin' && !['producao', 'datas', 'ufpa', 'rta'].includes(panelId)) {
+            if (currentUser.role !== 'admin' && !['producao', 'datas', 'ufpa'].includes(panelId)) {
                 alert('Acesso restrito ao administrador!');
                 return;
             }
