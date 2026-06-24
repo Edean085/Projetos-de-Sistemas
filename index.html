@@ -319,9 +319,9 @@
             <div class="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
                 <div class="flex flex-col items-start leading-tight">
                     <div class="bg-primary px-3 py-0.5 rounded-lg mb-0.5">
-                        <span class="text-white font-bold text-lg tracking-tight">GRAPAS</span>
+                        <span class="text-white font-bold text-lg tracking-tight" id="header-logo-text">GRAPAS</span>
                     </div>
-                    <span class="font-bold text-primary text-[9px] sm:text-[10px] uppercase tracking-tighter">
+                    <span class="font-bold text-primary text-[9px] sm:text-[10px] uppercase tracking-tighter" id="header-full-name">
                         GR Assessoria e Planejamento de Projetos Agropecuários
                     </span>
                 </div>
@@ -353,17 +353,17 @@
         <section id="inicio" class="hero-gradient min-h-screen flex items-center pt-20">
             <div class="container mx-auto px-4 md:px-6 text-white">
                 <div class="max-w-3xl animate-fade-up">
-                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight" id="hero-title">
                         Assistência técnica e extensão rural para a agricultura familiar.
                     </h1>
-                    <p class="text-lg md:text-xl mb-8 text-gray-200">
+                    <p class="text-lg md:text-xl mb-8 text-gray-200" id="hero-subtitle">
                         Apoiamos produtores rurais com soluções técnicas inovadoras, planejamento estratégico e gestão de projetos para fortalecer o campo.
                     </p>
                     <div class="flex flex-wrap gap-4">
-                        <a href="#projetos" class="bg-accent text-white px-8 py-4 rounded-lg font-bold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all">
+                        <a href="#galeria" id="hero-btn-projects" class="bg-accent text-white px-8 py-4 rounded-lg font-bold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all">
                             Nossos Projetos
                         </a>
-                        <a href="#contato" class="bg-white text-primary px-8 py-4 rounded-lg font-bold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all border-2 border-white">
+                        <a href="#contato" id="hero-btn-contact" class="bg-white text-primary px-8 py-4 rounded-lg font-bold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all border-2 border-white">
                             Fale com a gente
                         </a>
                     </div>
@@ -472,7 +472,7 @@
                     <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Projetos</h2>
                     <div class="w-20 h-1 bg-accent mx-auto"></div>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8" id="gallery-grid">
                     <!-- Projeto 1 -->
                     <div class="flex flex-col gap-2">
                         <a href="javascript:void(0)" onclick="openProgramGallery('União Com Municípios')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
@@ -561,7 +561,7 @@
                             GR Assessoria e Planejamento de Projetos Agropecuários
                         </span>
                     </div>
-                    <p class="text-green-100/80 text-xs">Compromisso com o desenvolvimento rural e sustentável da região.</p>
+                    <p class="text-green-100/80 text-xs" id="footer-slogan">Compromisso com o desenvolvimento rural e sustentável da região.</p>
                 </div>
                 <div>
                     <h4 class="text-xl font-bold mb-6 text-accent">Navegação</h4>
@@ -574,9 +574,9 @@
                 <div>
                     <h4 class="text-xl font-bold mb-6 text-accent">Contato</h4>
                     <ul class="space-y-3 text-green-100">
-                        <li class="flex items-center gap-2"><i data-lucide="mail" size="18"></i> rosaligrapas@yahoo.com.br</li>
-                        <li class="flex items-center gap-2"><i data-lucide="phone" size="18"></i> (91) 99270-7555</li>
-                        <li class="flex items-start gap-2 max-w-xs">
+                        <li class="flex items-center gap-2" id="footer-email"><i data-lucide="mail" size="18"></i> rosaligrapas@yahoo.com.br</li>
+                        <li class="flex items-center gap-2" id="footer-phone"><i data-lucide="phone" size="18"></i> (91) 99270-7555</li>
+                        <li class="flex items-start gap-2 max-w-xs" id="footer-address">
                             <i data-lucide="map-pin" size="18" class="mt-1 flex-shrink-0"></i> 
                             Rua Rio Solimões, S/N, Quadra16, Casa 01, Parque Marajó - CEP: 68.473-000 – Novo Repartimento-PA
                         </li>
@@ -1950,7 +1950,7 @@
         window.currentUser = null;
 
         // --- News Data ---
-        const newsData = [
+        let newsData = [
             {
                 id: 1,
                 program: "BOLSA VERDE",
@@ -2067,8 +2067,225 @@
         window.goToSlide = goToSlide;
         window.showNews = showNews;
 
+        function renderHomepageDynamically(data) {
+            if (!data) return;
+
+            // 1. Header logo & subtitle/full name
+            if (data.header) {
+                const logoText = document.getElementById('header-logo-text');
+                const fullName = document.getElementById('header-full-name');
+                if (logoText) logoText.innerText = data.header.logoText || 'GRAPAS';
+                if (fullName) fullName.innerText = data.header.fullName || '';
+            }
+
+            // 2. Main banner (Hero Section)
+            if (data.banner) {
+                const inicioSec = document.getElementById('inicio');
+                const title = document.getElementById('hero-title');
+                const subtitle = document.getElementById('hero-subtitle');
+                const btnProjects = document.getElementById('hero-btn-projects');
+                const btnContact = document.getElementById('hero-btn-contact');
+
+                if (inicioSec && data.banner.backgroundImage) {
+                    inicioSec.style.background = `linear-gradient(rgba(27, 67, 50, 0.8), rgba(27, 67, 50, 0.6)), url('${data.banner.backgroundImage}')`;
+                    inicioSec.style.backgroundSize = 'cover';
+                    inicioSec.style.backgroundPosition = 'center';
+                }
+                if (title) title.innerText = data.banner.title || '';
+                if (subtitle) subtitle.innerText = data.banner.subtitle || '';
+                if (btnProjects) btnProjects.innerText = data.banner.buttonProjectsText || 'Nossos Projetos';
+                if (btnContact) btnContact.innerText = data.banner.buttonContactText || 'Fale com a gente';
+            }
+
+            // 3. News Carousel
+            if (data.news && data.news.length > 0) {
+                newsData = data.news;
+                if (typeof initCarousel === 'function') {
+                    initCarousel();
+                }
+            }
+
+            // 4. Projects Gallery
+            if (data.gallery && data.gallery.length > 0) {
+                const grid = document.getElementById('gallery-grid');
+                if (grid) {
+                    grid.innerHTML = data.gallery.map(g => `
+                        <div class="flex flex-col gap-2">
+                            <a href="javascript:void(0)" onclick="openProgramGallery('${g.program.replace(/'/g, "\\'")}')" class="text-sm font-bold text-secondary hover:text-accent transition-colors flex items-center gap-1 group">
+                                <i data-lucide="external-link" size="14"></i> ${g.program}
+                            </a>
+                            <div class="overflow-hidden rounded-xl h-48 shadow-lg group cursor-pointer" onclick="openProgramGallery('${g.program.replace(/'/g, "\\'")}')">
+                                <img src="${g.coverImage}" alt="${g.program}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" referrerPolicy="no-referrer">
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            // 5. Footer and Slogan
+            if (data.footer) {
+                const slogan = document.getElementById('footer-slogan');
+                const email = document.getElementById('footer-email');
+                const phone = document.getElementById('footer-phone');
+                const address = document.getElementById('footer-address');
+
+                if (slogan) slogan.innerText = data.footer.slogan || '';
+                if (email) email.innerHTML = `<i data-lucide="mail" size="18"></i> ${data.footer.email || ''}`;
+                if (phone) phone.innerHTML = `<i data-lucide="phone" size="18"></i> ${data.footer.phone || ''}`;
+                if (address) address.innerHTML = `<i data-lucide="map-pin" size="18" class="mt-1 flex-shrink-0"></i> ${data.footer.address || ''}`;
+            }
+
+            // Recreate icons
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
+            }
+        }
+
         // --- Real-time Sync ---
         function setupRealtimeSync() {
+            // Homepage Config
+            onSnapshot(doc(db_fs, "config", "homepage"), async (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    window.db.homepage = data;
+                    renderHomepageDynamically(data);
+                } else {
+                    const defaultHomepageData = {
+                        header: {
+                            logoText: "GRAPAS",
+                            fullName: "GR Assessoria e Planejamento de Projetos Agropecuários"
+                        },
+                        banner: {
+                            title: "Assistência técnica e extensão rural para a agricultura familiar.",
+                            subtitle: "Apoiamos produtores rurais com soluções técnicas inovadoras, planejamento estratégico e gestão de projetos para fortalecer o campo.",
+                            buttonProjectsText: "Nossos Projetos",
+                            buttonContactText: "Fale com a gente",
+                            backgroundImage: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80"
+                        },
+                        empresa: {
+                            name: "GR ASSESSORIA E PLANEJAMENTO DE PROJETOS AGROPECUARIOS LTDA",
+                            cnpj: "24.230.134/0001-50",
+                            address: "Rodovia Mário Covas, Coqueiro, Ananindeua - PA"
+                        },
+                        footer: {
+                            slogan: "Compromisso com o desenvolvimento rural e sustentável da região.",
+                            email: "rosaligrapas@yahoo.com.br",
+                            phone: "(91) 99270-7555",
+                            address: "Rua Rio Solimões, S/N, Quadra16, Casa 01, Parque Marajó - CEP: 68.473-000 – Novo Repartimento-PA"
+                        },
+                        news: [
+                            {
+                                id: 1,
+                                program: "BOLSA VERDE",
+                                title: "Equipe técnica da GR Assessoria e ICMBio realizam mutirão com agricultores familiares da comunidade São Domingos",
+                                image: "https://images.unsplash.com/photo-1595974482597-4b8da8879bc5?q=80&w=1200&auto=format&fit=crop",
+                                date: "22/04/2026",
+                                content: "Em uma ação conjunta focada na sustentabilidade e no apoio ao produtor rural, a equipe técnica da GR Assessoria se uniu ao ICMBio para realizar um grande mutirão na comunidade de São Domingos. O evento reuniu dezenas de famílias e focou na regularização documental e orientação técnica para o programa Bolsa Verde. <br><br> Durante o mutirão, foram realizados atendimentos personalizados, esclarecimento de dúvidas sobre o manejo sustentável das áreas e a importância da preservação ambiental como fonte de renda. 'Essa parceria é fundamental para levar dignidade e conhecimento ao campo', afirmou um dos coordenadores técnicos presentes."
+                            },
+                            {
+                                id: 2,
+                                program: "FLORESTAS PRODUTIVAS",
+                                title: "Agricultores familiares da comunidade Resex Marinha de Soure são contemplados com o fomento mulher nesta última sexta-feira (17/04)",
+                                image: "https://images.unsplash.com/photo-1592417817098-8f3d6eb19675?q=80&w=1200&auto=format&fit=crop",
+                                date: "17/04/2026",
+                                content: "A última sexta-feira foi de celebração para as mulheres agricultoras da Resex Marinha de Soure. Através do programa Florestas Produtivas, diversas produtoras receberam o Fomento Mulher, um recurso destinado a impulsionar pequenos empreendimentos rurais liderados por mulheres. <br><br> A GR Assessoria prestou todo o suporte técnico na elaboração dos projetos e continuará acompanhando a aplicação dos recursos para garantir que as metas produtivas sejam alcançadas, fortalecendo a economy local e o protagonismo feminino na região."
+                            },
+                            {
+                                id: 3,
+                                program: "BOLSA VERDE",
+                                title: "Equipe técnica da GR Assessoria realiza a implantação de uma unidade demonstrativa de referência na comunidade Jaguarary, município de Belterra/PA",
+                                image: "https://images.unsplash.com/photo-1530595467537-0b5996c41f2d?q=80&w=1200&auto=format&fit=crop",
+                                date: "10/04/2026",
+                                content: "A comunidade Jaguarary, em Belterra, agora conta com uma Unidade Demonstrativa (UD) de referência. Implantada pela equipe da GR Assessoria no âmbito do programa Bolsa Verde, a unidade visa servir como campo de aprendizado prático para agricultores da região. <br><br> Na UD, são aplicadas técnicas de agroecologia, manejo de solo e diversificação de culturas. O objetivo é mostrar que é possível produzir com eficiência mantendo a floresta em pé e os recursos naturais preservados para as futuras gerações."
+                            },
+                            {
+                                id: 4,
+                                program: "FLORESTAS PRODUTIVAS",
+                                title: "Agricultores familiares do PA Abril Vermelho são contemplados com o título dos seus lotes em evento promovido pelo INCRA e o município de Santa Bárbara do Pará",
+                                image: "https://images.unsplash.com/photo-1605001011156-cbf0b0f67a51?q=80&w=1200&auto=format&fit=crop",
+                                date: "05/04/2026",
+                                content: "A segurança jurídica chegou para as famílias do PA Abril Vermelho. Em um evento emocionante realizado em parceria com o INCRA e a prefeitura de Santa Bárbara do Pará, centenas de agricultores receberam os títulos definitivos de seus lotes. <br><br> A GR Assessoria atuou intensamente no georreferenciamento das áreas e na organização da documentação técnica necessária. 'O título da terra é o início de um novo ciclo de investimentos e tranquilidade para o agricultor', destacou a gerência da empresa durante a cerimônia."
+                            }
+                        ],
+                        gallery: [
+                            {
+                                program: "União Com Municípios",
+                                coverImage: "https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&w=800&q=80",
+                                images: [
+                                    "https://images.unsplash.com/photo-1464226184884-fa280b87c399",
+                                    "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09",
+                                    "https://images.unsplash.com/photo-1434144893279-2a9fc14e9337"
+                                ]
+                            },
+                            {
+                                program: "Florestas Produtivas",
+                                coverImage: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80",
+                                images: [
+                                    "https://images.unsplash.com/photo-1595841696662-5083d30b3565",
+                                    "https://images.unsplash.com/photo-1501183638710-841dd1904471",
+                                    "https://images.unsplash.com/photo-1441974231531-c6227db76b6e"
+                                ]
+                            },
+                            {
+                                program: "Bolsa Verde",
+                                coverImage: "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&w=800&q=80",
+                                images: [
+                                    "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2",
+                                    "https://images.unsplash.com/photo-1597433333333-31123d463d80",
+                                    "https://images.unsplash.com/photo-1518531933037-91b2f5f229cc"
+                                ]
+                            },
+                            {
+                                program: "Produzir Brasil",
+                                coverImage: "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=800&q=80",
+                                images: [
+                                    "https://images.unsplash.com/photo-1592982537447-7440770cbfc9",
+                                    "https://images.unsplash.com/photo-1528183429752-a97d0bf99b5a",
+                                    "https://images.unsplash.com/photo-1502481851512-e9e2529bbbf9"
+                                ]
+                            },
+                            {
+                                program: "Brasil Mais Cooperativo",
+                                coverImage: "https://images.unsplash.com/photo-1560493676-04071c5f467b?auto=format&fit=crop&w=800&q=80",
+                                images: [
+                                    "https://images.unsplash.com/photo-1560493676-04071c5f467b",
+                                    "https://images.unsplash.com/photo-1454165833767-027eeed9b76a",
+                                    "https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+                                ]
+                            },
+                            {
+                                program: "PDHC-Dom Hélder Câmara",
+                                coverImage: "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80",
+                                images: [
+                                    "https://images.unsplash.com/photo-1589923188900-85dae523342b",
+                                    "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
+                                    "https://images.unsplash.com/photo-1473448912268-2022ce9509d8"
+                                ]
+                            },
+                            {
+                                program: "PNCF-Crédito Fundiário",
+                                coverImage: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80",
+                                images: [
+                                    "https://images.unsplash.com/photo-1500382017468-9049fed747ef",
+                                    "https://images.unsplash.com/photo-1502481851512-e9e2529bbbf9",
+                                    "https://images.unsplash.com/photo-1542601032-348daefde07c"
+                                ]
+                            },
+                            {
+                                program: "Mais Gestão PA e MA",
+                                coverImage: "https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5?auto=format&fit=crop&w=800&q=80",
+                                images: [
+                                    "https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5",
+                                    "https://images.unsplash.com/photo-1454166159281-175908ce80a1",
+                                    "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4"
+                                ]
+                            }
+                        ]
+                    };
+                    await setDoc(doc(db_fs, "config", "homepage"), defaultHomepageData);
+                }
+            });
+
             // Empresa Config
             onSnapshot(doc(db_fs, "config", "empresa"), async (docSnap) => {
                 if (docSnap.exists()) {
@@ -2831,7 +3048,7 @@
         }
 
         function openProgramGallery(programName) {
-            const programs = {
+            const defaultPrograms = {
                 'União Com Municípios': ['https://images.unsplash.com/photo-1464226184884-fa280b87c399', 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09', 'https://images.unsplash.com/photo-1434144893279-2a9fc14e9337'],
                 'Florestas Produtivas': ['https://images.unsplash.com/photo-1595841696662-5083d30b3565', 'https://images.unsplash.com/photo-1501183638710-841dd1904471', 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e'],
                 'Bolsa Verde': ['https://images.unsplash.com/photo-1523348837708-15d4a09cfac2', 'https://images.unsplash.com/photo-1597433333333-31123d463d80', 'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc'],
@@ -2842,7 +3059,14 @@
                 'Mais Gestão PA e MA': ['https://images.unsplash.com/photo-1516253593875-bd7ba052fbc5', 'https://images.unsplash.com/photo-1454166159281-175908ce80a1', 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4']
             };
 
-            const images = programs[programName] || [];
+            let images = defaultPrograms[programName] || [];
+            if (window.db && window.db.homepage && window.db.homepage.gallery) {
+                const found = window.db.homepage.gallery.find(g => g.program === programName);
+                if (found && found.images) {
+                    images = found.images;
+                }
+            }
+
             
             // Create temporary lightbox
             const lightbox = document.createElement('div');
