@@ -28,6 +28,61 @@
             --text-dark: #1e293b;
             --danger: #ef4444;
         }
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
+            #modal-report-preview, #modal-report-preview * {
+                visibility: visible !important;
+            }
+            #print-area, #print-area * {
+                visibility: visible !important;
+            }
+            #print-area {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+                background: white !important;
+                color: black !important;
+            }
+            /* Hide modal backdrop and headers/buttons on print */
+            #modal-report-preview {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                overflow: visible !important;
+                background: transparent !important;
+                backdrop-filter: none !important;
+                padding: 0 !important;
+                z-index: 99999 !important;
+            }
+            #modal-report-preview > div {
+                height: auto !important;
+                max-width: none !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            #modal-report-preview > div > div:first-child {
+                display: none !important; /* Hide header with close button/save buttons */
+            }
+            #report-preview-container {
+                background: white !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+        }
         body {
             font-family: 'Inter', -apple-system, sans-serif;
             scroll-behavior: smooth;
@@ -1206,7 +1261,7 @@
 
                     <div id="report-results" class="space-y-6 hidden">
                         <!-- Summary Cards -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="report-summary">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6" id="report-summary">
                         </div>
                         
                         <!-- Detail Table -->
@@ -1225,7 +1280,8 @@
                                             <th>Salário Fixo</th>
                                             <th>Aluguel Veículo</th>
                                             <th>Produção (Total)</th>
-                                            <th class="bg-gray-100">TOTAL A RECEBER</th>
+                                            <th class="text-red-600">Produção Já Paga</th>
+                                            <th class="bg-emerald-100 text-emerald-800">LÍQUIDO A RECEBER</th>
                                         </tr>
                                     </thead>
                                     <tbody id="report-table-body">
@@ -1249,6 +1305,25 @@
                                         </tr>
                                     </thead>
                                     <tbody id="report-activities-body">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Paid Productions Breakdown -->
+                        <div class="card">
+                            <h3 class="font-bold text-slate-800 mb-4">Produções Já Pagas no Período (Deduções)</h3>
+                            <div class="overflow-x-auto">
+                                <table class="table-dashboard">
+                                    <thead>
+                                        <tr>
+                                            <th>Técnico</th>
+                                            <th>Data do Pagamento</th>
+                                            <th>Atividade Referente</th>
+                                            <th class="text-red-600">Valor Pago</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="report-paid-body">
                                     </tbody>
                                 </table>
                             </div>
@@ -1403,7 +1478,12 @@
                     
                     <div class="grid grid-cols-1 gap-6">
                         <div class="card">
-                            <h3 class="text-sm font-bold mb-4 uppercase tracking-wider text-slate-500">Novo Lançamento</h3>
+                            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                                <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Novo Lançamento</h3>
+                                <button onclick="openPaidProductionModal()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg flex items-center gap-1.5 transition-all">
+                                    <i data-lucide="wallet" size="14"></i> Registrar Produção Paga (Dedução)
+                                </button>
+                            </div>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                                 <div>
                                     <label class="block text-xs font-bold text-slate-500 uppercase mb-1">1. Programa/Instrumento</label>
@@ -1449,6 +1529,30 @@
                             </div>
                         </div>
 
+                        <!-- REGISTROS DE PRODUÇÃO PAGA CARD -->
+                        <div class="card">
+                            <h3 class="text-sm font-bold mb-4 uppercase tracking-wider text-slate-500">Registros de Produção Paga (Deduções)</h3>
+                            <div class="table-dashboard-container">
+                                <table class="table-dashboard">
+                                    <thead>
+                                        <tr>
+                                            <th>Data Pagamento</th>
+                                            <th>Técnico</th>
+                                            <th>Instrumento / Contrato</th>
+                                            <th>Atividade</th>
+                                            <th>Município</th>
+                                            <th>Valor Pago</th>
+                                            <th class="text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="paid-production-history">
+                                        <tr><td colspan="7" class="text-center text-gray-400 py-4 text-xs font-semibold">Nenhum pagamento registrado.</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- REGISTROS DE PRODUÇÃO CARD -->
                         <div class="card flex flex-col min-h-0">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500">Registros de Produção</h3>
@@ -1466,6 +1570,17 @@
                                             <th>Atividade</th>
                                             <th>Qtd</th>
                                             <th>Localidade</th>
+                                            <th>Valor Total</th>
+                                            <th class="text-right">Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="production-history">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                                      <!-- Panel: Gerar RTA -->
                 <div id="panel-rta" class="dashboard-panel hidden">
                     <div class="flex justify-between items-center mb-6">
@@ -1941,6 +2056,99 @@
                 <i data-lucide="x"></i>
             </button>
             <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Preview de Relatório de Execução -->
+    <div id="modal-report-preview" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden">
+            <!-- Modal Header with Action Buttons -->
+            <div class="bg-slate-100 border-b p-4 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i data-lucide="file-text" class="text-primary"></i> Preview do Relatório de Execução
+                </h3>
+                <div class="flex items-center gap-3">
+                    <!-- Save PDF (Floppy disk / diskette) Button -->
+                    <button onclick="downloadReportPDF()" class="bg-primary text-white hover:opacity-90 font-bold text-xs py-2 px-4 rounded-lg flex items-center gap-2 transition-all">
+                        <i data-lucide="save" size="16"></i> Salvar PDF
+                    </button>
+                    <!-- Print Button -->
+                    <button onclick="printReportDirect()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs py-2 px-4 rounded-lg flex items-center gap-2 transition-all">
+                        <i data-lucide="printer" size="16"></i> Imprimir
+                    </button>
+                    <!-- Close Button -->
+                    <button onclick="closeReportPreviewModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-200 transition-all">
+                        <i data-lucide="x" size="20"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Modal Content (Scrollable div containing the HTML content) -->
+            <div class="flex-1 overflow-y-auto p-8 bg-slate-50" id="report-preview-container">
+                <!-- This will contain the rendered HTML styled perfectly for printing/saving -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Cadastro de Produção Paga -->
+    <div id="modal-producao-paga" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
+            <div class="bg-slate-100 border-b p-4 flex justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                    <i data-lucide="wallet" class="text-amber-600"></i> Registrar Produção Paga
+                </h3>
+                <button onclick="closePaidProductionModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-200 transition-all">
+                    <i data-lucide="x" size="20"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <input type="hidden" id="input-paga-id" value="">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Contrato / Número do Instrumento</label>
+                    <select id="input-paga-contrato" class="w-full p-2 border rounded-lg text-sm" onchange="filterPaidProductionTechsAndActivities()">
+                        <option value="">Selecione o Instrumento</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Nome do Técnico</label>
+                    <select id="input-paga-tecnico" class="w-full p-2 border rounded-lg text-sm">
+                        <option value="">Selecione o Técnico</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Descrição da Atividade</label>
+                    <select id="input-paga-atividade" class="w-full p-2 border rounded-lg text-sm">
+                        <option value="">Selecione a Atividade</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Município</label>
+                    <select id="input-paga-municipio" class="w-full p-2 border rounded-lg text-sm">
+                        <option value="">Selecione o Município</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Data de Pagamento</label>
+                        <input type="date" id="input-paga-data" class="w-full p-2 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Valor Pago (R$)</label>
+                        <input type="number" id="input-paga-valor" step="0.01" min="0" placeholder="0.00" class="w-full p-2 border rounded-lg text-sm">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-slate-50 border-t p-4 flex justify-end gap-3">
+                <button onclick="closePaidProductionModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2 px-4 rounded-lg transition-all">
+                    Cancelar
+                </button>
+                <button onclick="savePaidProductionRecord()" id="btn-modal-save-paga" class="bg-primary text-white hover:opacity-90 font-bold text-xs py-2 px-4 rounded-lg flex items-center gap-1.5 transition-all">
+                    <i data-lucide="save" size="14"></i> Salvar Pagamento
+                </button>
+            </div>
         </div>
     </div>
 
@@ -4857,6 +5065,15 @@
                 const options = db.contratos.map(c => `<option value="${c.id}">${c.program} (${c.instrument})</option>`).join('');
                 cRelSel.innerHTML = '<option value="">Selecione um Contrato</option>' + options;
             }
+
+            const pagaTechSel = document.getElementById('input-paga-tecnico');
+            const pagaActSel = document.getElementById('input-paga-atividade');
+            if(pagaTechSel) {
+                pagaTechSel.innerHTML = '<option value="">Selecione o Técnico</option>' + db.tecnicos.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            }
+            if(pagaActSel) {
+                pagaActSel.innerHTML = '<option value="">Selecione a Atividade</option>' + db.atividades.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            }
             
             filterProductionPrerequisites();
             filterReportTechnicians();
@@ -4940,7 +5157,8 @@
         function renderProductionHistory() {
             const history = document.getElementById('production-history');
             if(!history) return;
-            const sorted = [...db.producao].sort((a,b) => new Date(b.date) - new Date(a.date));
+            const standardProds = db.producao.filter(p => !p.isPaidRecord);
+            const sorted = [...standardProds].sort((a,b) => new Date(b.date) - new Date(a.date));
             
             const filtroData = document.getElementById('filtro-data').value;
             let displayList = sorted;
@@ -4983,6 +5201,9 @@
                 `;
             }).join('');
             lucide.createIcons();
+            
+            // Also update Paid Production History
+            renderPaidProductionHistory();
         }
 
         async function addProductionRecord() {
@@ -5026,6 +5247,16 @@
                 if(btn) {
                     btn.innerHTML = '<i data-lucide="save" size="16"></i> Salvar Produção';
                 }
+                
+                // Reset standard production fields
+                document.getElementById('input-prod-atividade').value = '';
+                document.getElementById('input-prod-municipio').value = '';
+                document.getElementById('input-prod-comunidade').value = '';
+                document.getElementById('input-prod-qtd').value = '1';
+                document.getElementById('input-prod-data').value = '';
+                
+                // Re-enable/disable based on selected contract
+                filterProductionPrerequisites();
             } catch(e) {
                 console.error(e);
                 alert("Erro ao salvar.");
@@ -5045,8 +5276,9 @@
                 return alert("Por favor, selecione o Contrato e o Período.");
             }
 
-            // Pull data from window.db.producao
+            // Pull standard production data from window.db.producao (excluding paid records)
             let prods = db.producao.filter(p => 
+                !p.isPaidRecord &&
                 p.contractId === contractId && 
                 p.date >= dateStart && 
                 p.date <= dateEnd
@@ -5056,19 +5288,34 @@
                 prods = prods.filter(p => selectedTechs.includes(p.tecnicoId));
             }
 
+            // Pull paid production data
+            let paidProds = db.producao.filter(p => 
+                p.isPaidRecord === true &&
+                p.contractId === contractId &&
+                p.date >= dateStart && 
+                p.date <= dateEnd
+            );
+            if (selectedTechs.length > 0 && !selectedTechs.includes('all')) {
+                paidProds = paidProds.filter(p => selectedTechs.includes(p.tecnicoId));
+            }
+
             document.getElementById('report-results').classList.remove('hidden');
             
             const techsToRender = (selectedTechs.includes('all') || selectedTechs.length === 0) 
                 ? db.tecnicos.filter(t => (t.contractIds || []).includes(contractId) || t.contractId === contractId)
                 : db.tecnicos.filter(t => selectedTechs.includes(t.id));
 
-            const totals = { salary: 0, rental: 0, prod: 0 };
+            const totals = { salary: 0, rental: 0, prod: 0, paid: 0 };
             const tableBody = document.getElementById('report-table-body');
             const actBody = document.getElementById('report-activities-body');
+            const paidBody = document.getElementById('report-paid-body');
+            
             tableBody.innerHTML = ''; actBody.innerHTML = '';
+            if (paidBody) paidBody.innerHTML = '';
 
             techsToRender.forEach(t => {
                 const tP = prods.filter(p => p.tecnicoId === t.id);
+                const tPaid = paidProds.filter(p => p.tecnicoId === t.id);
                 let valP = 0;
                 
                 tP.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
@@ -5099,8 +5346,13 @@
 
                 const fixed = parseFloat(t.fixedSalary || 0);
                 const rent = parseFloat(t.vehicleRental || 0);
-                const total = fixed + rent + valP;
-                totals.salary += fixed; totals.rental += rent; totals.prod += valP;
+                const paidVal = tPaid.reduce((sum, p) => sum + parseFloat(p.totalValue || 0), 0);
+                const liquid = (fixed + rent + valP) - paidVal;
+                
+                totals.salary += fixed; 
+                totals.rental += rent; 
+                totals.prod += valP;
+                totals.paid += paidVal;
 
                 tableBody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
@@ -5108,10 +5360,34 @@
                         <td class="text-slate-600">R$ ${fixed.toFixed(2)}</td>
                         <td class="text-slate-600">R$ ${rent.toFixed(2)}</td>
                         <td class="font-bold text-emerald-600">R$ ${valP.toFixed(2)}</td>
-                        <td class="bg-emerald-50 font-bold text-lg text-emerald-700 border-l-4 border-emerald-500">R$ ${total.toFixed(2)}</td>
+                        <td class="font-bold text-red-600">R$ ${paidVal.toFixed(2)}</td>
+                        <td class="bg-emerald-50 font-bold text-lg text-emerald-700 border-l-4 border-emerald-500">R$ ${liquid.toFixed(2)}</td>
                     </tr>
                 `;
             });
+
+            // Populate paid productions breakdown
+            paidProds.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
+                const act = db.atividades.find(a => a.id == p.activityId);
+                const val = parseFloat(p.totalValue || 0);
+                const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+
+                if (paidBody) {
+                    paidBody.innerHTML += `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="font-medium text-slate-700">${tech ? tech.name : 'N/A'}</td>
+                            <td class="text-slate-500">${dayFormatted}</td>
+                            <td>${act ? act.name : 'N/A'}</td>
+                            <td class="font-bold text-red-600">R$ ${val.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (paidBody && paidProds.length === 0) {
+                paidBody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-400 py-4 text-xs font-semibold">Nenhum pagamento registrado no período.</td></tr>';
+            }
 
             document.getElementById('report-summary').innerHTML = `
                 <div class="card p-4 border-l-4 border-slate-400 shadow-sm">
@@ -5119,12 +5395,16 @@
                     <div class="text-2xl font-bold">R$ ${(totals.salary + totals.rental).toFixed(2)}</div>
                 </div>
                 <div class="card p-4 border-l-4 border-emerald-500 shadow-sm">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase">Produção Total</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase">Produção Total (Bruta)</div>
                     <div class="text-2xl font-bold text-emerald-600">R$ ${totals.prod.toFixed(2)}</div>
                 </div>
+                <div class="card p-4 border-l-4 border-red-500 shadow-sm">
+                    <div class="text-[10px] font-bold text-gray-400 uppercase">Produção Já Paga</div>
+                    <div class="text-2xl font-bold text-red-500">R$ ${totals.paid.toFixed(2)}</div>
+                </div>
                 <div class="card p-4 border-l-4 border-accent shadow-sm">
-                    <div class="text-[10px] font-bold text-gray-400 uppercase">Custo Total de Execução</div>
-                    <div class="text-2xl font-bold text-primary">R$ ${(totals.salary + totals.rental + totals.prod).toFixed(2)}</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase">Líquido a Receber</div>
+                    <div class="text-2xl font-bold text-primary">R$ ${(totals.salary + totals.rental + totals.prod - totals.paid).toFixed(2)}</div>
                 </div>
             `;
             lucide.createIcons();
@@ -6265,6 +6545,718 @@
             showToast("Relatório para Impressão/PDF Aberto!");
         }
 
+        // --- Paid Production Operations & Report Preview/Print Logic ---
+        window.editingPaidId = null;
+
+        function renderPaidProductionHistory() {
+            const history = document.getElementById('paid-production-history');
+            if(!history) return;
+            const paidProds = db.producao.filter(p => p.isPaidRecord === true);
+            const sorted = [...paidProds].sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            history.innerHTML = sorted.map(p => {
+                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
+                const tName = tech ? tech.name : 'Removido';
+                
+                const cont = db.contratos.find(c => c.id === p.contractId);
+                const instrument = cont ? `${cont.instrument} - ${cont.program}` : 'N/A';
+                
+                const activity = db.atividades.find(a => a.id == p.activityId);
+                const aName = activity ? activity.name : 'Removida';
+                
+                const munId = p.municipalityId;
+                const mun = db.municipios.find(m => m.id === munId)?.name || p.municipality || 'N/A';
+                
+                const totalValue = parseFloat(p.totalValue || 0);
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="text-xs font-mono">${new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                        <td class="font-bold text-slate-800 text-xs">${tName}</td>
+                        <td class="text-xs text-slate-600 font-medium">${instrument}</td>
+                        <td class="text-xs text-slate-600 font-semibold">${aName}</td>
+                        <td class="text-xs text-slate-500">${mun}</td>
+                        <td class="font-bold text-amber-600 text-xs">R$ ${totalValue.toFixed(2)}</td>
+                        <td class="text-right">
+                             <div class="flex items-center justify-end gap-2 text-slate-300">
+                                <button onclick="editPaidProduction('${p.id}')" class="hover:text-blue-500"><i data-lucide="pencil" size="14"></i></button>
+                                <button onclick="deleteProduction('${p.id}')" class="hover:text-red-500"><i data-lucide="trash-2" size="14"></i></button>
+                             </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('') || `<tr><td colspan="7" class="text-center text-gray-400 py-4 text-xs font-semibold">Nenhum pagamento registrado.</td></tr>`;
+            lucide.createIcons();
+        }
+
+        function openPaidProductionModal() {
+            const modal = document.getElementById('modal-producao-paga');
+            if (!modal) return;
+            
+            // Reset input fields
+            document.getElementById('input-paga-id').value = '';
+            
+            // Populate contracts select
+            const cSel = document.getElementById('input-paga-contrato');
+            if (cSel) {
+                const options = db.contratos.map(c => `<option value="${c.id}">${c.instrument} - ${c.program}</option>`).join('');
+                cSel.innerHTML = '<option value="">Selecione o Instrumento</option>' + options;
+            }
+            
+            document.getElementById('input-paga-tecnico').innerHTML = '<option value="">Selecione o programa primeiro</option>';
+            document.getElementById('input-paga-atividade').innerHTML = '<option value="">Selecione o programa primeiro</option>';
+            document.getElementById('input-paga-municipio').innerHTML = '<option value="">Selecione o programa primeiro</option>';
+            
+            document.getElementById('input-paga-data').value = new Date().toISOString().split('T')[0];
+            document.getElementById('input-paga-valor').value = '';
+            
+            const btn = document.getElementById('btn-modal-save-paga');
+            if (btn) btn.innerHTML = '<i data-lucide="save" size="14"></i> Salvar Pagamento';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function closePaidProductionModal() {
+            const modal = document.getElementById('modal-producao-paga');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+            window.editingPaidId = null;
+        }
+
+        function filterPaidProductionTechsAndActivities() {
+            const contId = document.getElementById('input-paga-contrato').value;
+            const tSel = document.getElementById('input-paga-tecnico');
+            const aSel = document.getElementById('input-paga-atividade');
+            const mSel = document.getElementById('input-paga-municipio');
+            
+            if (!contId) {
+                if (tSel) tSel.innerHTML = '<option value="">Selecione o Instrumento Primeiro</option>';
+                if (aSel) aSel.innerHTML = '<option value="">Selecione o Instrumento Primeiro</option>';
+                if (mSel) mSel.innerHTML = '<option value="">Selecione o Instrumento Primeiro</option>';
+                return;
+            }
+            
+            // Filter techs
+            const filteredTechs = db.tecnicos.filter(t => {
+                const cIds = t.contractIds || (t.contractId ? [t.contractId] : []);
+                return cIds.includes(contId);
+            });
+            if (tSel) {
+                tSel.innerHTML = '<option value="">Selecione o Técnico</option>' + filteredTechs.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+            }
+            
+            // Filter activities
+            const filteredActivities = db.atividades.filter(a => a.contractId === contId);
+            if (aSel) {
+                aSel.innerHTML = '<option value="">Selecione a Atividade</option>' + filteredActivities.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+            }
+            
+            // Filter municipios
+            const filteredMunicipios = db.municipios.filter(m => m.contractId === contId);
+            if (mSel) {
+                mSel.innerHTML = '<option value="">Selecione o Município</option>' + filteredMunicipios.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+            }
+        }
+
+        async function savePaidProductionRecord() {
+            const id = document.getElementById('input-paga-id').value;
+            const contId = document.getElementById('input-paga-contrato').value;
+            const tId = document.getElementById('input-paga-tecnico').value;
+            const aId = document.getElementById('input-paga-atividade').value;
+            const mId = document.getElementById('input-paga-municipio').value;
+            const dVal = document.getElementById('input-paga-data').value;
+            const val = parseFloat(document.getElementById('input-paga-valor').value || 0);
+
+            if (!contId || !tId || !aId || !mId || !dVal || isNaN(val) || val <= 0) {
+                return alert("Preencha todos os campos corretamente com valores válidos!");
+            }
+
+            const payload = {
+                contractId: contId,
+                tecnicoId: tId,
+                activityId: aId,
+                municipalityId: mId,
+                date: dVal,
+                totalValue: val,
+                isPaidRecord: true,
+                createdAt: fs_ops.serverTimestamp()
+            };
+
+            try {
+                if (id) {
+                    await fs_ops.updateDoc(fs_ops.doc(db_fs, "producao", id), payload);
+                    showToast("Pagamento atualizado com sucesso!");
+                } else {
+                    await fs_ops.addDoc(fs_ops.collection(db_fs, "producao"), payload);
+                    showToast("Pagamento registrado com sucesso!");
+                }
+                closePaidProductionModal();
+            } catch(e) {
+                console.error(e);
+                alert("Erro ao salvar pagamento.");
+            }
+        }
+
+        function editPaidProduction(id) {
+            const p = db.producao.find(x => x.id === id);
+            if(!p) return;
+            
+            const modal = document.getElementById('modal-producao-paga');
+            if (!modal) return;
+            
+            // Populate contracts first
+            const cSel = document.getElementById('input-paga-contrato');
+            if (cSel) {
+                const options = db.contratos.map(c => `<option value="${c.id}">${c.instrument} - ${c.program}</option>`).join('');
+                cSel.innerHTML = '<option value="">Selecione o Instrumento</option>' + options;
+                cSel.value = p.contractId || '';
+            }
+            
+            // Populate dependent selectors
+            filterPaidProductionTechsAndActivities();
+            
+            // Set values
+            document.getElementById('input-paga-id').value = p.id;
+            document.getElementById('input-paga-tecnico').value = p.tecnicoId || '';
+            document.getElementById('input-paga-atividade').value = p.activityId || '';
+            document.getElementById('input-paga-municipio').value = p.municipalityId || '';
+            document.getElementById('input-paga-data').value = p.date || '';
+            document.getElementById('input-paga-valor').value = p.totalValue || '';
+            
+            const btn = document.getElementById('btn-modal-save-paga');
+            if (btn) btn.innerHTML = '<i data-lucide="refresh-cw" size="14"></i> Atualizar Pagamento';
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function formatBRL(val) {
+            const num = parseFloat(val || 0);
+            return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function printReport() {
+            const contractId = document.getElementById('report-contract-filter').value;
+            const dateStart = document.getElementById('report-date-start').value;
+            const dateEnd = document.getElementById('report-date-end').value;
+            
+            if (!contractId || !dateStart || !dateEnd) {
+                return alert("Por favor, selecione o Contrato e o Período antes de gerar o preview.");
+            }
+
+            const contract = db.contratos.find(c => c.id === contractId);
+            const contractProgram = contract ? contract.program : 'N/A';
+            const contractInstrument = contract ? contract.instrument : 'N/A';
+
+            let prods = db.producao.filter(p => 
+                !p.isPaidRecord &&
+                p.contractId === contractId && 
+                p.date >= dateStart && 
+                p.date <= dateEnd
+            );
+
+            const techSelect = document.getElementById('report-tech-filter');
+            const selectedTechs = Array.from(techSelect.selectedOptions).map(opt => opt.value);
+            if (selectedTechs.length > 0 && !selectedTechs.includes('all')) {
+                prods = prods.filter(p => selectedTechs.includes(p.tecnicoId));
+            }
+
+            let paidProds = db.producao.filter(p => 
+                p.isPaidRecord === true &&
+                p.contractId === contractId &&
+                p.date >= dateStart && 
+                p.date <= dateEnd
+            );
+            if (selectedTechs.length > 0 && !selectedTechs.includes('all')) {
+                paidProds = paidProds.filter(p => selectedTechs.includes(p.tecnicoId));
+            }
+
+            const techsToRender = (selectedTechs.includes('all') || selectedTechs.length === 0) 
+                ? db.tecnicos.filter(t => {
+                    const cIds = t.contractIds || (t.contractId ? [t.contractId] : []);
+                    return cIds.includes(contractId);
+                })
+                : db.tecnicos.filter(t => selectedTechs.includes(t.id));
+
+            let previewHtml = `
+                <div class="bg-white p-6 md:p-8 rounded-lg shadow-sm border border-slate-200 text-slate-800" id="print-area">
+                    <div class="text-center border-b pb-6 mb-6">
+                        <h1 class="text-xl font-bold uppercase text-slate-900">${window.db.empresa ? window.db.empresa.name : 'GR ASSESSORIA E PLANEJAMENTO'}</h1>
+                        <h2 class="text-sm font-semibold tracking-wide text-slate-600 uppercase mt-1">Relatório de Execução Técnica e Financeira</h2>
+                        <div class="mt-3 flex flex-wrap justify-center gap-x-6 text-xs text-slate-500 font-medium">
+                            <span><strong>Programa/Contrato:</strong> ${contractProgram} (${contractInstrument})</span>
+                            <span><strong>Período:</strong> ${new Date(dateStart + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(dateEnd + 'T00:00:00').toLocaleDateString('pt-BR')}</span>
+                        </div>
+                    </div>
+                    
+                    <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Resumo Financeiro</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
+            `;
+
+            let totalSalary = 0;
+            let totalRental = 0;
+            let totalProdVal = 0;
+            let totalPaidVal = 0;
+
+            techsToRender.forEach(t => {
+                const tP = prods.filter(p => p.tecnicoId === t.id);
+                const tPaid = paidProds.filter(p => p.tecnicoId === t.id);
+
+                totalSalary += parseFloat(t.fixedSalary || 0);
+                totalRental += parseFloat(t.vehicleRental || 0);
+                totalProdVal += tP.reduce((sum, p) => sum + parseFloat(p.totalValue || 0), 0);
+                totalPaidVal += tPaid.reduce((sum, p) => sum + parseFloat(p.totalValue || 0), 0);
+            });
+
+            const grossTotal = totalSalary + totalRental + totalProdVal;
+            const netTotal = grossTotal - totalPaidVal;
+
+            previewHtml += `
+                        <div class="p-3 bg-slate-50 border rounded-lg">
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase">Salários + Aluguéis</span>
+                            <span class="text-base font-bold text-slate-700">${formatBRL(totalSalary + totalRental)}</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 border rounded-lg">
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase">Produção Realizada</span>
+                            <span class="text-base font-bold text-emerald-600">${formatBRL(totalProdVal)}</span>
+                        </div>
+                        <div class="p-3 bg-slate-50 border rounded-lg">
+                            <span class="block text-[10px] font-bold text-slate-400 uppercase">Deduções (Já Pagas)</span>
+                            <span class="text-base font-bold text-red-500">${formatBRL(totalPaidVal)}</span>
+                        </div>
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+                            <span class="block text-[10px] font-bold text-emerald-600 uppercase">Líquido a Receber</span>
+                            <span class="text-base font-bold text-emerald-700">${formatBRL(netTotal)}</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Detalhamento de Atividades Executadas</h3>
+                        <div class="overflow-x-auto border rounded-lg">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b text-slate-600 font-semibold">
+                                        <th class="p-2.5">Técnico</th>
+                                        <th class="p-2.5">Data / Dia</th>
+                                        <th class="p-2.5">Atividade</th>
+                                        <th class="p-2.5 text-center">Qtd.</th>
+                                        <th class="p-2.5 text-right">Val.Unit.</th>
+                                        <th class="p-2.5">Município/Comunidade</th>
+                                        <th class="p-2.5 text-right">Valor Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            let hasActivities = false;
+            let totalActivitiesSum = 0;
+            techsToRender.forEach(t => {
+                const tP = prods.filter(p => p.tecnicoId === t.id);
+                tP.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                    hasActivities = true;
+                    const act = db.atividades.find(a => a.id == p.activityId);
+                    const v = parseFloat(p.totalValue || 0);
+                    totalActivitiesSum += v;
+
+                    const qty = p.quantity || 1;
+                    const unitVal = p.unitValue || (act ? parseFloat(act.value || 0) : 0);
+                    const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+                    const dayOfWeek = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+                    const munId = p.municipalityId;
+                    const mun = db.municipios.find(m => m.id === munId)?.name || p.municipality || 'N/A';
+                    const com = db.comunidades.find(co => co.id === p.communityId)?.name || p.community || 'N/A';
+
+                    previewHtml += `
+                                    <tr class="border-b hover:bg-slate-50">
+                                        <td class="p-2.5 font-semibold text-slate-700">${t.name}</td>
+                                        <td class="p-2.5 capitalize text-slate-500">${dayFormatted} (${dayOfWeek.split('-')[0]})</td>
+                                        <td class="p-2.5 font-medium">${act ? act.name : 'N/A'}</td>
+                                        <td class="p-2.5 text-center font-semibold">${qty}</td>
+                                        <td class="p-2.5 text-right font-mono text-slate-600">${formatBRL(unitVal)}</td>
+                                        <td class="p-2.5 italic text-slate-500">${mun} - ${com}</td>
+                                        <td class="p-2.5 text-right font-bold text-emerald-600">${formatBRL(v)}</td>
+                                    </tr>
+                    `;
+                });
+            });
+
+            if (!hasActivities) {
+                previewHtml += `
+                                    <tr>
+                                        <td colspan="7" class="p-4 text-center text-slate-400 italic">Nenhuma produção registrada para os técnicos selecionados neste período.</td>
+                                    </tr>
+                `;
+            } else {
+                previewHtml += `
+                                    <tr class="bg-slate-50 border-t font-bold">
+                                        <td colspan="6" class="p-2.5 text-right uppercase tracking-wider text-slate-500 text-xs">Total Geral das Atividades:</td>
+                                        <td class="p-2.5 text-right text-emerald-600 font-bold text-sm">${formatBRL(totalActivitiesSum)}</td>
+                                    </tr>
+                `;
+            }
+
+            previewHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Produções Já Pagas no Período (Deduções)</h3>
+                        <div class="overflow-x-auto border rounded-lg">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b text-slate-600 font-semibold">
+                                        <th class="p-2.5">Técnico</th>
+                                        <th class="p-2.5">Data do Pagamento</th>
+                                        <th class="p-2.5">Atividade Referente</th>
+                                        <th class="p-2.5 text-right text-red-600 font-bold">Valor Pago</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            let hasPaid = false;
+            paidProds.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                hasPaid = true;
+                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
+                const act = db.atividades.find(a => a.id == p.activityId);
+                const val = parseFloat(p.totalValue || 0);
+                const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+
+                previewHtml += `
+                                    <tr class="border-b hover:bg-slate-50">
+                                        <td class="p-2.5 font-semibold text-slate-700">${tech ? tech.name : 'N/A'}</td>
+                                        <td class="p-2.5">${dayFormatted}</td>
+                                        <td class="p-2.5">${act ? act.name : 'N/A'}</td>
+                                        <td class="p-2.5 text-right font-bold text-red-600">${formatBRL(val)}</td>
+                                    </tr>
+                `;
+            });
+
+            if (!hasPaid) {
+                previewHtml += `
+                                    <tr>
+                                        <td colspan="4" class="p-4 text-center text-slate-400 italic">Nenhum pagamento registrado para os técnicos selecionados neste período.</td>
+                                    </tr>
+                `;
+            }
+
+            previewHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Detalhamento de Valores por Técnico</h3>
+                        <div class="overflow-x-auto border rounded-lg">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b text-slate-600 font-semibold">
+                                        <th class="p-2.5">Técnico</th>
+                                        <th class="p-2.5">Salário Fixo</th>
+                                        <th class="p-2.5">Aluguel Veículo</th>
+                                        <th class="p-2.5">Produção Realizada</th>
+                                        <th class="p-2.5 text-red-600 font-semibold">Produção Já Paga</th>
+                                        <th class="p-2.5 bg-emerald-100 text-emerald-800 font-bold">Líquido a Receber</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            techsToRender.forEach(t => {
+                const tP = prods.filter(p => p.tecnicoId === t.id);
+                const tPaid = paidProds.filter(p => p.tecnicoId === t.id);
+
+                const fixed = parseFloat(t.fixedSalary || 0);
+                const rent = parseFloat(t.vehicleRental || 0);
+                const valP = tP.reduce((sum, p) => sum + parseFloat(p.totalValue || 0), 0);
+                const paidVal = tPaid.reduce((sum, p) => sum + parseFloat(p.totalValue || 0), 0);
+                const liquid = (fixed + rent + valP) - paidVal;
+
+                previewHtml += `
+                                    <tr class="border-b hover:bg-slate-50">
+                                        <td class="p-2.5 font-bold text-slate-800">${t.name}</td>
+                                        <td class="p-2.5">${formatBRL(fixed)}</td>
+                                        <td class="p-2.5">${formatBRL(rent)}</td>
+                                        <td class="p-2.5 text-emerald-600 font-semibold">${formatBRL(valP)}</td>
+                                        <td class="p-2.5 text-red-600 font-semibold">${formatBRL(paidVal)}</td>
+                                        <td class="p-2.5 bg-emerald-50 text-emerald-700 font-bold">${formatBRL(liquid)}</td>
+                                    </tr>
+                `;
+            });
+
+            previewHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const container = document.getElementById('report-preview-container');
+            if (container) {
+                container.innerHTML = previewHtml;
+            }
+            const modal = document.getElementById('modal-report-preview');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+            lucide.createIcons();
+        }
+
+        function closeReportPreviewModal() {
+            const modal = document.getElementById('modal-report-preview');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function printReportDirect() {
+            const printContent = document.getElementById('print-area').innerHTML;
+            const win = window.open("", "_blank");
+            win.document.write(`
+                <html>
+                <head>
+                    <title>Relatório de Execução</title>
+                    <script src="https://cdn.tailwindcss.com"><\/script>
+                    <style>
+                        body { font-family: sans-serif; padding: 20px; background: white; }
+                        @media print {
+                            body { padding: 0; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="max-w-5xl mx-auto bg-white p-8">
+                        ${printContent}
+                    </div>
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        function downloadReportPDF() {
+            const doc = new window.jspdf.jsPDF('p', 'mm', 'a4');
+            let y = 15;
+            
+            if (!window.jspdf || !window.jspdf.jsPDF) {
+                return alert("Erro: jsPDF não foi carregado corretamente.");
+            }
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            const title = window.db.empresa ? window.db.empresa.name.toUpperCase() : 'GR ASSESSORIA E PLANEJAMENTO';
+            doc.text(title, 105, y, { align: "center" });
+            y += 6;
+            doc.setFontSize(10);
+            doc.setFont("helvetica", "normal");
+            doc.text("RELATORIO DE EXECUCAO TECNICA E FINANCEIRA", 105, y, { align: "center" });
+            y += 8;
+
+            const contractId = document.getElementById('report-contract-filter').value;
+            const dateStart = document.getElementById('report-date-start').value;
+            const dateEnd = document.getElementById('report-date-end').value;
+            const contract = db.contratos.find(c => c.id === contractId);
+            const contractProgram = contract ? contract.program : 'N/A';
+            const dateStr = `Periodo: ${new Date(dateStart + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(dateEnd + 'T00:00:00').toLocaleDateString('pt-BR')}`;
+            
+            doc.setFontSize(8);
+            doc.text(`Programa/Contrato: ${contractProgram}`, 14, y);
+            doc.text(dateStr, 140, y);
+            y += 4;
+            doc.setLineWidth(0.5);
+            doc.line(14, y, 196, y);
+            y += 8;
+
+            const techSelect = document.getElementById('report-tech-filter');
+            const selectedTechs = Array.from(techSelect.selectedOptions).map(opt => opt.value);
+            
+            let prods = db.producao.filter(p => 
+                !p.isPaidRecord &&
+                p.contractId === contractId && 
+                p.date >= dateStart && 
+                p.date <= dateEnd
+            );
+            if (selectedTechs.length > 0 && !selectedTechs.includes('all')) {
+                prods = prods.filter(p => selectedTechs.includes(p.tecnicoId));
+            }
+
+            let paidProds = db.producao.filter(p => 
+                p.isPaidRecord === true &&
+                p.contractId === contractId &&
+                p.date >= dateStart && 
+                p.date <= dateEnd
+            );
+            if (selectedTechs.length > 0 && !selectedTechs.includes('all')) {
+                paidProds = paidProds.filter(p => selectedTechs.includes(p.tecnicoId));
+            }
+
+            const techsToRender = (selectedTechs.includes('all') || selectedTechs.length === 0) 
+                ? db.tecnicos.filter(t => {
+                    const cIds = t.contractIds || (t.contractId ? [t.contractId] : []);
+                    return cIds.includes(contractId);
+                })
+                : db.tecnicos.filter(t => selectedTechs.includes(t.id));
+
+            // Section 1: Detalhamento de Atividades Executadas (Moved up and updated with new columns & summary row)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text("Detalhamento de Atividades Executadas", 14, y);
+            y += 4;
+
+            const t2Headers = [["Tecnico", "Data", "Atividade", "Qtd.", "Val.Unit.", "Localidade", "Valor Total"]];
+            const t2Data = [];
+            let totalActivitiesSum = 0;
+            let hasActivities = false;
+
+            techsToRender.forEach(t => {
+                const tP = prods.filter(p => p.tecnicoId === t.id);
+                tP.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                    hasActivities = true;
+                    const act = db.atividades.find(a => a.id == p.activityId);
+                    const v = parseFloat(p.totalValue || 0);
+                    totalActivitiesSum += v;
+                    
+                    const qty = p.quantity || 1;
+                    const unitVal = p.unitValue || (act ? parseFloat(act.value || 0) : 0);
+                    const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+                    const munId = p.municipalityId;
+                    const mun = db.municipios.find(m => m.id === munId)?.name || p.municipality || 'N/A';
+                    const com = db.comunidades.find(co => co.id === p.communityId)?.name || p.community || 'N/A';
+
+                    t2Data.push([
+                        t.name,
+                        dayFormatted,
+                        act ? act.name : 'N/A',
+                        qty.toString(),
+                        `${formatBRL(unitVal)}`,
+                        `${mun} - ${com}`,
+                        `${formatBRL(v)}`
+                    ]);
+                });
+            });
+
+            if (!hasActivities) {
+                t2Data.push([ "Nenhum registro", "", "", "", "", "", "" ]);
+            } else {
+                // Add sum row at the end of activities
+                t2Data.push([
+                    "TOTAL GERAL DAS ATIVIDADES",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    `${formatBRL(totalActivitiesSum)}`
+                ]);
+            }
+
+            doc.autoTable({
+                startY: y,
+                head: t2Headers,
+                body: t2Data,
+                theme: 'striped',
+                headStyles: { fillColor: [27, 67, 50], textColor: [255, 255, 255] },
+                margin: { left: 14, right: 14 },
+                styles: { fontSize: 8 }
+            });
+
+            y = doc.lastAutoTable.finalY + 8;
+
+            // Section 2: Detalhamento de Producoes Ja Pagas (Deducoes)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text("Detalhamento de Producoes Ja Pagas (Deducoes)", 14, y);
+            y += 4;
+
+            const t3Headers = [["Tecnico", "Data Pagamento", "Atividade", "Valor Pago"]];
+            const t3Data = [];
+            paidProds.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
+                const act = db.atividades.find(a => a.id == p.activityId);
+                const val = parseFloat(p.totalValue || 0);
+                const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+
+                t3Data.push([
+                    tech ? tech.name : 'N/A',
+                    dayFormatted,
+                    act ? act.name : 'N/A',
+                    `${formatBRL(val)}`
+                ]);
+            });
+
+            if (t3Data.length === 0) {
+                t3Data.push([ "Nenhum registro", "", "", "" ]);
+            }
+
+            doc.autoTable({
+                startY: y,
+                head: t3Headers,
+                body: t3Data,
+                theme: 'striped',
+                headStyles: { fillColor: [153, 27, 27], textColor: [255, 255, 255] },
+                margin: { left: 14, right: 14 },
+                styles: { fontSize: 8 }
+            });
+
+            y = doc.lastAutoTable.finalY + 8;
+
+            // Section 3: Detalhamento de Valores por Tecnico (Moved to the end)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text("Detalhamento de Valores por Tecnico", 14, y);
+            y += 4;
+
+            const t1Headers = [["Tecnico", "Salario Fixo", "Aluguel Veiculo", "Producao", "Pago (Deducoes)", "Liquido a Receber"]];
+            const t1Data = techsToRender.map(t => {
+                const tP = prods.filter(p => p.tecnicoId === t.id);
+                const tPaid = paidProds.filter(p => p.tecnicoId === t.id);
+
+                const fixed = parseFloat(t.fixedSalary || 0);
+                const rent = parseFloat(t.vehicleRental || 0);
+                const valP = tP.reduce((sum, p) => sum + parseFloat(p.totalValue || 0), 0);
+                const paidVal = tPaid.reduce((sum, p) => sum + parseFloat(p.totalValue || 0), 0);
+                const liquid = (fixed + rent + valP) - paidVal;
+
+                return [
+                    t.name,
+                    `${formatBRL(fixed)}`,
+                    `${formatBRL(rent)}`,
+                    `${formatBRL(valP)}`,
+                    `${formatBRL(paidVal)}`,
+                    `${formatBRL(liquid)}`
+                ];
+            });
+
+            doc.autoTable({
+                startY: y,
+                head: t1Headers,
+                body: t1Data,
+                theme: 'striped',
+                headStyles: { fillColor: [27, 67, 50], textColor: [255, 255, 255] },
+                margin: { left: 14, right: 14 },
+                styles: { fontSize: 8 }
+            });
+
+            doc.save(`Relatorio_Execucao_${contractProgram}_${dateStart}_a_${dateEnd}.pdf`);
+            showToast("PDF salvo com sucesso!");
+        }
+
         // Expose functions to global scope (needed because script is type="module")
         Object.assign(window, {
             closeModal, openModal, editItem, saveNew,
@@ -6280,7 +7272,8 @@
             populateRTAPanelSelectors, resetRTAFamilySelection, onRTASearchInput, selectRTAFamily, selectRTAFamilyFromSelect,
             clearRTASelectedUFPA, updateRTAMetadata, onRTADocxLoaded, openRTAExcelImportModal,
             onRTAExcelFileSelect, importRTAExcelDataRef, generateRTATexts, switchRTAPreviewTab,
-            saveRTAToDatabase, renderRTAHistory, loadRTARecordIntoEditor, compileDocxTemplate, exportRTAToPDF
+            saveRTAToDatabase, renderRTAHistory, loadRTARecordIntoEditor, compileDocxTemplate, exportRTAToPDF,
+            renderPaidProductionHistory, addPaidProductionRecord, editPaidProduction, printReportDirect, downloadReportPDF, closeReportPreviewModal
         });
 
         // Initialize Carousel

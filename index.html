@@ -255,8 +255,10 @@
         }
 
         /* Hide/Show logic classes */
-        .page-section { display: none; }
-        .page-section.active { display: block; }
+        .page-section { display: none !important; }
+        .page-section.active { display: block !important; }
+        .page-section.active.flex { display: flex !important; }
+        .page-section.active.grid { display: grid !important; }
         
         .limit-reached {
             background-color: var(--danger) !important;
@@ -408,59 +410,139 @@
 
     <!-- Landing Page (Section: site) -->
     <div id="site-page" class="page-section active">
-        <!-- Header -->
-        <header class="fixed w-full z-50 bg-white shadow-md">
-            <div class="container mx-auto px-4 md:px-6 py-3 flex justify-between items-center">
-                <div class="flex flex-col items-start leading-tight">
-                    <div class="bg-primary px-3 py-0.5 rounded-lg mb-0.5">
-                        <span class="text-white font-bold text-lg tracking-tight" id="header-logo-text">GRAPAS</span>
-                    </div>
-                    <span class="font-bold text-primary text-[9px] sm:text-[10px] uppercase tracking-tighter" id="header-full-name">
-                        GR Assessoria e Planejamento de Projetos Agropecuários
-                    </span>
+        <!-- Header: 325px height, full page width, styled with space for a custom banner -->
+        <header class="w-full bg-gradient-to-r from-primary to-emerald-950 text-white h-[325px] relative flex flex-col justify-center items-center shadow-lg px-4 overflow-hidden">
+            <!-- Background pattern representation -->
+            <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1920&auto=format&fit=crop');"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
+            
+            <!-- Logo & Title Content inside 325px Header -->
+            <div class="relative z-10 text-center max-w-4xl px-4 animate-fade-in flex flex-col items-center">
+                <div class="bg-white/15 backdrop-blur-md px-6 py-3 rounded-2xl mb-4 border border-white/20 shadow-xl inline-block">
+                    <h1 class="text-white font-extrabold text-4xl md:text-5xl tracking-widest" id="header-logo-text">GRAPAS</h1>
                 </div>
-                
-                <nav class="hidden md:flex gap-8 font-semibold text-gray-600" id="site-nav">
-                    <a href="javascript:void(0)" onclick="showSection('quemsomos')" class="hover:text-primary transition-colors">Quem Somos</a>
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-primary transition-colors">Serviços</a>
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-primary transition-colors">Projetos</a>
-                    <a href="#galeria" class="hover:text-primary transition-colors hidden">Galeria</a>
-                    <button id="site-login-btn" onclick="showSection('login')" class="text-primary border-2 border-primary px-4 py-1 rounded-md hover:bg-primary hover:text-white transition-all">Sistema</button>
-                    <a href="#contato" class="bg-accent text-white px-4 py-1 rounded-md hover:opacity-90 transition-all">Contato</a>
-                </nav>
-
-                <button class="md:hidden text-primary" id="mobile-menu-btn">
-                    <i data-lucide="menu"></i>
-                </button>
-            </div>
-            <!-- Mobile Menu -->
-            <div id="mobile-menu" class="hidden md:hidden bg-white border-t p-4 flex flex-col gap-4">
-                <a href="javascript:void(0)" onclick="showSection('quemsomos')" class="py-2 text-primary">Quem Somos</a>
-                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="py-2 text-primary">Serviços</a>
-                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="py-2 text-primary">Projetos</a>
-                <button id="mobile-login-btn" onclick="showSection('login')" class="py-2 text-left text-primary font-bold">Sistema</button>
-                <a href="#contato" class="py-2 text-accent font-bold">Contato</a>
+                <p class="font-bold text-2xl md:text-3xl uppercase tracking-wider text-[#345f51] max-w-2xl text-center leading-snug mb-2" style="text-shadow: 0 0 10px rgba(255,255,255,0.95), 0 0 5px rgba(255,255,255,0.95);" id="header-full-name">
+                    GR Assessoria e Planejamento de Projetos Agropecuários
+                </p>
+                <p class="text-xs md:text-sm text-slate-300 tracking-widest uppercase font-mono" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+                    24 Anos de Compromisso com o Campo e Desenvolvimento Rural
+                </p>
             </div>
         </header>
 
-        <!-- Hero Section -->
-        <section id="inicio" class="hero-gradient min-h-screen flex items-center pt-20">
+        <!-- Menu Bar below the Header: 72px height, full-width, color #044204 -->
+        <nav class="sticky top-0 w-full bg-[#044204] z-50 h-[72px] shadow-xl border-y border-emerald-900">
+            <div class="container mx-auto h-full px-4 md:px-6 flex justify-between items-center">
+                
+                <!-- Desktop Nav Left: Menus -->
+                <div class="hidden lg:flex items-center gap-6 xl:gap-8 h-full text-white font-semibold">
+                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="home" size="16"></i> Início
+                    </a>
+                    
+                    <!-- Dropdown Institucional with Arrow -->
+                    <div class="relative group/menu h-full flex items-center">
+                        <button class="hover:text-accent transition-colors flex items-center gap-1.5 py-2 focus:outline-none">
+                            <i data-lucide="building-2" size="16"></i> Institucional
+                            <i data-lucide="chevron-down" size="14" class="transition-transform group-hover/menu:rotate-180"></i>
+                        </button>
+                        <div class="absolute left-0 top-[64px] w-52 bg-[#044204] border border-emerald-800 rounded-xl shadow-2xl py-3 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50 transform origin-top translate-y-2 group-hover/menu:translate-y-0">
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">A empresa</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Organograma</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('quemequem')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Quem é quem</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('regionais')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Regionais</a>
+                        </div>
+                    </div>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="briefcase" size="16"></i> Serviços
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="shield" class="text-accent animate-pulse" size="16"></i> SISATER
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="phone" size="16"></i> Contatos
+                    </a>
+                </div>
+                
+                <!-- Search Bar at the Right -->
+                <div class="hidden lg:flex items-center gap-4">
+                    <div class="relative max-w-xs w-64">
+                        <input type="text" id="site-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-primary focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
+                        <button onclick="triggerSiteSearch()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors">
+                            <i data-lucide="search" size="16"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Header Area with menu toggle -->
+                <div class="lg:hidden flex justify-between items-center w-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-white font-bold tracking-widest text-lg">GRAPAS</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <!-- Small Mobile Search -->
+                        <div class="relative w-32 sm:w-48">
+                            <input type="text" id="site-search-input-mobile" placeholder="Buscar..." onkeypress="handleSearchKeyPressMobile(event)" class="w-full bg-white/10 text-white placeholder-white/40 text-xs pl-8 pr-2 py-1.5 rounded-full border border-white/15 focus:outline-none focus:bg-white focus:text-primary transition-all">
+                            <i data-lucide="search" size="12" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/40"></i>
+                        </div>
+                        <button class="text-white p-1 hover:text-accent transition-colors" id="mobile-menu-btn">
+                            <i data-lucide="menu" size="24"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Menu -->
+            <div id="mobile-menu" class="hidden lg:hidden bg-[#044204] border-t border-emerald-800 shadow-2xl absolute top-[72px] left-0 w-full z-50 py-4 px-6 flex flex-col gap-4 text-white font-semibold divide-y divide-emerald-800/50">
+                <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="home" size="16"></i> Início
+                </a>
+                
+                <div class="py-2 flex flex-col gap-2">
+                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2"><i data-lucide="building-2" size="14"></i> Institucional</span>
+                    <div class="grid grid-cols-2 gap-2 pl-4 pt-1 font-normal text-sm text-gray-100">
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa'); document.getElementById('mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">A empresa</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma'); document.getElementById('mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Organograma</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('quemequem'); document.getElementById('mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Quem é quem</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('regionais'); document.getElementById('mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Regionais</a>
+                    </div>
+                </div>
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="briefcase" size="16"></i> Serviços
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="folder-kanban" size="16"></i> Projetos
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('login'); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2 text-accent">
+                    <i data-lucide="shield" size="16"></i> SISATER
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="phone" size="16"></i> Contatos
+                </a>
+            </div>
+        </nav>
+
+        <!-- Hero Section without the buttons as requested -->
+        <section id="inicio" class="hero-gradient min-h-[500px] flex items-center py-16">
             <div class="container mx-auto px-4 md:px-6 text-white">
                 <div class="max-w-3xl animate-fade-up">
                     <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight" id="hero-title">
                         Assistência técnica e extensão rural para a agricultura familiar.
                     </h1>
-                    <p class="text-lg md:text-xl mb-8 text-gray-200" id="hero-subtitle">
+                    <p class="text-lg md:text-xl mb-4 text-gray-200" id="hero-subtitle">
                         Apoiamos produtores rurais com soluções técnicas inovadoras, planejamento estratégico e gestão de projetos para fortalecer o campo.
                     </p>
-                    <div class="flex flex-wrap gap-4">
-                        <a href="#galeria" id="hero-btn-projects" class="bg-accent text-white px-8 py-4 rounded-lg font-bold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all">
-                            Nossos Projetos
-                        </a>
-                        <a href="#contato" id="hero-btn-contact" class="bg-white text-primary px-8 py-4 rounded-lg font-bold text-lg hover:shadow-lg transform hover:-translate-y-1 transition-all border-2 border-white">
-                            Fale com a gente
-                        </a>
-                    </div>
                 </div>
             </div>
         </section>
@@ -481,6 +563,30 @@
 
                 <div class="carousel-nav" id="carousel-dots">
                     <!-- Dots injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Últimas Notícias Section (3 side-by-side banners, aspect ratio 687x930) -->
+        <section id="ultimas-noticias" class="py-20 bg-slate-50 border-y border-gray-100">
+            <div class="container mx-auto px-4 md:px-6">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl md:text-5xl font-extrabold text-primary mb-4 tracking-tight">Últimas Notícias</h2>
+                    <p class="text-slate-500 max-w-xl mx-auto text-sm md:text-base">Acompanhe as principais ações, projetos e conquistas da agricultura familiar no estado do Pará.</p>
+                    <div class="w-24 h-1.5 bg-accent mx-auto mt-4 rounded-full"></div>
+                </div>
+
+                <!-- Grid displaying the 3 latest news with specific proportions (687px wide by 930px high) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 xl:gap-10 max-w-7xl mx-auto" id="latest-news-banners">
+                    <!-- Loaded dynamically via JavaScript with white overlay legend of 12pt at the bottom -->
+                </div>
+
+                <!-- Link to All News Page -->
+                <div class="text-center mt-16">
+                    <a href="javascript:void(0)" onclick="showAllNewsPage()" class="inline-flex items-center gap-3 bg-primary hover:bg-emerald-950 text-white font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:-translate-y-0.5 group">
+                        Todas as Notícias
+                        <i data-lucide="arrow-right" class="w-5 h-5 transform group-hover:translate-x-1.5 transition-transform"></i>
+                    </a>
                 </div>
             </div>
         </section>
@@ -675,6 +781,19 @@
                             Rua Rio Solimões, S/N, Quadra16, Casa 01, Parque Marajó - CEP: 68.473-000 – Novo Repartimento-PA
                         </li>
                     </ul>
+                    <!-- Redes Sociais e WhatsApp -->
+                    <div class="mt-6 flex flex-wrap items-center gap-3">
+                        <a id="footer-wa-link" href="https://wa.me/5591992707555" target="_blank" rel="noopener noreferrer" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-xl transition-all text-xs flex items-center gap-2 shadow-md w-fit" title="Falar no WhatsApp">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                <path d="M12.004 2C6.48 2 2 6.48 2 12.004c0 1.848.502 3.578 1.378 5.078L2 22l5.078-1.378c1.5.876 3.23 1.378 5.078 1.378 5.524 0 10.004-4.48 10.004-10.004C22.008 6.48 17.528 2 12.004 2zm4.987 14.281c-.206.581-1.2 1.069-1.644 1.131-.444.062-.888.112-2.887-.687-2.557-1.019-4.207-3.625-4.331-3.794-.125-.169-1.025-1.369-1.025-2.613 0-1.244.65-1.856.881-2.106.231-.25.506-.312.675-.312.169 0 .338 0 .487.006.15.006.35-.025.55.45.2.494.675 1.644.737 1.769.062.125.1.275.019.431-.081.169-.175.275-.294.412-.119.138-.25.306-.356.412-.119.119-.244.25-.106.488.138.238.613 1.013 1.313 1.631.9 1.488 1.444 1.838 1.631 1.931.188.094.306.075.419-.056.112-.131.481-.563.606-.75.125-.188.25-.15.419-.088.169.063 1.075.506 1.263.6.188.094.312.138.356.219.044.081.044.475-.162 1.056z"/>
+                            </svg>
+                            <span>WhatsApp</span>
+                        </a>
+                        <a href="https://www.instagram.com/grassessoria.ater/" target="_blank" rel="noopener noreferrer" class="bg-gradient-to-tr from-yellow-500 via-pink-500 to-purple-600 hover:opacity-95 hover:scale-[1.02] text-white font-bold py-2.5 px-4 rounded-xl transition-all text-xs flex items-center gap-2 shadow-md w-fit" title="Siga no Instagram">
+                            <i data-lucide="instagram" size="16"></i>
+                            <span>Instagram</span>
+                        </a>
+                    </div>
                 </div>
                 <div>
                     <h4 class="text-xl font-bold mb-6 text-accent">Newsletter</h4>
@@ -708,155 +827,437 @@
 
         <main class="container mx-auto px-4 md:px-6 py-12 md:py-20">
             <div class="max-w-4xl mx-auto">
-                <!-- A Empresa -->
-                <section class="mb-20">
-                    <div class="flex items-center gap-4 mb-8">
-                        <div class="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center">
-                            <i data-lucide="building-2" size="28"></i>
-                        </div>
-                        <h2 class="text-3xl md:text-4xl font-bold text-primary">A Empresa</h2>
-                    </div>
-                    <div class="prose prose-slate max-w-none text-gray-600 leading-relaxed space-y-6">
-                        <p class="text-lg">A GR Assessoria e Planejamento de Projetos Agropecuários, ao longo de sua trajetória, prestou importantes serviços de Assistência Técnica, Social e Ambiental (ATES) para assentados da reforma agrária, em diversas regiões do Estado do Pará, por meio de contratos firmados com o Instituto Nacional de Colonização e Reforma Agrária (INCRA).</p>
-                        <p>Essas ações foram desenvolvidas com o objetivo de promover o desenvolvimento sustentável, a inclusão social e a melhoria das condições de vida das famílias assentadas, sempre em conformidade com os princípios legais e institucionais que regem a política de reforma agrária no Brasil.</p>
-                        <p>Entre os principais projetos desenvolvidos pela entidade, destacam-se as atividades nos Projetos de Assentamento (PA’s) de Tucuruí, Baião e Pacajá, no Estado do Pará, onde, entre 31 de dezembro de 2012 e 31 de dezembro de 2017, foram prestados serviços de ATES, conforme o contrato MB.0000018-12 e seus aditivos anuais. Simultaneamente, no mesmo período, a entidade também atuou nos PA’s de Novo Repartimento, com base no contrato MB.0000019-12, e nos PA’s de Nova Ipixuna e Rondon do Pará, sob o contrato PA.0000025-12, ambos firmados com o INCRA (SR/27).</p>
-                        <p>Outro projeto de destaque foi desenvolvido nos PA’s Pilão Poente I, III e Grotão da Onça, no município de Anapu-PA, Pará, sob a gestão do INCRA a Unidade Avançada de Altamira. Nesse caso, as atividades de ATES ocorreram entre 15 de janeiro de 2015 e 15 de janeiro de 2016, conforme o contrato AT.0100001-13. Em paralelo, a entidade também prestou ATES no PA Itatá, localizado no município de Altamira, no período de 12 de janeiro de 2015 a 11 de janeiro de 2016, conforme o contrato 0000002-14.</p>
-                        <p>Além de sua atuação no âmbito da reforma agrária, a entidade participou do Programa Brasil sem Miséria (PBSM), prestando assistência técnica a agricultores familiares em situação de extrema pobreza. No Território da Cidadania da Transamazônica, no Pará, as atividades ocorreram entre 8 de outubro de 2013 e 8 de março de 2016, conforme o contrato 112/2013. No Território da Cidadania dos Cocais, no Maranhão, a entidade atuou entre 21 de dezembro de 2012 e 21 de junho de 2015, conforme o contrato 126/2012. No Território da Cidadania do Baixo Amazonas, no Pará, as atividades foram realizadas entre 28 de dezembro de 2012 e 28 de dezembro de 2014, conforme o contrato 141/2012.</p>
-                        <p>Outro projeto relevante foi a prestação de ATES nos PA’s Pilão Poente I, III e Grotão da Onça, no município de Anapu, Pará, entre 15 de janeiro de 2014 e 15 de janeiro de 2015, sob o contrato SM.0100001-13, firmado com o INCRA (SR/30). Além disso, a entidade prestou assistência técnica aos agricultores familiares no Território da Cidadania da Transamazônica – PA, em dois períodos distintos: de 31 de dezembro de 2010 a 31 de março de 2012, conforme o contrato 247/2010, e de 31 de dezembro de 2010 a 31 de dezembro de 2011, conforme o contrato 239/2010.</p>
-                        <p>A entidade também desempenhou um papel fundamental na prestação de ATES nos PA’s Zumbi dos Palmares e Pouso Bonito, no município de Pacajá, Pará, beneficiando 152 famílias entre dezembro de 2006 e dezembro de 2008, em convênio com o INCRA (SR/27). De igual importância foi a atuação nos PA’s Cocalândia, Serra Quebrada, Santa Amélia, Jaguatiara, Pajeú e Cigana, na microrregião de Tucuruí e Novo Repartimento, onde, entre setembro de 2004 e março de 2007, foram beneficiadas 314 famílias, conforme convênio com o INCRA (SR/27). Em um período anterior, entre novembro de 2003 e março de 2004, a entidade já havia prestado ATES para 303 famílias nos mesmos PA’s, também em convênio com o INCRA (SR/27).</p>
-                        <p>Além dos serviços de ATES, a entidade se destacou na elaboração de Planos de Desenvolvimento e Recuperação de Assentamentos (PDA e PRA), conforme convênios firmados com o INCRA. Esses planos visaram o estudo e planejamento social, ambiental e econômico de 1.279 famílias nos Projetos de Assentamento Rio Bandeira, Raio do Sol I e II, Nova Vida II, Morada Nova, Morada Nova II, Arataú e Santa Cecília, na microrregião de Tucuruí e Pacajá, no período de dezembro de 2007 a dezembro de 2008. Adicionalmente, a entidade elaborou Planos de Recuperação de Assentamentos (PRA) para os PA’s mencionados, demonstrando sua expertise técnica e institucional na condução de projetos voltados para a reforma agrária e o desenvolvimento sustentável das comunidades atendidas. Em todas essas atividades, a entidade atuou de forma diligente, em estrita conformidade com os normativos legais aplicáveis e com um forte compromisso com a inclusão social.</p>
-                    </div>
-                </section>
+                <!-- Tab Navigation Bar for Institucional -->
+                <div class="flex flex-wrap border-b border-slate-200 mb-12 gap-2" id="institucional-tabs-nav">
+                    <button onclick="switchInstitucionalTab('empresa')" id="tab-btn-empresa" class="px-6 py-3 font-bold text-sm md:text-base border-b-4 border-primary text-primary transition-all focus:outline-none flex items-center gap-2">
+                        <i data-lucide="building-2" size="18"></i> A Empresa
+                    </button>
+                    <button onclick="switchInstitucionalTab('organograma')" id="tab-btn-organograma" class="px-6 py-3 font-bold text-sm md:text-base border-b-4 border-transparent text-slate-500 hover:text-primary transition-all focus:outline-none flex items-center gap-2">
+                        <i data-lucide="git-fork" size="18"></i> Organograma
+                    </button>
+                    <button onclick="switchInstitucionalTab('quemequem')" id="tab-btn-quemequem" class="px-6 py-3 font-bold text-sm md:text-base border-b-4 border-transparent text-slate-500 hover:text-primary transition-all focus:outline-none flex items-center gap-2">
+                        <i data-lucide="users" size="18"></i> Quem é quem
+                    </button>
+                    <button onclick="switchInstitucionalTab('regionais')" id="tab-btn-regionais" class="px-6 py-3 font-bold text-sm md:text-base border-b-4 border-transparent text-slate-500 hover:text-primary transition-all focus:outline-none flex items-center gap-2">
+                        <i data-lucide="map-pin" size="18"></i> Regionais
+                    </button>
+                </div>
 
-                <!-- Missão, Visão e Valores -->
-                <section class="mb-20 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-200">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div>
-                            <h3 class="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
-                                <i data-lucide="target" class="text-accent"></i> Missão
-                            </h3>
-                            <p class="text-gray-600">Promover a prosperidade e o desenvolvimento sustentável da agricultura familiar, oferecendo serviços de assistência técnica, planejamento e assessoria que garantam qualidade de vida às famílias rurais e respeito ao meio ambiente. Estamos empenhados em promover o desenvolvimento sustentável no campo, compartilhar conhecimento, tecnologia e boas práticas agrícolas, capacitando agricultores e promovendo o bem-estar das famílias rurais.</p>
+                <!-- Pane 1: A Empresa (Existing Quem Somos Content) -->
+                <div id="tab-pane-empresa" class="institucional-tab-pane">
+                    <!-- A Empresa -->
+                    <section class="mb-20">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center">
+                                <i data-lucide="building-2" size="28"></i>
+                            </div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-primary">A Empresa</h2>
                         </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
-                                <i data-lucide="eye" class="text-accent"></i> Visão
-                            </h3>
-                            <p class="text-gray-600">Ser reconhecida como referência nacional em assistência técnica e extensão rural, consultoria e regularização fundiária e ambiental, contribuindo para a erradicação da pobreza rural e para a construção de sistemas produtivos sustentáveis e inclusivos.</p>
+                        <div class="prose prose-slate max-w-none text-gray-600 leading-relaxed space-y-6">
+                            <p class="text-lg">A GR Assessoria e Planejamento de Projetos Agropecuários, ao longo de sua trajetória, prestou importantes serviços de Assistência Técnica, Social e Ambiental (ATES) para assentados da reforma agrária, em diversas regiões do Estado do Pará, por meio de contratos firmados com o Instituto Nacional de Colonização e Reforma Agrária (INCRA).</p>
+                            <p>Essas ações foram desenvolvidas com o objetivo de promover o desenvolvimento sustentável, a inclusão social e a melhoria das condições de vida das famílias assentadas, sempre em conformidade com os princípios legais e institucionais que regem a política de reforma agrária no Brasil.</p>
+                            <p>Entre os principais projetos desenvolvidos pela entidade, destacam-se as atividades nos Projetos de Assentamento (PA’s) de Tucuruí, Baião e Pacajá, no Estado do Pará, onde, entre 31 de dezembro de 2012 e 31 de dezembro de 2017, foram prestados serviços de ATES, conforme o contrato MB.0000018-12 e seus aditivos anuais. Simultaneamente, no mesmo período, a entidade também atuou nos PA’s de Novo Repartimento, com base no contrato MB.0000019-12, e nos PA’s de Nova Ipixuna e Rondon do Pará, sob o contrato PA.0000025-12, ambos firmados com o INCRA (SR/27).</p>
+                            <p>Outro projeto de destaque foi desenvolvido nos PA’s Pilão Poente I, III e Grotão da Onça, no município de Anapu-PA, Pará, sob a gestão do INCRA a Unidade Avançada de Altamira. Nesse caso, as atividades de ATES ocorreram entre 15 de janeiro de 2015 e 15 de janeiro de 2016, conforme o contrato AT.0100001-13. Em paralelo, a entidade também prestou ATES no PA Itatá, localizado no município de Altamira, no período de 12 de janeiro de 2015 a 11 de janeiro de 2016, conforme o contrato 0000002-14.</p>
+                            <p>Além de sua atuação no âmbito da reforma agrária, a entidade participou do Programa Brasil sem Miséria (PBSM), prestando assistência técnica a agricultores familiares em situação de extrema pobreza. No Território da Cidadania da Transamazônica, no Pará, as atividades ocorreram entre 8 de outubro de 2013 e 8 de março de 2016, conforme o contrato 112/2013. No Território da Cidadania dos Cocais, no Maranhão, a entidade atuou entre 21 de dezembro de 2012 e 21 de junho de 2015, conforme o contrato 126/2012. No Território da Cidadania do Baixo Amazonas, no Pará, as atividades foram realizadas entre 28 de dezembro de 2012 e 28 de dezembro de 2014, conforme o contrato 141/2012.</p>
+                            <p>Outro projeto relevante foi a prestação de ATES nos PA’s Pilão Poente I, III e Grotão da Onça, no município de Anapu, Pará, entre 15 de janeiro de 2014 e 15 de janeiro de 2015, sob o contrato SM.0100001-13, firmado com o INCRA (SR/30). Além disso, a entidade prestou assistência técnica aos agricultores familiares no Território da Cidadania da Transamazônica – PA, em dois períodos distintos: de 31 de dezembro de 2010 a 31 de março de 2012, conforme o contrato 247/2010, e de 31 de dezembro de 2010 a 31 de dezembro de 2011, conforme o contrato 239/2010.</p>
+                            <p>A entidade também desempenhou um papel fundamental na prestação de ATES nos PA’s Zumbi dos Palmares e Pouso Bonito, no município de Pacajá, Pará, beneficiando 152 famílias entre dezembro de 2006 e dezembro de 2008, em convênio com o INCRA (SR/27). De igual importância foi a atuação nos PA’s Cocalândia, Serra Quebrada, Santa Amélia, Jaguatiara, Pajeú e Cigana, na microrregião de Tucuruí and Novo Repartimento, onde, entre setembro de 2004 e março de 2007, foram beneficiadas 314 famílias, conforme convênio com o INCRA (SR/27). Em um período anterior, entre novembro de 2003 e março de 2004, a entidade já havia prestado ATES para 303 famílias nos mesmos PA’s, também em convênio com o INCRA (SR/27).</p>
+                            <p>Além dos serviços de ATES, a entidade se destacou na elaboração de Planos de Desenvolvimento e Recuperação de Assentamentos (PDA e PRA), conforme convênios firmados com o INCRA. Esses planos visaram o estudo e planejamento social, ambiental e econômico de 1.279 famílias nos Projetos de Assentamento Rio Bandeira, Raio do Sol I e II, Nova Vida II, Morada Nova, Morada Nova II, Arataú e Santa Cecília, na microrregião de Tucuruí e Pacajá, no período de dezembro de 2007 a dezembro de 2008. Adicionalmente, a entidade elaborou Planos de Recuperação de Assentamentos (PRA) para os PA’s mencionados, demonstrando sua expertise técnica e institucional na condução de projetos voltados para a reforma agrária e o desenvolvimento sustentável das comunidades atendidas. Em todas essas atividades, a entidade atuou de forma diligente, em estrita conformidade com os normativos legais aplicáveis e com um forte compromisso com a inclusão social.</p>
                         </div>
-                    </div>
-                    <div class="mt-12 pt-12 border-t border-slate-200">
-                        <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-2">
-                            <i data-lucide="shield-check" class="text-accent"></i> Valores
-                        </h3>
+                    </section>
+
+                    <!-- Missão, Visão e Valores -->
+                    <section class="mb-20 bg-slate-50 p-8 md:p-12 rounded-3xl border border-slate-200">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                            <div>
+                                <h3 class="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
+                                    <i data-lucide="target" class="text-accent"></i> Missão
+                                </h3>
+                                <p class="text-gray-600">Promover a prosperidade e o desenvolvimento sustentável da agricultura familiar, oferecendo serviços de assistência técnica, planejamento e assessoria que garantam qualidade de vida às famílias rurais e respeito ao meio ambiente. Estamos empenhados em promover o desenvolvimento sustentável no campo, compartilhar conhecimento, tecnologia e boas práticas agrícolas, capacitando agricultores e promovendo o bem-estar das famílias rurais.</p>
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-primary mb-4 flex items-center gap-2">
+                                    <i data-lucide="eye" class="text-accent"></i> Visão
+                                </h3>
+                                <p class="text-gray-600">Ser reconhecida como referência nacional em assistência técnica e extensão rural, consultoria e regularização fundiária e ambiental, contribuindo para a erradicação da pobreza rural e para a construção de sistemas produtivos sustentáveis e inclusivos.</p>
+                            </div>
+                        </div>
+                        <div class="mt-12 pt-12 border-t border-slate-200">
+                            <h3 class="text-2xl font-bold text-primary mb-6 flex items-center gap-2">
+                                <i data-lucide="shield-check" class="text-accent"></i> Valores
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                    <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                    <span class="text-sm font-semibold text-gray-700">Autonomia e protagonismo dos agricultores familiares</span>
+                                </div>
+                                <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                    <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                    <span class="text-sm font-semibold text-gray-700">Igualdade e respeito às diversidades culturais e sociais</span>
+                                </div>
+                                <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                    <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                    <span class="text-sm font-semibold text-gray-700">Compromisso com a qualidade e eficácia</span>
+                                </div>
+                                <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                    <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                    <span class="text-sm font-semibold text-gray-700">Responsabilidade socioambiental em todas as ações</span>
+                                </div>
+                                <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
+                                    <div class="w-2 h-2 bg-accent rounded-full"></div>
+                                    <span class="text-sm font-semibold text-gray-700">Ética, cidadania e transparência</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Principais Atividades -->
+                    <section class="mb-20">
+                        <h2 class="text-3xl font-bold text-primary mb-12 text-center">Principais Atividades</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
+                                <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="users"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-primary mb-1">Assistência Técnica e Extensão Rural</h4>
+                                    <p class="text-xs text-gray-500 italic leading-tight">Acompanhamento direto de agricultores familiares, assentados, extrativistas, pescadores, indígenas, quilombolas e demais públicos da agricultura familiar.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
+                                <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="file-text"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-primary mb-1">Elaboração de Projetos Agropecuários</h4>
+                                    <p class="text-xs text-gray-500 italic leading-tight">Pronaf, Pronamp, FNO e outros programas de financiamento para o fortalecimento produtivo.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
+                                <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="briefcase"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-primary mb-1">Consultoria Especializada</h4>
+                                    <p class="text-xs text-gray-500 italic leading-tight">Apoio a cooperativas, associações e entidades de ATER em capacitação, formação de equipes técnicas, elaboração de projetos e sistematização de informações.</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
+                                <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="map-pin"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-primary mb-1">Regularização Cadastral, Fundiária e Ambiental</h4>
+                                    <p class="text-xs text-gray-500 italic leading-tight">Apoio aos agricultores e empreendimentos na regularização de documentos como CCIR, ITR, títulos de terra, CAR e licenciamento ambiental.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Estrutura -->
+                    <section class="mb-20">
+                        <h2 class="text-3xl font-bold text-primary mb-8">Estrutura da Empresa</h2>
+                        <div class="prose prose-slate max-w-none text-gray-600 mb-8">
+                            <p>A GRAPAS é estruturada como uma sociedade empresarial limitada, formada por profissionais qualificados das áreas de agronomia, engenharia florestal, contabilidade, assistência social, pedagogia e outras áreas correlatas.</p>
+                        </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-                                <div class="w-2 h-2 bg-accent rounded-full"></div>
-                                <span class="text-sm font-semibold text-gray-700">Autonomia e protagonismo dos agricultores familiares</span>
+                            <div class="p-4 bg-primary text-white rounded-xl">
+                                <h5 class="font-bold mb-2">Gestão Estratégica</h5>
+                                <p class="text-xs opacity-80">Conduz o planejamento e supervisão das atividades, garantindo alinhamento com a missão e valores.</p>
                             </div>
-                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-                                <div class="w-2 h-2 bg-accent rounded-full"></div>
-                                <span class="text-sm font-semibold text-gray-700">Igualdade e respeito às diversidades culturais e sociais</span>
+                            <div class="p-4 bg-primary/90 text-white rounded-xl">
+                                <h5 class="font-bold mb-2">Equipe Técnica Multidisciplinar</h5>
+                                <p class="text-xs opacity-80">Composta por profissionais especializados que atuam diretamente com os agricultores e comunidades rurais.</p>
                             </div>
-                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-                                <div class="w-2 h-2 bg-accent rounded-full"></div>
-                                <span class="text-sm font-semibold text-gray-700">Compromisso com a qualidade e eficácia</span>
+                            <div class="p-4 bg-primary/80 text-white rounded-xl">
+                                <h5 class="font-bold mb-2">Setor Administrativo e Contábil</h5>
+                                <p class="text-xs opacity-80">Responsável pela gestão financeira, contábil e de regularização jurídica dos processos.</p>
                             </div>
-                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-                                <div class="w-2 h-2 bg-accent rounded-full"></div>
-                                <span class="text-sm font-semibold text-gray-700">Responsabilidade socioambiental em todas as ações</span>
-                            </div>
-                            <div class="flex items-center gap-3 bg-white p-4 rounded-xl shadow-sm">
-                                <div class="w-2 h-2 bg-accent rounded-full"></div>
-                                <span class="text-sm font-semibold text-gray-700">Ética, cidadania e transparência</span>
+                            <div class="p-4 bg-primary/70 text-white rounded-xl">
+                                <h5 class="font-bold mb-2">Rede de Parceiros</h5>
+                                <p class="text-xs opacity-80">Envolve associações, cooperativas, órgãos públicos e programas de fomento.</p>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- Principais Atividades -->
-                <section class="mb-20">
-                    <h2 class="text-3xl font-bold text-primary mb-12 text-center">Principais Atividades</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
-                            <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="users"></i></div>
+                    <!-- Mercado e Impacto -->
+                    <section>
+                        <h2 class="text-3xl font-bold text-primary mb-8">Mercado de Atuação e Impactos</h2>
+                        <div class="bg-accent/10 p-8 rounded-3xl mb-8 border border-accent/20">
+                            <h4 class="font-bold text-primary mb-4">Mercado de Atuação</h4>
+                            <p class="text-sm text-gray-600">A GRAPAS atua há 24 anos no mercado de forma estratégica no fortalecimento da agricultura familiar, comunidades tradicionais e assentamentos da reforma agrária. Sua presença é marcada na execução de projetos por meio de Chamadas Públicas de Ater da ANATER, além de parcerias com o INCRA e MDA, garantindo credibilidade e abrangência nacional.</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
                             <div>
-                                <h4 class="font-bold text-primary mb-1">Assistência Técnica e Extensão Rural</h4>
-                                <p class="text-xs text-gray-500 italic leading-tight">Acompanhamento direto de agricultores familiares, assentados, extrativistas, pescadores, indígenas, quilombolas e demais públicos da agricultura familiar.</p>
+                                <h4 class="font-bold text-primary mb-6 flex items-center gap-2 border-b pb-2"><i data-lucide="globe" class="text-secondary"></i> Sociedade</h4>
+                                <ul class="space-y-4 text-sm text-gray-600">
+                                    <li class="flex gap-2"><span>•</span> Melhora da qualidade de vida das famílias rurais.</li>
+                                    <li class="flex gap-2"><span>•</span> Produção de alimentos saudáveis e sustentáveis.</li>
+                                    <li class="flex gap-2"><span>•</span> Fortalecimento das organizações sociais do campo.</li>
+                                    <li class="flex gap-2"><span>•</span> Preservação do meio ambiente e regularização ambiental.</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-primary mb-6 flex items-center gap-2 border-b pb-2"><i data-lucide="award" class="text-secondary"></i> Profissionais</h4>
+                                <ul class="space-y-4 text-sm text-gray-600">
+                                    <li class="flex gap-2"><span>•</span> Atuação em projetos de grande relevância social.</li>
+                                    <li class="flex gap-2"><span>•</span> Desenvolvimento de competências técnicas e gerenciais.</li>
+                                    <li class="flex gap-2"><span>•</span> Integração em equipe multidisciplinar.</li>
+                                    <li class="flex gap-2"><span>•</span> Reconhecimento profissional e impacto positivo.</li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
-                            <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="file-text"></i></div>
-                            <div>
-                                <h4 class="font-bold text-primary mb-1">Elaboração de Projetos Agropecuários</h4>
-                                <p class="text-xs text-gray-500 italic leading-tight">Pronaf, Pronamp, FNO e outros programas de financiamento para o fortalecimento produtivo.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
-                            <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="briefcase"></i></div>
-                            <div>
-                                <h4 class="font-bold text-primary mb-1">Consultoria Especializada</h4>
-                                <p class="text-xs text-gray-500 italic leading-tight">Apoio a cooperativas, associações e entidades de ATER em capacitação, formação de equipes técnicas, elaboração de projetos e sistematização de informações.</p>
-                            </div>
-                        </div>
-                        <div class="flex gap-4 p-6 bg-white border border-slate-100 shadow-sm rounded-2xl hover:border-accent transition-colors">
-                            <div class="w-12 h-12 bg-green-50 text-primary rounded-lg flex items-center justify-center flex-shrink-0"><i data-lucide="map-pin"></i></div>
-                            <div>
-                                <h4 class="font-bold text-primary mb-1">Regularização Cadastral, Fundiária e Ambiental</h4>
-                                <p class="text-xs text-gray-500 italic leading-tight">Apoio aos agricultores e empreendimentos na regularização de documentos como CCIR, ITR, títulos de terra, CAR e licenciamento ambiental.</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+                    </section>
+                </div>
 
-                <!-- Estrutura -->
-                <section class="mb-20">
-                    <h2 class="text-3xl font-bold text-primary mb-8">Estrutura da Empresa</h2>
-                    <div class="prose prose-slate max-w-none text-gray-600 mb-8">
-                        <p>A GRAPAS é estruturada como uma sociedade empresarial limitada, formada por profissionais qualificados das áreas de agronomia, engenharia florestal, contabilidade, assistência social, pedagogia e outras áreas correlatas.</p>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="p-4 bg-primary text-white rounded-xl">
-                            <h5 class="font-bold mb-2">Gestão Estratégica</h5>
-                            <p class="text-xs opacity-80">Conduz o planejamento e supervisão das atividades, garantindo alinhamento com a missão e valores.</p>
+                <!-- Pane 2: Organograma -->
+                <div id="tab-pane-organograma" class="institucional-tab-pane hidden">
+                    <section class="mb-12">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center">
+                                <i data-lucide="git-fork" size="28"></i>
+                            </div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-primary">Organograma Funcional</h2>
                         </div>
-                        <div class="p-4 bg-primary/90 text-white rounded-xl">
-                            <h5 class="font-bold mb-2">Equipe Técnica Multidisciplinar</h5>
-                            <p class="text-xs opacity-80">Composta por profissionais especializados que atuam diretamente com os agricultores e comunidades rurais.</p>
-                        </div>
-                        <div class="p-4 bg-primary/80 text-white rounded-xl">
-                            <h5 class="font-bold mb-2">Setor Administrativo e Contábil</h5>
-                            <p class="text-xs opacity-80">Responsável pela gestão financeira, contábil e de regularização jurídica dos processos.</p>
-                        </div>
-                        <div class="p-4 bg-primary/70 text-white rounded-xl">
-                            <h5 class="font-bold mb-2">Rede de Parceiros</h5>
-                            <p class="text-xs opacity-80">Envolve associações, cooperativas, órgãos públicos e programas de fomento.</p>
-                        </div>
-                    </div>
-                </section>
+                        <p class="text-gray-600 mb-12">A estrutura organizacional da GRAPAS foi desenhada para garantir máxima eficiência na gestão de recursos, no planejamento técnico-pedagógico e na execução direta de serviços de assistência técnica no campo.</p>
+                        
+                        <!-- Visual Tree diagram with styled nodes -->
+                        <div class="bg-slate-50 p-6 md:p-10 rounded-3xl border border-slate-200 flex flex-col items-center gap-8">
+                            
+                            <!-- Node 1: Diretoria Executiva -->
+                            <div class="bg-primary text-white px-8 py-4 rounded-2xl shadow-md border-2 border-emerald-700 text-center max-w-xs w-full animate-fade-in">
+                                <div class="text-xs uppercase tracking-widest text-emerald-300 font-bold mb-1">Deliberação Superior</div>
+                                <h4 class="font-extrabold text-base">Diretoria Executiva</h4>
+                                <span class="text-xs opacity-85">Rosali Grapas</span>
+                            </div>
+                            
+                            <!-- Vertical line 1 -->
+                            <div class="w-1 h-8 bg-primary/40"></div>
+                            
+                            <!-- Node 2: Coordenadoria Geral -->
+                            <div class="bg-emerald-950 text-white px-8 py-4 rounded-2xl shadow-md border-2 border-emerald-800 text-center max-w-xs w-full">
+                                <div class="text-xs uppercase tracking-widest text-accent font-bold mb-1">Supervisão Técnica</div>
+                                <h4 class="font-extrabold text-base">Coordenação de Projetos</h4>
+                                <span class="text-xs opacity-85">Carlos de Sousa</span>
+                            </div>
 
-                <!-- Mercado e Impacto -->
-                <section>
-                    <h2 class="text-3xl font-bold text-primary mb-8">Mercado de Atuação e Impactos</h2>
-                    <div class="bg-accent/10 p-8 rounded-3xl mb-8 border border-accent/20">
-                        <h4 class="font-bold text-primary mb-4">Mercado de Atuação</h4>
-                        <p class="text-sm text-gray-600">A GRAPAS atua há 24 anos no mercado de forma estratégica no fortalecimento da agricultura familiar, comunidades tradicionais e assentamentos da reforma agrária. Sua presença é marcada na execução de projetos por meio de Chamadas Públicas de Ater da ANATER, além de parcerias com o INCRA e MDA, garantindo credibilidade e abrangência nacional.</p>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
-                        <div>
-                            <h4 class="font-bold text-primary mb-6 flex items-center gap-2 border-b pb-2"><i data-lucide="globe" class="text-secondary"></i> Sociedade</h4>
-                            <ul class="space-y-4 text-sm text-gray-600">
-                                <li class="flex gap-2"><span>•</span> Melhora da qualidade de vida das famílias rurais.</li>
-                                <li class="flex gap-2"><span>•</span> Produção de alimentos saudáveis e sustentáveis.</li>
-                                <li class="flex gap-2"><span>•</span> Fortalecimento das organizações sociais do campo.</li>
-                                <li class="flex gap-2"><span>•</span> Preservação do meio ambiente e regularização ambiental.</li>
-                            </ul>
+                            <!-- Vertical line 2 -->
+                            <div class="w-1 h-8 bg-primary/40"></div>
+
+                            <!-- Horizontal division -->
+                            <div class="w-full max-w-lg border-t-2 border-primary/40 relative">
+                                <!-- Dots at intersections -->
+                                <div class="absolute -left-1 -top-1.5 w-3 h-3 rounded-full bg-primary/80"></div>
+                                <div class="absolute -right-1 -top-1.5 w-3 h-3 rounded-full bg-primary/80"></div>
+                                <div class="absolute left-1/2 -translate-x-1/2 -top-1.5 w-3 h-3 rounded-full bg-primary/80"></div>
+                            </div>
+
+                            <!-- Sub-levels Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-2xl mt-2">
+                                <!-- Branch Left: Corpo Técnico -->
+                                <div class="flex flex-col items-center">
+                                    <div class="w-1 h-6 bg-primary/40"></div>
+                                    <div class="bg-white border-2 border-primary/30 p-6 rounded-2xl shadow-sm text-center w-full hover:border-accent transition-colors">
+                                        <div class="w-10 h-10 bg-green-50 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                                            <i data-lucide="users" size="20"></i>
+                                        </div>
+                                        <h5 class="font-bold text-primary mb-1 text-sm">Corpo Técnico Multidisciplinar</h5>
+                                        <p class="text-xs text-slate-500">Engenheiros Agrônomos, Engenheiros Florestais, Médicos Veterinários e Técnicos em Agropecuária de Campo.</p>
+                                    </div>
+                                </div>
+
+                                <!-- Branch Right: Setor Administrativo -->
+                                <div class="flex flex-col items-center">
+                                    <div class="w-1 h-6 bg-primary/40"></div>
+                                    <div class="bg-white border-2 border-primary/30 p-6 rounded-2xl shadow-sm text-center w-full hover:border-accent transition-colors">
+                                        <div class="w-10 h-10 bg-green-50 text-primary rounded-full flex items-center justify-center mx-auto mb-3">
+                                            <i data-lucide="file-spreadsheet" size="20"></i>
+                                        </div>
+                                        <h5 class="font-bold text-primary mb-1 text-sm">Setor Administrativo e Financeiro</h5>
+                                        <p class="text-xs text-slate-500">Setor de Licitações, Faturamento, Recursos Humanos e Departamento Contábil-Jurídico.</p>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
-                        <div>
-                            <h4 class="font-bold text-primary mb-6 flex items-center gap-2 border-b pb-2"><i data-lucide="award" class="text-secondary"></i> Profissionais</h4>
-                            <ul class="space-y-4 text-sm text-gray-600">
-                                <li class="flex gap-2"><span>•</span> Atuação em projetos de grande relevância social.</li>
-                                <li class="flex gap-2"><span>•</span> Desenvolvimento de competências técnicas e gerenciais.</li>
-                                <li class="flex gap-2"><span>•</span> Integração em equipe multidisciplinar.</li>
+                    </section>
+                </div>
+
+                <!-- Pane 3: Quem é quem -->
+                <div id="tab-pane-quemequem" class="institucional-tab-pane hidden">
+                    <section class="mb-12">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center">
+                                <i data-lucide="users" size="28"></i>
+                            </div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-primary">Quem é Quem</h2>
+                        </div>
+                        <p class="text-gray-600 mb-12">Conheça a equipe de líderes, coordenadores e especialistas seniores que conduzem o planejamento estratégico e operacional da GRAPAS em todos os polos rurais.</p>
+
+                        <!-- Team profiles in premium cards -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Leader 1 -->
+                            <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                                <div class="flex items-start gap-4 mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-lg">
+                                        RG
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-primary leading-tight">Rosali Grapas</h4>
+                                        <span class="text-xs font-semibold text-accent uppercase tracking-wider">Diretora Executiva e Fundadora</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-6 leading-relaxed">Especialista sênior em Gestão Pública e Planejamento Sustentável de Assentamentos da Reforma Agrária. Lidera o relacionamento institucional com o INCRA, ANATER e ministérios desde 2001.</p>
+                                <div class="border-t border-slate-100 pt-4 flex items-center gap-2 text-xs text-slate-500 font-mono">
+                                    <i data-lucide="mail" size="14"></i>
+                                    <span>rosaligrapas@yahoo.com.br</span>
+                                </div>
+                            </div>
+
+                            <!-- Leader 2 -->
+                            <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                                <div class="flex items-start gap-4 mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-primary to-emerald-800 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-lg">
+                                        CS
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-primary leading-tight">Carlos de Sousa</h4>
+                                        <span class="text-xs font-semibold text-accent uppercase tracking-wider">Coordenador Geral de Projetos</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-6 leading-relaxed">Engenheiro Agrônomo com mais de 18 anos de experiência prática em Extensão Rural (ATER). Supervisiona a alocação técnica de campo, os cronogramas das equipes e o monitoramento físico-financeiro.</p>
+                                <div class="border-t border-slate-100 pt-4 flex items-center gap-2 text-xs text-slate-500 font-mono">
+                                    <i data-lucide="mail" size="14"></i>
+                                    <span>carlos.projetos@grapas.com.br</span>
+                                </div>
+                            </div>
+
+                            <!-- Leader 3 -->
+                            <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                                <div class="flex items-start gap-4 mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-primary to-green-700 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-lg">
+                                        MH
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-primary leading-tight">Dra. Maria Helena</h4>
+                                        <span class="text-xs font-semibold text-accent uppercase tracking-wider">Diretora de Assistência Técnica</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-6 leading-relaxed">Pesquisadora e pedagoga especialista em Educação do Campo e mobilização social. Responsável pelas diretrizes pedagógicas e capacitações de associativismo e cooperativismo rurais.</p>
+                                <div class="border-t border-slate-100 pt-4 flex items-center gap-2 text-xs text-slate-500 font-mono">
+                                    <i data-lucide="mail" size="14"></i>
+                                    <span>maria.helena@grapas.com.br</span>
+                                </div>
+                            </div>
+
+                            <!-- Leader 4 -->
+                            <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                                <div class="flex items-start gap-4 mb-4">
+                                    <div class="w-14 h-14 bg-gradient-to-br from-primary to-teal-800 rounded-2xl flex items-center justify-center text-white text-xl font-bold flex-shrink-0 shadow-lg">
+                                        RM
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-lg text-primary leading-tight">Roberto Mendes</h4>
+                                        <span class="text-xs font-semibold text-accent uppercase tracking-wider">Coordenador Administrativo</span>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-slate-600 mb-6 leading-relaxed">Gestor Financeiro especializado em contratos públicos, licitações corporativas e prestação de contas governamentais. Coordena a regularidade administrativa da GRAPAS.</p>
+                                <div class="border-t border-slate-100 pt-4 flex items-center gap-2 text-xs text-slate-500 font-mono">
+                                    <i data-lucide="mail" size="14"></i>
+                                    <span>roberto.adm@grapas.com.br</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- Pane 4: Regionais -->
+                <div id="tab-pane-regionais" class="institucional-tab-pane hidden">
+                    <section class="mb-12">
+                        <div class="flex items-center gap-4 mb-8">
+                            <div class="w-12 h-12 bg-primary text-white rounded-xl flex items-center justify-center">
+                                <i data-lucide="map-pin" size="28"></i>
+                            </div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-primary">Unidades e Polos Regionais</h2>
+                        </div>
+                        <p class="text-gray-600 mb-12">A GRAPAS possui capilaridade no estado do Pará, mantendo escritórios descentralizados estrategicamente localizados para apoiar as famílias rurais de forma ágil e personalizada.</p>
+
+                        <!-- Regionals Grid -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            
+                            <!-- Office 1 -->
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2 text-primary font-bold text-lg mb-3">
+                                        <i data-lucide="building" class="text-accent" size="18"></i>
+                                        Sede Administrativa - Ananindeua
+                                    </div>
+                                    <p class="text-xs text-slate-500 mb-4 font-mono">Unidade Central de Operações e Contratos</p>
+                                    <p class="text-sm text-slate-600 mb-6">Localizada na região metropolitana de Belém, responsável pelas diretrizes nacionais, auditoria administrativa e coordenação de chamadas públicas.</p>
+                                </div>
+                                <div class="border-t border-slate-200/60 pt-4 space-y-2 text-xs text-slate-500 font-mono">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="map" size="14"></i>
+                                        <span>Rodovia Mário Covas, Coqueiro, Ananindeua - PA</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="phone" size="14"></i>
+                                        <span>(91) 99270-7555</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Office 2 -->
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2 text-primary font-bold text-lg mb-3">
+                                        <i data-lucide="map-pin" class="text-accent" size="18"></i>
+                                        Regional Transamazônica - Novo Repartimento
+                                    </div>
+                                    <p class="text-xs text-slate-500 mb-4 font-mono">Polo de Assistência e Extensão Rural</p>
+                                    <p class="text-sm text-slate-600 mb-6">Polo operacional responsável pelo atendimento de dezenas de Projetos de Assentamento (PA) na região da Transamazônica e Pacajá.</p>
+                                </div>
+                                <div class="border-t border-slate-200/60 pt-4 space-y-2 text-xs text-slate-500 font-mono">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="map" size="14"></i>
+                                        <span>Rua Rio Solimões, S/N, Parque Marajó, Novo Repartimento - PA</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Office 3 -->
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2 text-primary font-bold text-lg mb-3">
+                                        <i data-lucide="map-pin" class="text-accent" size="18"></i>
+                                        Regional Marajó - Soure
+                                    </div>
+                                    <p class="text-xs text-slate-500 mb-4 font-mono">Apoio a Comunidades Extrativistas</p>
+                                    <p class="text-sm text-slate-600 mb-6">Escritório especializado no desenvolvimento pesqueiro, extrativista marajoara e assessoramento do Bolsa Verde em reservas ecológicas.</p>
+                                </div>
+                                <div class="border-t border-slate-200/60 pt-4 space-y-2 text-xs text-slate-500 font-mono">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="map" size="14"></i>
+                                        <span>Av. Getúlio Vargas, Centro, Soure - PA</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Office 4 -->
+                            <div class="bg-slate-50 p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2 text-primary font-bold text-lg mb-3">
+                                        <i data-lucide="map-pin" class="text-accent" size="18"></i>
+                                        Regional Oeste - Belterra
+                                    </div>
+                                    <p class="text-xs text-slate-500 mb-4 font-mono">Polo Baixo Amazonas</p>
+                                    <p class="text-sm text-slate-600 mb-6">Atende os produtores familiares de Belterra, Santarém e adjacências, fomentando sistemas agroflorestais e manejo sustentável.</p>
+                                </div>
+                                <div class="border-t border-slate-200/60 pt-4 space-y-2 text-xs text-slate-500 font-mono">
+                                    <div class="flex items-center gap-2">
+                                        <i data-lucide="map" size="14"></i>
+                                        <span>Av. Brasil, Centro, Belterra - PA</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+        </main>i class="flex gap-2"><span>•</span> Integração em equipe multidisciplinar.</li>
                                 <li class="flex gap-2"><span>•</span> Reconhecimento profissional e impacto positivo.</li>
                             </ul>
                         </div>
@@ -875,50 +1276,331 @@
 
     <!-- News Detail Page -->
     <div id="news-page" class="page-section bg-gray-50 min-h-screen">
-        <header class="bg-white shadow-sm sticky top-0 z-40">
-            <div class="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
-                <button onclick="showSection('site')" class="flex items-center gap-2 text-primary font-bold hover:text-accent transition-colors">
-                    <i data-lucide="chevron-left" size="20"></i>
-                    Voltar para o Início
-                </button>
-                <div class="bg-primary px-3 py-1 rounded text-white font-bold text-sm">GRAPAS NOTÍCIAS</div>
+        <!-- Header: 325px height, full page width, styled with space for a custom banner -->
+        <header class="w-full bg-gradient-to-r from-primary to-emerald-950 text-white h-[325px] relative flex flex-col justify-center items-center shadow-lg px-4 overflow-hidden">
+            <!-- Background pattern representation -->
+            <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1920&auto=format&fit=crop');"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
+            
+            <!-- Logo & Title Content inside 325px Header -->
+            <div class="relative z-10 text-center max-w-4xl px-4 animate-fade-in flex flex-col items-center">
+                <div class="bg-white/15 backdrop-blur-md px-6 py-3 rounded-2xl mb-4 border border-white/20 shadow-xl inline-block">
+                    <h1 class="text-white font-extrabold text-4xl md:text-5xl tracking-widest">GRAPAS</h1>
+                </div>
+                <p class="font-bold text-2xl md:text-3xl uppercase tracking-wider text-[#345f51] max-w-2xl text-center leading-snug mb-2" style="text-shadow: 0 0 10px rgba(255,255,255,0.95), 0 0 5px rgba(255,255,255,0.95);">
+                    GR Assessoria e Planejamento de Projetos Agropecuários
+                </p>
+                <p class="text-xs md:text-sm text-slate-300 tracking-widest uppercase font-mono" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+                    24 Anos de Compromisso com o Campo e Desenvolvimento Rural
+                </p>
             </div>
         </header>
 
+        <!-- Menu Bar below the Header for News Detail: 72px height, full-width, color #044204 -->
+        <nav class="sticky top-0 w-full bg-[#044204] z-50 h-[72px] shadow-xl border-y border-emerald-900">
+            <div class="container mx-auto h-full px-4 md:px-6 flex justify-between items-center">
+                
+                <!-- Desktop Nav Left: Menus -->
+                <div class="hidden lg:flex items-center gap-6 xl:gap-8 h-full text-white font-semibold">
+                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="home" size="16"></i> Início
+                    </a>
+                    
+                    <!-- Dropdown Institucional with Arrow -->
+                    <div class="relative group/menu h-full flex items-center">
+                        <button class="hover:text-accent transition-colors flex items-center gap-1.5 py-2 focus:outline-none">
+                            <i data-lucide="building-2" size="16"></i> Institucional
+                            <i data-lucide="chevron-down" size="14" class="transition-transform group-hover/menu:rotate-180"></i>
+                        </button>
+                        <div class="absolute left-0 top-[64px] w-52 bg-[#044204] border border-emerald-800 rounded-xl shadow-2xl py-3 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50 transform origin-top translate-y-2 group-hover/menu:translate-y-0">
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">A empresa</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Organograma</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('quemequem')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Quem é quem</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('regionais')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Regionais</a>
+                        </div>
+                    </div>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="briefcase" size="16"></i> Serviços
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="shield" class="text-accent animate-pulse" size="16"></i> SISATER
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="phone" size="16"></i> Contatos
+                    </a>
+                </div>
+                
+                <!-- Search Bar at the Right -->
+                <div class="hidden lg:flex items-center gap-4">
+                    <div class="relative max-w-xs w-64">
+                        <input type="text" id="news-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-primary focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
+                        <button onclick="triggerSiteSearch()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors">
+                            <i data-lucide="search" size="16"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Header Area with menu toggle -->
+                <div class="lg:hidden flex justify-between items-center w-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-white font-bold tracking-widest text-lg">GRAPAS</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="text-white p-1 hover:text-accent transition-colors" onclick="toggleMobileMenu('news-mobile-menu')">
+                            <i data-lucide="menu" size="24"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Mobile Navigation Menu -->
+            <div id="news-mobile-menu" class="hidden lg:hidden bg-[#044204] border-t border-emerald-800 shadow-2xl absolute top-[72px] left-0 w-full z-50 py-4 px-6 flex flex-col gap-4 text-white font-semibold divide-y divide-emerald-800/50">
+                <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="home" size="16"></i> Início
+                </a>
+                
+                <div class="py-2 flex flex-col gap-2">
+                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2"><i data-lucide="building-2" size="14"></i> Institucional</span>
+                    <div class="grid grid-cols-2 gap-2 pl-4 pt-1 font-normal text-sm text-gray-100">
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa'); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">A empresa</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma'); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Organograma</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('quemequem'); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Quem é quem</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('regionais'); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Regionais</a>
+                    </div>
+                </div>
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="briefcase" size="16"></i> Serviços
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="folder-kanban" size="16"></i> Projetos
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('login'); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2 text-accent">
+                    <i data-lucide="shield" size="16"></i> SISATER
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="phone" size="16"></i> Contatos
+                </a>
+            </div>
+        </nav>
+
         <main class="container mx-auto px-4 md:px-6 py-12">
+            <div class="max-w-4xl mx-auto mb-8 animate-fade-in">
+                <button onclick="showSection('site')" class="inline-flex items-center gap-2 bg-primary text-white font-bold px-6 py-2.5 rounded-xl hover:scale-105 transition-all shadow-md">
+                    <i data-lucide="chevron-left" size="18"></i>
+                    Voltar para o Início
+                </button>
+            </div>
             <div class="max-w-4xl mx-auto" id="news-content-container">
                 <!-- News content will be injected by JavaScript -->
             </div>
         </main>
 
-        <footer class="bg-primary py-12 text-center text-white">
+        <footer class="bg-primary py-12 text-center text-white mt-12">
             <p class="text-xs text-white/60">GR Assessoria e Planejamento de Projetos Agropecuários</p>
         </footer>
     </div>
 
-    <div id="login-page" class="page-section min-h-screen items-center justify-center p-4">
-        <div class="max-w-md w-full bg-white rounded-2xl border-2 border-gray-100 p-8 card-shadow mx-auto mt-20">
-            <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="lock" class="text-white" size="32"></i>
+    <!-- All News Page -->
+    <div id="all-news-page" class="page-section bg-gray-50 min-h-screen">
+        <!-- Header: 325px height, full page width, styled with space for a custom banner -->
+        <header class="w-full bg-gradient-to-r from-primary to-emerald-950 text-white h-[325px] relative flex flex-col justify-center items-center shadow-lg px-4 overflow-hidden">
+            <!-- Background pattern representation -->
+            <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?q=80&w=1920&auto=format&fit=crop');"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70"></div>
+            
+            <!-- Logo & Title Content inside 325px Header -->
+            <div class="relative z-10 text-center max-w-4xl px-4 animate-fade-in flex flex-col items-center">
+                <div class="bg-white/15 backdrop-blur-md px-6 py-3 rounded-2xl mb-4 border border-white/20 shadow-xl inline-block">
+                    <h1 class="text-white font-extrabold text-4xl md:text-5xl tracking-widest">GRAPAS</h1>
                 </div>
-                <h2 class="text-2xl font-bold text-primary">Acesso ao Sistema</h2>
-                <p class="text-gray-500">Gestão de Equipe Técnica</p>
+                <p class="font-bold text-2xl md:text-3xl uppercase tracking-wider text-[#345f51] max-w-2xl text-center leading-snug mb-2" style="text-shadow: 0 0 10px rgba(255,255,255,0.95), 0 0 5px rgba(255,255,255,0.95);">
+                    GR Assessoria e Planejamento de Projetos Agropecuários
+                </p>
+                <p class="text-xs md:text-sm text-slate-300 tracking-widest uppercase font-mono" style="text-shadow: 0 1px 3px rgba(0,0,0,0.8);">
+                    24 Anos de Compromisso com o Campo e Desenvolvimento Rural
+                </p>
+            </div>
+        </header>
+
+        <!-- Menu Bar below the Header for All News: 72px height, full-width, color #044204 -->
+        <nav class="sticky top-0 w-full bg-[#044204] z-50 h-[72px] shadow-xl border-y border-emerald-900">
+            <div class="container mx-auto h-full px-4 md:px-6 flex justify-between items-center">
+                
+                <!-- Desktop Nav Left: Menus -->
+                <div class="hidden lg:flex items-center gap-6 xl:gap-8 h-full text-white font-semibold">
+                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="home" size="16"></i> Início
+                    </a>
+                    
+                    <!-- Dropdown Institucional with Arrow -->
+                    <div class="relative group/menu h-full flex items-center">
+                        <button class="hover:text-accent transition-colors flex items-center gap-1.5 py-2 focus:outline-none">
+                            <i data-lucide="building-2" size="16"></i> Institucional
+                            <i data-lucide="chevron-down" size="14" class="transition-transform group-hover/menu:rotate-180"></i>
+                        </button>
+                        <div class="absolute left-0 top-[64px] w-52 bg-[#044204] border border-emerald-800 rounded-xl shadow-2xl py-3 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50 transform origin-top translate-y-2 group-hover/menu:translate-y-0">
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">A empresa</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Organograma</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('quemequem')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Quem é quem</a>
+                            <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('regionais')" class="block px-4 py-2.5 text-sm text-white/90 hover:bg-emerald-900/50 hover:text-white hover:pl-6 transition-all border-l-2 border-transparent hover:border-accent">Regionais</a>
+                        </div>
+                    </div>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="briefcase" size="16"></i> Serviços
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="shield" class="text-accent animate-pulse" size="16"></i> SISATER
+                    </a>
+                    
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
+                        <i data-lucide="phone" size="16"></i> Contatos
+                    </a>
+                </div>
+                
+                <!-- Search Bar at the Right -->
+                <div class="hidden lg:flex items-center gap-4">
+                    <div class="relative max-w-xs w-64">
+                        <input type="text" id="all-news-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-primary focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
+                        <button onclick="triggerSiteSearch()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors">
+                            <i data-lucide="search" size="16"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mobile Header Area with menu toggle -->
+                <div class="lg:hidden flex justify-between items-center w-full">
+                    <div class="flex items-center gap-2">
+                        <span class="text-white font-bold tracking-widest text-lg">GRAPAS</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button class="text-white p-1 hover:text-accent transition-colors" onclick="toggleMobileMenu('all-news-mobile-menu')">
+                            <i data-lucide="menu" size="24"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
             
-            <form id="login-form" class="space-y-6">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Login (Matrícula/CPF)</label>
-                    <input type="text" id="username" placeholder="00587945303" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+            <!-- Mobile Navigation Menu -->
+            <div id="all-news-mobile-menu" class="hidden lg:hidden bg-[#044204] border-t border-emerald-800 shadow-2xl absolute top-[72px] left-0 w-full z-50 py-4 px-6 flex flex-col gap-4 text-white font-semibold divide-y divide-emerald-800/50">
+                <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="home" size="16"></i> Início
+                </a>
+                
+                <div class="py-2 flex flex-col gap-2">
+                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2"><i data-lucide="building-2" size="14"></i> Institucional</span>
+                    <div class="grid grid-cols-2 gap-2 pl-4 pt-1 font-normal text-sm text-gray-100">
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa'); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">A empresa</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma'); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Organograma</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('quemequem'); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Quem é quem</a>
+                        <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('regionais'); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Regionais</a>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Senha</label>
-                    <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="briefcase" size="16"></i> Serviços
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="folder-kanban" size="16"></i> Projetos
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('login'); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2 text-accent">
+                    <i data-lucide="shield" size="16"></i> SISATER
+                </a>
+                
+                <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
+                    <i data-lucide="phone" size="16"></i> Contatos
+                </a>
+            </div>
+        </nav>
+
+        <main class="container mx-auto px-4 md:px-6 py-16">
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-extrabold text-primary mb-4">Todas as Notícias</h1>
+                <p class="text-slate-500 max-w-xl mx-auto text-sm">Explore o histórico completo de informativos, ações e regularizações acompanhadas pela GRAPAS.</p>
+                <div class="w-16 h-1 bg-accent mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <!-- News Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto" id="all-news-grid">
+                <!-- Injected via JavaScript -->
+            </div>
+        </main>
+
+        <footer class="bg-[#044204] py-12 text-center text-white/60 border-t border-emerald-950 text-xs">
+            <p>GR Assessoria e Planejamento de Projetos Agropecuários &bull; 24 Anos com o Agricultor</p>
+        </footer>
+    </div>
+
+    <!-- Interactive Search Results Overlay Modal -->
+    <div id="search-results-modal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden animate-scale-up">
+            <div class="bg-primary text-white p-6 flex justify-between items-center">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-white/10 rounded-lg flex items-center justify-center">
+                        <i data-lucide="search" size="20"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg leading-tight">Resultados da Pesquisa</h3>
+                        <p class="text-xs text-white/60" id="search-query-subtitle">Buscando por: ...</p>
+                    </div>
                 </div>
-                <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:opacity-90 transition-all">Entrar no Sistema</button>
-                <button type="button" onclick="showSection('site')" class="w-full text-gray-500 font-semibold py-2">Voltar ao Site</button>
-                <div id="login-error" class="text-red-500 text-sm text-center font-semibold mt-4 hidden">Credenciais incorretas!</div>
-            </form>
+                <button onclick="closeSearchModal()" class="text-white/80 hover:text-white hover:bg-white/10 p-2 rounded-lg transition-colors">
+                    <i data-lucide="x" size="22"></i>
+                </button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-1 flex flex-col gap-4" id="search-results-container">
+                <!-- Match items will be dynamically loaded -->
+            </div>
+            
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-100 flex justify-between items-center text-xs text-slate-500">
+                <span>Dica: Use palavras-chave como "Bolsa Verde" ou "Ater"</span>
+                <button onclick="closeSearchModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-4 py-2 rounded-lg transition-all">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-page" class="page-section flex items-center justify-center bg-gray-50 min-h-screen p-4">
+        <div class="max-w-md w-full bg-white rounded-2xl border border-slate-200 p-8 shadow-xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <i data-lucide="lock" class="text-white" size="32"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-primary">Acesso ao Sistema</h2>
+                    <p class="text-gray-500 text-sm">Gestão de Equipe Técnica</p>
+                </div>
+                
+                <form id="login-form" class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Login (Matrícula/CPF)</label>
+                        <input type="text" id="username" placeholder="00587945303" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Senha</label>
+                        <input type="password" id="password" placeholder="••••••••" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all">
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white font-bold py-3 rounded-lg hover:opacity-90 transition-all">Entrar no Sistema</button>
+                    <button type="button" onclick="showSection('site')" class="w-full text-gray-500 font-semibold py-2">Voltar ao Site</button>
+                    <div id="login-error" class="text-red-500 text-sm text-center font-semibold mt-4 hidden">Credenciais incorretas!</div>
+                </form>
         </div>
     </div>
 
@@ -2700,6 +3382,19 @@
                 if (email) email.innerHTML = `<i data-lucide="mail" size="18"></i> ${data.footer.email || ''}`;
                 if (phone) phone.innerHTML = `<i data-lucide="phone" size="18"></i> ${data.footer.phone || ''}`;
                 if (address) address.innerHTML = `<i data-lucide="map-pin" size="18" class="mt-1 flex-shrink-0"></i> ${data.footer.address || ''}`;
+
+                // Update WhatsApp link dynamic href in sync with footer phone
+                const waLink = document.getElementById('footer-wa-link');
+                if (waLink && data.footer.phone) {
+                    const cleanPhone = data.footer.phone.replace(/\D/g, '');
+                    const fullPhone = cleanPhone.length <= 11 ? '55' + cleanPhone : cleanPhone;
+                    waLink.href = `https://wa.me/${fullPhone}`;
+                }
+            }
+
+            // 6. Latest News Banners (The 3 responsive banners on the homepage)
+            if (typeof renderLatestNewsBanners === 'function') {
+                renderLatestNewsBanners();
             }
 
             // Recreate icons
@@ -2707,6 +3402,297 @@
                 window.lucide.createIcons();
             }
         }
+
+        // --- Interactive Institutional Tab Switcher ---
+        function switchInstitucionalTab(tabName) {
+            // Hide all tab panes
+            document.querySelectorAll('.institucional-tab-pane').forEach(pane => {
+                pane.classList.add('hidden');
+            });
+            
+            // Show active tab pane
+            const activePane = document.getElementById(`tab-pane-${tabName}`);
+            if (activePane) {
+                activePane.classList.remove('hidden');
+            }
+
+            // Update tab button styles
+            const navContainer = document.getElementById('institucional-tabs-nav');
+            if (navContainer) {
+                navContainer.querySelectorAll('button').forEach(btn => {
+                    if (btn.id === `tab-btn-${tabName}`) {
+                        btn.className = "px-6 py-3 font-bold text-sm md:text-base border-b-4 border-primary text-primary transition-all focus:outline-none flex items-center gap-2";
+                    } else {
+                        btn.className = "px-6 py-3 font-bold text-sm md:text-base border-b-4 border-transparent text-slate-500 hover:text-primary transition-all focus:outline-none flex items-center gap-2";
+                    }
+                });
+            }
+
+            // If the current section is not the quemsomos page, show it
+            showSection('quemsomos');
+            lucide.createIcons();
+        }
+        window.switchInstitucionalTab = switchInstitucionalTab;
+
+        // --- Render Latest News Banners in 687x930 Aspect Ratio with Bottom 12pt Description Cap ---
+        function renderLatestNewsBanners() {
+            const container = document.getElementById('latest-news-banners');
+            if (!container) return;
+
+            // Get top 3 news stories
+            const topNews = newsData.slice(0, 3);
+
+            if (topNews.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-1 md:col-span-3 text-center py-12 text-gray-500">
+                        <p>Nenhuma matéria cadastrada no momento.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = topNews.map(news => {
+                // Strip HTML tags for clean description excerpt
+                const cleanExcerpt = (news.content || '').replace(/<[^>]*>/g, '').trim();
+                const excerptSnippet = cleanExcerpt.length > 150 ? cleanExcerpt.slice(0, 150) + '...' : cleanExcerpt;
+
+                return `
+                    <div onclick="showNews(${news.id})" class="aspect-[687/930] w-full relative overflow-hidden rounded-3xl shadow-lg group cursor-pointer hover:shadow-2xl transition-all hover:-translate-y-1 bg-slate-900 border border-slate-800 animate-fade-up">
+                        <!-- Background Image -->
+                        <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110" style="background-image: url('${news.image}')"></div>
+                        
+                        <!-- Rich Dark Vignette Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent"></div>
+                        
+                        <!-- Bottom Info Overlay -->
+                        <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 flex flex-col justify-end text-white z-10">
+                            <!-- Program Tag -->
+                            <span class="inline-block bg-[#044204] text-accent border border-accent/20 px-3 py-1 rounded-full font-extrabold uppercase tracking-widest text-[10px] mb-3 self-start shadow-md">${news.program}</span>
+                            
+                            <!-- Date Indicator -->
+                            <div class="text-white/60 font-mono text-[10px] uppercase mb-1.5 tracking-wider flex items-center gap-1">
+                                <i data-lucide="calendar" size="12"></i>
+                                <span>${news.date}</span>
+                            </div>
+                            
+                            <!-- Rich Headline Title -->
+                            <h3 class="text-base md:text-lg lg:text-xl font-bold text-white line-clamp-3 leading-snug group-hover:text-accent transition-colors mb-4">${news.title}</h3>
+                            
+                            <!-- 12pt (0.75rem) White Description Caption -->
+                            <p class="text-[12px] text-white/95 font-medium leading-relaxed bg-black/45 p-3.5 rounded-2xl border border-white/15 shadow-sm line-clamp-3 md:line-clamp-4 backdrop-blur-xs">
+                                ${excerptSnippet}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+        window.renderLatestNewsBanners = renderLatestNewsBanners;
+
+        // --- Render All News Grid view ---
+        function showAllNewsPage() {
+            const container = document.getElementById('all-news-grid');
+            if (!container) return;
+
+            if (newsData.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-1 md:col-span-3 text-center py-20 text-gray-500">
+                        <p>Nenhuma matéria disponível.</p>
+                    </div>
+                `;
+                showSection('all-news');
+                return;
+            }
+
+            container.innerHTML = newsData.map(news => {
+                const cleanExcerpt = (news.content || '').replace(/<[^>]*>/g, '').trim();
+                const excerptSnippet = cleanExcerpt.length > 140 ? cleanExcerpt.slice(0, 140) + '...' : cleanExcerpt;
+
+                return `
+                    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col justify-between h-full group">
+                        <div>
+                            <!-- Aspect ratio 4:3 cover photo -->
+                            <div onclick="showNews(${news.id})" class="aspect-[4/3] w-full overflow-hidden relative cursor-pointer">
+                                <img src="${news.image}" alt="${news.title}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                <div class="absolute top-4 left-4">
+                                    <span class="inline-block bg-[#044204] text-white px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest shadow-md border border-white/10">${news.program}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 md:p-8">
+                                <span class="text-xs text-gray-400 font-mono mb-2 block">${news.date}</span>
+                                <h3 onclick="showNews(${news.id})" class="text-lg md:text-xl font-bold text-primary hover:text-[#044204] transition-colors leading-snug cursor-pointer line-clamp-2 mb-3">${news.title}</h3>
+                                <p class="text-sm text-gray-500 leading-relaxed line-clamp-3">${excerptSnippet}</p>
+                            </div>
+                        </div>
+
+                        <div class="px-6 md:px-8 pb-6 md:pb-8">
+                            <button onclick="showNews(${news.id})" class="w-full bg-slate-50 border border-slate-200/80 hover:bg-primary hover:border-primary text-primary hover:text-white font-bold py-3 px-4 rounded-xl transition-all text-xs flex items-center justify-center gap-2">
+                                <span>Ler na Íntegra</span>
+                                <i data-lucide="arrow-right" size="14"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            showSection('all-news');
+            lucide.createIcons();
+        }
+        window.showAllNewsPage = showAllNewsPage;
+
+        // --- High-fidelity Multi-module Search Engine ---
+        function triggerSiteSearch() {
+            // Check active text inputs
+            const desktopInput = document.getElementById('site-search-input');
+            const mobileInput = document.getElementById('mobile-search-input');
+            
+            const query = (desktopInput ? desktopInput.value : '') || (mobileInput ? mobileInput.value : '');
+            const normalizedQuery = query.trim().toLowerCase();
+
+            if (!normalizedQuery) {
+                alert("Por favor, digite um termo para pesquisar.");
+                return;
+            }
+
+            const resultsContainer = document.getElementById('search-results-container');
+            const resultsCountElement = document.getElementById('search-results-count');
+            const modal = document.getElementById('search-results-modal');
+            
+            if (!resultsContainer || !resultsCountElement || !modal) return;
+
+            const results = [];
+
+            // 1. Search news
+            newsData.forEach(n => {
+                if (n.title.toLowerCase().includes(normalizedQuery) || 
+                    n.content.toLowerCase().includes(normalizedQuery) || 
+                    n.program.toLowerCase().includes(normalizedQuery)) {
+                    results.push({
+                        type: 'news',
+                        title: n.title,
+                        subtitle: `${n.program} • ${n.date}`,
+                        excerpt: n.content.replace(/<[^>]*>/g, '').slice(0, 150) + '...',
+                        action: `showNews(${n.id}); closeSearchModal();`
+                    });
+                }
+            });
+
+            // 2. Search structured static content (Services, Submenus, Company details)
+            const staticModules = [
+                { title: 'A Empresa', category: 'Institucional', desc: 'Assistência Técnica, Social e Ambiental (ATES) para assentados da reforma agrária no Pará.', action: "switchInstitucionalTab('empresa'); closeSearchModal();" },
+                { title: 'Organograma Funcional', category: 'Institucional', desc: 'Estrutura organizacional, diretoria executiva, conselho, coordenadores e técnicos de campo.', action: "switchInstitucionalTab('organograma'); closeSearchModal();" },
+                { title: 'Quem é Quem', category: 'Institucional', desc: 'Diretores, fundadores, corpo técnico de engenheiros agrônomos, assistentes sociais e coordenadores seniores.', action: "switchInstitucionalTab('quemequem'); closeSearchModal();" },
+                { title: 'Unidades Regionais', category: 'Institucional', desc: 'Escritórios descentralizados em Ananindeua, Novo Repartimento, Soure e Belterra.', action: "switchInstitucionalTab('regionais'); closeSearchModal();" },
+                { title: 'SISATER', category: 'Serviços', desc: 'Acesso restrito ao Sistema de Assistência Técnica e Extensão Rural para emissão de laudos, relatórios de execução e cadastro de produtores.', action: "showSection('login'); closeSearchModal();" },
+                { title: 'Serviços e Atividades', category: 'Portfólio', desc: 'Elaboração de projetos agropecuários, consultoria técnica especializada, assistência extensionista e regularização cadastral.', action: "showSection('site'); window.scrollTo(0, document.getElementById('servicos') ? document.getElementById('servicos').offsetTop - 120 : 1000); closeSearchModal();" },
+                { title: 'Fale Conosco', category: 'Contatos', desc: 'Canais oficiais de contato, e-mail institucional, telefones das regionais e endereço de atendimento.', action: "showSection('site'); window.scrollTo(0, document.getElementById('contatos') ? document.getElementById('contatos').offsetTop - 120 : 3000); closeSearchModal();" }
+            ];
+
+            staticModules.forEach(mod => {
+                if (mod.title.toLowerCase().includes(normalizedQuery) || mod.desc.toLowerCase().includes(normalizedQuery)) {
+                    results.push({
+                        type: 'system',
+                        title: mod.title,
+                        subtitle: mod.category,
+                        excerpt: mod.desc,
+                        action: mod.action
+                    });
+                }
+            });
+
+            // 3. Search Company Projects / Programs (the 8 seeded default projects)
+            if (window.db && window.db.programs) {
+                window.db.programs.forEach(prog => {
+                    if (prog.title.toLowerCase().includes(normalizedQuery) || prog.description.toLowerCase().includes(normalizedQuery)) {
+                        results.push({
+                            type: 'project',
+                            title: prog.title,
+                            subtitle: `Programa GRAPAS`,
+                            excerpt: prog.description,
+                            action: `openProgramGallery('${prog.title.replace(/'/g, "\\'")}'); closeSearchModal();`
+                        });
+                    }
+                });
+            }
+
+            // Render Results count
+            resultsCountElement.innerText = `${results.length} resultado(s) encontrado(s) para "${query}"`;
+
+            // Render list
+            if (results.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="text-center py-16 text-slate-500">
+                        <div class="w-16 h-16 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i data-lucide="search-code" size="32"></i>
+                        </div>
+                        <p class="font-semibold text-lg text-slate-700">Nenhum resultado encontrado</p>
+                        <p class="text-sm text-slate-400 max-w-sm mx-auto mt-1">Verifique se as palavras estão escritas corretamente ou tente buscar por termos mais genéricos.</p>
+                    </div>
+                `;
+            } else {
+                resultsContainer.innerHTML = results.map(res => {
+                    let badgeClass = 'bg-slate-100 text-slate-600';
+                    let iconName = 'file-text';
+                    
+                    if (res.type === 'news') {
+                        badgeClass = 'bg-blue-50 text-blue-700 border border-blue-200/50';
+                        iconName = 'news';
+                    } else if (res.type === 'project') {
+                        badgeClass = 'bg-amber-50 text-amber-700 border border-amber-200/50';
+                        iconName = 'folder-open';
+                    } else if (res.type === 'system') {
+                        badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200/50';
+                        iconName = 'layers';
+                    }
+
+                    return `
+                        <div onclick="${res.action}" class="p-6 bg-white border border-slate-100 rounded-2xl hover:border-emerald-700/40 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group animate-fade-up">
+                            <div>
+                                <div class="flex items-center justify-between gap-4 mb-3">
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${badgeClass}">
+                                        ${res.subtitle}
+                                    </span>
+                                    <i data-lucide="arrow-up-right" class="text-slate-300 group-hover:text-emerald-700 transition-colors" size="18"></i>
+                                </div>
+                                <h4 class="font-bold text-slate-800 text-base group-hover:text-[#044204] transition-colors mb-2">${res.title}</h4>
+                                <p class="text-xs text-slate-500 leading-relaxed">${res.excerpt}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Open modal container
+            modal.classList.remove('hidden');
+            lucide.createIcons();
+        }
+
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                triggerSiteSearch();
+            }
+        }
+
+        function handleSearchKeyPressMobile(event) {
+            if (event.key === 'Enter') {
+                triggerSiteSearch();
+            }
+        }
+
+        function closeSearchModal() {
+            const modal = document.getElementById('search-results-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
+        window.triggerSiteSearch = triggerSiteSearch;
+        window.handleSearchKeyPress = handleSearchKeyPress;
+        window.handleSearchKeyPressMobile = handleSearchKeyPressMobile;
+        window.closeSearchModal = closeSearchModal;
 
         // --- Real-time Sync ---
         function setupRealtimeSync() {
@@ -3076,6 +4062,12 @@
         // Start Sync
         setupRealtimeSync();
 
+        function toggleMobileMenu(menuId) {
+            const menu = document.getElementById(menuId);
+            if (menu) menu.classList.toggle('hidden');
+        }
+        window.toggleMobileMenu = toggleMobileMenu;
+
         // Standard initialization
         document.addEventListener('DOMContentLoaded', () => {
              initDbStatusIndicator();
@@ -3088,7 +4080,10 @@
              }
 
              lucide.createIcons();
-             document.getElementById('mobile-menu-btn').onclick = () => document.getElementById('mobile-menu').classList.toggle('hidden');
+             const mbBtn = document.getElementById('mobile-menu-btn');
+             if (mbBtn) {
+                 mbBtn.onclick = () => toggleMobileMenu('mobile-menu');
+             }
              
              document.getElementById('login-form').addEventListener('submit', async (e) => {
                  e.preventDefault();
@@ -6860,6 +7855,11 @@
             lucide.createIcons();
         }
 
+        function formatBRL(val) {
+            const num = parseFloat(val || 0);
+            return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
         function printReport() {
             const contractId = document.getElementById('report-contract-filter').value;
             const dateStart = document.getElementById('report-date-start').value;
@@ -6939,24 +7939,142 @@
             previewHtml += `
                         <div class="p-3 bg-slate-50 border rounded-lg">
                             <span class="block text-[10px] font-bold text-slate-400 uppercase">Salários + Aluguéis</span>
-                            <span class="text-base font-bold text-slate-700">R$ ${(totalSalary + totalRental).toFixed(2)}</span>
+                            <span class="text-base font-bold text-slate-700">${formatBRL(totalSalary + totalRental)}</span>
                         </div>
                         <div class="p-3 bg-slate-50 border rounded-lg">
                             <span class="block text-[10px] font-bold text-slate-400 uppercase">Produção Realizada</span>
-                            <span class="text-base font-bold text-emerald-600">R$ ${totalProdVal.toFixed(2)}</span>
+                            <span class="text-base font-bold text-emerald-600">${formatBRL(totalProdVal)}</span>
                         </div>
                         <div class="p-3 bg-slate-50 border rounded-lg">
                             <span class="block text-[10px] font-bold text-slate-400 uppercase">Deduções (Já Pagas)</span>
-                            <span class="text-base font-bold text-red-500">R$ ${totalPaidVal.toFixed(2)}</span>
+                            <span class="text-base font-bold text-red-500">${formatBRL(totalPaidVal)}</span>
                         </div>
                         <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
                             <span class="block text-[10px] font-bold text-emerald-600 uppercase">Líquido a Receber</span>
-                            <span class="text-base font-bold text-emerald-700">R$ ${netTotal.toFixed(2)}</span>
+                            <span class="text-base font-bold text-emerald-700">${formatBRL(netTotal)}</span>
                         </div>
                     </div>
 
                     <div class="mb-8">
-                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Detalhamento por Técnico</h3>
+                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Detalhamento de Atividades Executadas</h3>
+                        <div class="overflow-x-auto border rounded-lg">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b text-slate-600 font-semibold">
+                                        <th class="p-2.5">Técnico</th>
+                                        <th class="p-2.5">Data / Dia</th>
+                                        <th class="p-2.5">Atividade</th>
+                                        <th class="p-2.5 text-center">Qtd.</th>
+                                        <th class="p-2.5 text-right">Val.Unit.</th>
+                                        <th class="p-2.5">Município/Comunidade</th>
+                                        <th class="p-2.5 text-right">Valor Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            let hasActivities = false;
+            let totalActivitiesSum = 0;
+            techsToRender.forEach(t => {
+                const tP = prods.filter(p => p.tecnicoId === t.id);
+                tP.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                    hasActivities = true;
+                    const act = db.atividades.find(a => a.id == p.activityId);
+                    const v = parseFloat(p.totalValue || 0);
+                    totalActivitiesSum += v;
+
+                    const qty = p.quantity || 1;
+                    const unitVal = p.unitValue || (act ? parseFloat(act.value || 0) : 0);
+                    const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+                    const dayOfWeek = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
+                    const munId = p.municipalityId;
+                    const mun = db.municipios.find(m => m.id === munId)?.name || p.municipality || 'N/A';
+                    const com = db.comunidades.find(co => co.id === p.communityId)?.name || p.community || 'N/A';
+
+                    previewHtml += `
+                                    <tr class="border-b hover:bg-slate-50">
+                                        <td class="p-2.5 font-semibold text-slate-700">${t.name}</td>
+                                        <td class="p-2.5 capitalize text-slate-500">${dayFormatted} (${dayOfWeek.split('-')[0]})</td>
+                                        <td class="p-2.5 font-medium">${act ? act.name : 'N/A'}</td>
+                                        <td class="p-2.5 text-center font-semibold">${qty}</td>
+                                        <td class="p-2.5 text-right font-mono text-slate-600">${formatBRL(unitVal)}</td>
+                                        <td class="p-2.5 italic text-slate-500">${mun} - ${com}</td>
+                                        <td class="p-2.5 text-right font-bold text-emerald-600">${formatBRL(v)}</td>
+                                    </tr>
+                    `;
+                });
+            });
+
+            if (!hasActivities) {
+                previewHtml += `
+                                    <tr>
+                                        <td colspan="7" class="p-4 text-center text-slate-400 italic">Nenhuma produção registrada para os técnicos selecionados neste período.</td>
+                                    </tr>
+                `;
+            } else {
+                previewHtml += `
+                                    <tr class="bg-slate-50 border-t font-bold">
+                                        <td colspan="6" class="p-2.5 text-right uppercase tracking-wider text-slate-500 text-xs">Total Geral das Atividades:</td>
+                                        <td class="p-2.5 text-right text-emerald-600 font-bold text-sm">${formatBRL(totalActivitiesSum)}</td>
+                                    </tr>
+                `;
+            }
+
+            previewHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Produções Já Pagas no Período (Deduções)</h3>
+                        <div class="overflow-x-auto border rounded-lg">
+                            <table class="w-full text-left text-xs border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 border-b text-slate-600 font-semibold">
+                                        <th class="p-2.5">Técnico</th>
+                                        <th class="p-2.5">Data do Pagamento</th>
+                                        <th class="p-2.5">Atividade Referente</th>
+                                        <th class="p-2.5 text-right text-red-600 font-bold">Valor Pago</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+
+            let hasPaid = false;
+            paidProds.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                hasPaid = true;
+                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
+                const act = db.atividades.find(a => a.id == p.activityId);
+                const val = parseFloat(p.totalValue || 0);
+                const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+
+                previewHtml += `
+                                    <tr class="border-b hover:bg-slate-50">
+                                        <td class="p-2.5 font-semibold text-slate-700">${tech ? tech.name : 'N/A'}</td>
+                                        <td class="p-2.5">${dayFormatted}</td>
+                                        <td class="p-2.5">${act ? act.name : 'N/A'}</td>
+                                        <td class="p-2.5 text-right font-bold text-red-600">${formatBRL(val)}</td>
+                                    </tr>
+                `;
+            });
+
+            if (!hasPaid) {
+                previewHtml += `
+                                    <tr>
+                                        <td colspan="4" class="p-4 text-center text-slate-400 italic">Nenhum pagamento registrado para os técnicos selecionados neste período.</td>
+                                    </tr>
+                `;
+            }
+
+            previewHtml += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Detalhamento de Valores por Técnico</h3>
                         <div class="overflow-x-auto border rounded-lg">
                             <table class="w-full text-left text-xs border-collapse">
                                 <thead>
@@ -6985,119 +8103,14 @@
                 previewHtml += `
                                     <tr class="border-b hover:bg-slate-50">
                                         <td class="p-2.5 font-bold text-slate-800">${t.name}</td>
-                                        <td class="p-2.5">R$ ${fixed.toFixed(2)}</td>
-                                        <td class="p-2.5">R$ ${rent.toFixed(2)}</td>
-                                        <td class="p-2.5 text-emerald-600 font-semibold">R$ ${valP.toFixed(2)}</td>
-                                        <td class="p-2.5 text-red-600 font-semibold">R$ ${paidVal.toFixed(2)}</td>
-                                        <td class="p-2.5 bg-emerald-50 text-emerald-700 font-bold">R$ ${liquid.toFixed(2)}</td>
+                                        <td class="p-2.5">${formatBRL(fixed)}</td>
+                                        <td class="p-2.5">${formatBRL(rent)}</td>
+                                        <td class="p-2.5 text-emerald-600 font-semibold">${formatBRL(valP)}</td>
+                                        <td class="p-2.5 text-red-600 font-semibold">${formatBRL(paidVal)}</td>
+                                        <td class="p-2.5 bg-emerald-50 text-emerald-700 font-bold">${formatBRL(liquid)}</td>
                                     </tr>
                 `;
             });
-
-            previewHtml += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="mb-8">
-                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Detalhamento de Produção por Atividade / Dia</h3>
-                        <div class="overflow-x-auto border rounded-lg">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead>
-                                    <tr class="bg-slate-100 border-b text-slate-600 font-semibold">
-                                        <th class="p-2.5">Técnico</th>
-                                        <th class="p-2.5">Data / Dia</th>
-                                        <th class="p-2.5">Atividade</th>
-                                        <th class="p-2.5">Município/Comunidade</th>
-                                        <th class="p-2.5 text-right">Valor</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-            `;
-
-            let hasActivities = false;
-            techsToRender.forEach(t => {
-                const tP = prods.filter(p => p.tecnicoId === t.id);
-                tP.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
-                    hasActivities = true;
-                    const act = db.atividades.find(a => a.id == p.activityId);
-                    const v = parseFloat(p.totalValue || 0);
-                    const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
-                    const dayOfWeek = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long' });
-                    const munId = p.municipalityId;
-                    const mun = db.municipios.find(m => m.id === munId)?.name || p.municipality || 'N/A';
-                    const com = db.comunidades.find(co => co.id === p.communityId)?.name || p.community || 'N/A';
-
-                    previewHtml += `
-                                    <tr class="border-b hover:bg-slate-50">
-                                        <td class="p-2.5 font-semibold text-slate-700">${t.name}</td>
-                                        <td class="p-2.5 capitalize text-slate-500">${dayFormatted} (${dayOfWeek.split('-')[0]})</td>
-                                        <td class="p-2.5">
-                                            <span class="block font-medium">${act ? act.name : 'N/A'}</span>
-                                            <span class="text-[10px] text-slate-400">Qtd: ${p.quantity || 1}</span>
-                                        </td>
-                                        <td class="p-2.5 italic text-slate-500">${mun} - ${com}</td>
-                                        <td class="p-2.5 text-right font-bold text-emerald-600">R$ ${v.toFixed(2)}</td>
-                                    </tr>
-                    `;
-                });
-            });
-
-            if (!hasActivities) {
-                previewHtml += `
-                                    <tr>
-                                        <td colspan="5" class="p-4 text-center text-slate-400 italic">Nenhuma produção registrada para os técnicos selecionados neste período.</td>
-                                    </tr>
-                `;
-            }
-
-            previewHtml += `
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h3 class="font-bold text-slate-700 text-sm uppercase tracking-wide mb-3">Produções Já Pagas no Período (Deduções)</h3>
-                        <div class="overflow-x-auto border rounded-lg">
-                            <table class="w-full text-left text-xs border-collapse">
-                                <thead>
-                                    <tr class="bg-slate-100 border-b text-slate-600 font-semibold">
-                                        <th class="p-2.5">Técnico</th>
-                                        <th class="p-2.5">Data do Pagamento</th>
-                                        <th class="p-2.5">Atividade Referente</th>
-                                        <th class="p-2.5 text-right text-red-600 font-bold">Valor Pago</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-            `;
-
-            let hasPaid = false;
-            paidProds.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
-                hasPaid = true;
-                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
-                const act = db.atividades.find(a => a.id == p.activityId);
-                const val = parseFloat(p.totalValue || 0);
-                const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
-
-                previewHtml += `
-                                    <tr class="border-b hover:bg-slate-50">
-                                        <td class="p-2.5 font-semibold text-slate-700">${tech ? tech.name : 'N/A'}</td>
-                                        <td class="p-2.5">${dayFormatted}</td>
-                                        <td class="p-2.5">${act ? act.name : 'N/A'}</td>
-                                        <td class="p-2.5 text-right font-bold text-red-600">R$ ${val.toFixed(2)}</td>
-                                    </tr>
-                `;
-            });
-
-            if (!hasPaid) {
-                previewHtml += `
-                                    <tr>
-                                        <td colspan="4" class="p-4 text-center text-slate-400 italic">Nenhum pagamento registrado para os técnicos selecionados neste período.</td>
-                                    </tr>
-                `;
-            }
 
             previewHtml += `
                                 </tbody>
@@ -7144,7 +8157,7 @@
                 </head>
                 <body>
                     <div class="max-w-5xl mx-auto bg-white p-8">
-                        \${printContent}
+                        ${printContent}
                     </div>
                     <script>
                         window.onload = function() {
@@ -7180,10 +8193,10 @@
             const dateEnd = document.getElementById('report-date-end').value;
             const contract = db.contratos.find(c => c.id === contractId);
             const contractProgram = contract ? contract.program : 'N/A';
-            const dateStr = `Periodo: \${new Date(dateStart + 'T00:00:00').toLocaleDateString('pt-BR')} a \${new Date(dateEnd + 'T00:00:00').toLocaleDateString('pt-BR')}`;
+            const dateStr = `Periodo: ${new Date(dateStart + 'T00:00:00').toLocaleDateString('pt-BR')} a ${new Date(dateEnd + 'T00:00:00').toLocaleDateString('pt-BR')}`;
             
             doc.setFontSize(8);
-            doc.text(`Programa/Contrato: \${contractProgram}`, 14, y);
+            doc.text(`Programa/Contrato: ${contractProgram}`, 14, y);
             doc.text(dateStr, 140, y);
             y += 4;
             doc.setLineWidth(0.5);
@@ -7205,6 +8218,7 @@
 
             let paidProds = db.producao.filter(p => 
                 p.isPaidRecord === true &&
+                p.contractId === contractId &&
                 p.date >= dateStart && 
                 p.date <= dateEnd
             );
@@ -7213,9 +8227,116 @@
             }
 
             const techsToRender = (selectedTechs.includes('all') || selectedTechs.length === 0) 
-                ? db.tecnicos.filter(t => (t.contractIds || []).includes(contractId) || t.contractId === contractId)
+                ? db.tecnicos.filter(t => {
+                    const cIds = t.contractIds || (t.contractId ? [t.contractId] : []);
+                    return cIds.includes(contractId);
+                })
                 : db.tecnicos.filter(t => selectedTechs.includes(t.id));
 
+            // Section 1: Detalhamento de Atividades Executadas (Moved up and updated with new columns & summary row)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text("Detalhamento de Atividades Executadas", 14, y);
+            y += 4;
+
+            const t2Headers = [["Tecnico", "Data", "Atividade", "Qtd.", "Val.Unit.", "Localidade", "Valor Total"]];
+            const t2Data = [];
+            let totalActivitiesSum = 0;
+            let hasActivities = false;
+
+            techsToRender.forEach(t => {
+                const tP = prods.filter(p => p.tecnicoId === t.id);
+                tP.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                    hasActivities = true;
+                    const act = db.atividades.find(a => a.id == p.activityId);
+                    const v = parseFloat(p.totalValue || 0);
+                    totalActivitiesSum += v;
+                    
+                    const qty = p.quantity || 1;
+                    const unitVal = p.unitValue || (act ? parseFloat(act.value || 0) : 0);
+                    const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+                    const munId = p.municipalityId;
+                    const mun = db.municipios.find(m => m.id === munId)?.name || p.municipality || 'N/A';
+                    const com = db.comunidades.find(co => co.id === p.communityId)?.name || p.community || 'N/A';
+
+                    t2Data.push([
+                        t.name,
+                        dayFormatted,
+                        act ? act.name : 'N/A',
+                        qty.toString(),
+                        `${formatBRL(unitVal)}`,
+                        `${mun} - ${com}`,
+                        `${formatBRL(v)}`
+                    ]);
+                });
+            });
+
+            if (!hasActivities) {
+                t2Data.push([ "Nenhum registro", "", "", "", "", "", "" ]);
+            } else {
+                // Add sum row at the end of activities
+                t2Data.push([
+                    "TOTAL GERAL DAS ATIVIDADES",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    `${formatBRL(totalActivitiesSum)}`
+                ]);
+            }
+
+            doc.autoTable({
+                startY: y,
+                head: t2Headers,
+                body: t2Data,
+                theme: 'striped',
+                headStyles: { fillColor: [27, 67, 50], textColor: [255, 255, 255] },
+                margin: { left: 14, right: 14 },
+                styles: { fontSize: 8 }
+            });
+
+            y = doc.lastAutoTable.finalY + 8;
+
+            // Section 2: Detalhamento de Producoes Ja Pagas (Deducoes)
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text("Detalhamento de Producoes Ja Pagas (Deducoes)", 14, y);
+            y += 4;
+
+            const t3Headers = [["Tecnico", "Data Pagamento", "Atividade", "Valor Pago"]];
+            const t3Data = [];
+            paidProds.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
+                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
+                const act = db.atividades.find(a => a.id == p.activityId);
+                const val = parseFloat(p.totalValue || 0);
+                const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
+
+                t3Data.push([
+                    tech ? tech.name : 'N/A',
+                    dayFormatted,
+                    act ? act.name : 'N/A',
+                    `${formatBRL(val)}`
+                ]);
+            });
+
+            if (t3Data.length === 0) {
+                t3Data.push([ "Nenhum registro", "", "", "" ]);
+            }
+
+            doc.autoTable({
+                startY: y,
+                head: t3Headers,
+                body: t3Data,
+                theme: 'striped',
+                headStyles: { fillColor: [153, 27, 27], textColor: [255, 255, 255] },
+                margin: { left: 14, right: 14 },
+                styles: { fontSize: 8 }
+            });
+
+            y = doc.lastAutoTable.finalY + 8;
+
+            // Section 3: Detalhamento de Valores por Tecnico (Moved to the end)
             doc.setFont("helvetica", "bold");
             doc.setFontSize(10);
             doc.text("Detalhamento de Valores por Tecnico", 14, y);
@@ -7234,11 +8355,11 @@
 
                 return [
                     t.name,
-                    `R$ \${fixed.toFixed(2)}`,
-                    `R$ \${rent.toFixed(2)}`,
-                    `R$ \${valP.toFixed(2)}`,
-                    `R$ \${paidVal.toFixed(2)}`,
-                    `R$ \${liquid.toFixed(2)}`
+                    `${formatBRL(fixed)}`,
+                    `${formatBRL(rent)}`,
+                    `${formatBRL(valP)}`,
+                    `${formatBRL(paidVal)}`,
+                    `${formatBRL(liquid)}`
                 ];
             });
 
@@ -7252,83 +8373,7 @@
                 styles: { fontSize: 8 }
             });
 
-            y = doc.lastAutoTable.finalY + 8;
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(10);
-            doc.text("Detalhamento de Atividades Executadas", 14, y);
-            y += 4;
-
-            const t2Headers = [["Tecnico", "Data", "Atividade", "Localidade", "Valor"]];
-            const t2Data = [];
-            techsToRender.forEach(t => {
-                const tP = prods.filter(p => p.tecnicoId === t.id);
-                tP.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
-                    const act = db.atividades.find(a => a.id == p.activityId);
-                    const v = parseFloat(p.totalValue || 0);
-                    const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
-                    const munId = p.municipalityId;
-                    const mun = db.municipios.find(m => m.id === munId)?.name || p.municipality || 'N/A';
-                    const com = db.comunidades.find(co => co.id === p.communityId)?.name || p.community || 'N/A';
-
-                    t2Data.push([
-                        t.name,
-                        dayFormatted,
-                        act ? act.name : 'N/A',
-                        `\${mun} - \${com}`,
-                        `R$ \${v.toFixed(2)}`
-                    ]);
-                });
-            });
-
-            if (t2Data.length === 0) t2Data.push([ "Nenhum registro", "", "", "", "" ]);
-
-            doc.autoTable({
-                startY: y,
-                head: t2Headers,
-                body: t2Data,
-                theme: 'striped',
-                headStyles: { fillColor: [27, 67, 50], textColor: [255, 255, 255] },
-                margin: { left: 14, right: 14 },
-                styles: { fontSize: 8 }
-            });
-
-            y = doc.lastAutoTable.finalY + 8;
-
-            doc.setFont("helvetica", "bold");
-            doc.setFontSize(10);
-            doc.text("Detalhamento de Producoes Ja Pagas (Deducoes)", 14, y);
-            y += 4;
-
-            const t3Headers = [["Tecnico", "Data Pagamento", "Atividade", "Valor Pago"]];
-            const t3Data = [];
-            paidProds.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(p => {
-                const tech = db.tecnicos.find(t => t.id === p.tecnicoId);
-                const act = db.atividades.find(a => a.id == p.activityId);
-                const val = parseFloat(p.totalValue || 0);
-                const dayFormatted = new Date(p.date + 'T00:00:00').toLocaleDateString('pt-BR');
-
-                t3Data.push([
-                    tech ? tech.name : 'N/A',
-                    dayFormatted,
-                    act ? act.name : 'N/A',
-                    `R$ \${val.toFixed(2)}`
-                ]);
-            });
-
-            if (t3Data.length === 0) t3Data.push([ "Nenhum registro", "", "", "" ]);
-
-            doc.autoTable({
-                startY: y,
-                head: t3Headers,
-                body: t3Data,
-                theme: 'striped',
-                headStyles: { fillColor: [153, 27, 27], textColor: [255, 255, 255] },
-                margin: { left: 14, right: 14 },
-                styles: { fontSize: 8 }
-            });
-
-            doc.save(`Relatorio_Execucao_\${contractProgram}_\${dateStart}_a_\${dateEnd}.pdf`);
+            doc.save(`Relatorio_Execucao_${contractProgram}_${dateStart}_a_${dateEnd}.pdf`);
             showToast("PDF salvo com sucesso!");
         }
 
@@ -7339,7 +8384,7 @@
             deleteProduction, deleteDataRecord, populateUFPASelectors, filterUFPASelectors, updateUFPACommunitySelect,
             searchUFPA, togglePaginatedUFPA, renderUFPAHistory, changeUFPAPage, saveUFPA, deleteUFPA,
             importUFPAFromCSV, editProduction, updateDataCommunitySelect, renderDatasHistory, addDataRecord, editDataRecord,
-            populateProductionSelectors, filterProductionTechnicians, filterProductionMunicipality,
+            populateProductionSelectors, filterProductionTechnicians: () => {}, filterProductionMunicipality: () => {},
             updateProductionCommunitySelect, renderProductionHistory, addProductionRecord, generateReport,
             printReport, printForm, generateVisitReport, exportVisitReportToPDF,
             searchUFPAAutocomplete, selectUFPAForData, enableUFPAAutocomplete,
