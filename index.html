@@ -436,14 +436,14 @@
                 
                 <!-- Desktop Nav Left: Menus -->
                 <div class="hidden lg:flex items-center gap-6 xl:gap-8 h-full text-white font-semibold">
-                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="home" size="16"></i> Início
+                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center py-2">
+                        Início
                     </a>
                     
                     <!-- Dropdown Institucional with Arrow -->
                     <div class="relative group/menu h-full flex items-center">
                         <button class="hover:text-accent transition-colors flex items-center gap-1.5 py-2 focus:outline-none">
-                            <i data-lucide="building-2" size="16"></i> Institucional
+                            Institucional
                             <i data-lucide="chevron-down" size="14" class="transition-transform group-hover/menu:rotate-180"></i>
                         </button>
                         <div class="absolute left-0 top-[64px] w-52 bg-[#044204] border border-emerald-800 rounded-xl shadow-2xl py-3 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50 transform origin-top translate-y-2 group-hover/menu:translate-y-0">
@@ -454,27 +454,27 @@
                         </div>
                     </div>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="briefcase" size="16"></i> Serviços
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Serviços
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Projetos
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="shield" class="text-accent animate-pulse" size="16"></i> SISATER
+                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center py-2">
+                        SISATER
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="phone" size="16"></i> Contatos
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Contatos
                     </a>
                 </div>
                 
                 <!-- Search Bar at the Right -->
                 <div class="hidden lg:flex items-center gap-4">
                     <div class="relative max-w-xs w-64">
-                        <input type="text" id="site-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-primary focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
+                        <input type="text" id="site-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-black focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
                         <button onclick="triggerSiteSearch()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors">
                             <i data-lucide="search" size="16"></i>
                         </button>
@@ -489,7 +489,7 @@
                     <div class="flex items-center gap-4">
                         <!-- Small Mobile Search -->
                         <div class="relative w-32 sm:w-48">
-                            <input type="text" id="site-search-input-mobile" placeholder="Buscar..." onkeypress="handleSearchKeyPressMobile(event)" class="w-full bg-white/10 text-white placeholder-white/40 text-xs pl-8 pr-2 py-1.5 rounded-full border border-white/15 focus:outline-none focus:bg-white focus:text-primary transition-all">
+                            <input type="text" id="site-search-input-mobile" placeholder="Buscar..." onkeypress="handleSearchKeyPressMobile(event)" class="w-full bg-white/10 text-white placeholder-white/40 text-xs pl-8 pr-2 py-1.5 rounded-full border border-white/15 focus:outline-none focus:bg-white focus:text-black transition-all">
                             <i data-lucide="search" size="12" class="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/40"></i>
                         </div>
                         <button class="text-white p-1 hover:text-accent transition-colors" id="mobile-menu-btn">
@@ -502,11 +502,11 @@
             <!-- Mobile Navigation Menu -->
             <div id="mobile-menu" class="hidden lg:hidden bg-[#044204] border-t border-emerald-800 shadow-2xl absolute top-[72px] left-0 w-full z-50 py-4 px-6 flex flex-col gap-4 text-white font-semibold divide-y divide-emerald-800/50">
                 <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="home" size="16"></i> Início
+                    Início
                 </a>
                 
                 <div class="py-2 flex flex-col gap-2">
-                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2"><i data-lucide="building-2" size="14"></i> Institucional</span>
+                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2">Institucional</span>
                     <div class="grid grid-cols-2 gap-2 pl-4 pt-1 font-normal text-sm text-gray-100">
                         <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa'); document.getElementById('mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">A empresa</a>
                         <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma'); document.getElementById('mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Organograma</a>
@@ -516,19 +516,19 @@
                 </div>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="briefcase" size="16"></i> Serviços
+                    Serviços
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    Projetos
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('login'); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2 text-accent">
-                    <i data-lucide="shield" size="16"></i> SISATER
+                    SISATER
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="phone" size="16"></i> Contatos
+                    Contatos
                 </a>
             </div>
         </nav>
@@ -1302,14 +1302,14 @@
                 
                 <!-- Desktop Nav Left: Menus -->
                 <div class="hidden lg:flex items-center gap-6 xl:gap-8 h-full text-white font-semibold">
-                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="home" size="16"></i> Início
+                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center py-2">
+                        Início
                     </a>
                     
                     <!-- Dropdown Institucional with Arrow -->
                     <div class="relative group/menu h-full flex items-center">
                         <button class="hover:text-accent transition-colors flex items-center gap-1.5 py-2 focus:outline-none">
-                            <i data-lucide="building-2" size="16"></i> Institucional
+                            Institucional
                             <i data-lucide="chevron-down" size="14" class="transition-transform group-hover/menu:rotate-180"></i>
                         </button>
                         <div class="absolute left-0 top-[64px] w-52 bg-[#044204] border border-emerald-800 rounded-xl shadow-2xl py-3 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50 transform origin-top translate-y-2 group-hover/menu:translate-y-0">
@@ -1320,27 +1320,27 @@
                         </div>
                     </div>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="briefcase" size="16"></i> Serviços
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Serviços
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Projetos
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="shield" class="text-accent animate-pulse" size="16"></i> SISATER
+                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center py-2">
+                        SISATER
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="phone" size="16"></i> Contatos
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Contatos
                     </a>
                 </div>
                 
                 <!-- Search Bar at the Right -->
                 <div class="hidden lg:flex items-center gap-4">
                     <div class="relative max-w-xs w-64">
-                        <input type="text" id="news-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-primary focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
+                        <input type="text" id="news-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-black focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
                         <button onclick="triggerSiteSearch()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors">
                             <i data-lucide="search" size="16"></i>
                         </button>
@@ -1363,11 +1363,11 @@
             <!-- Mobile Navigation Menu -->
             <div id="news-mobile-menu" class="hidden lg:hidden bg-[#044204] border-t border-emerald-800 shadow-2xl absolute top-[72px] left-0 w-full z-50 py-4 px-6 flex flex-col gap-4 text-white font-semibold divide-y divide-emerald-800/50">
                 <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="home" size="16"></i> Início
+                    Início
                 </a>
                 
                 <div class="py-2 flex flex-col gap-2">
-                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2"><i data-lucide="building-2" size="14"></i> Institucional</span>
+                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2">Institucional</span>
                     <div class="grid grid-cols-2 gap-2 pl-4 pt-1 font-normal text-sm text-gray-100">
                         <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa'); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">A empresa</a>
                         <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma'); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Organograma</a>
@@ -1377,19 +1377,19 @@
                 </div>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="briefcase" size="16"></i> Serviços
+                    Serviços
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    Projetos
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('login'); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2 text-accent">
-                    <i data-lucide="shield" size="16"></i> SISATER
+                    SISATER
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="phone" size="16"></i> Contatos
+                    Contatos
                 </a>
             </div>
         </nav>
@@ -1439,14 +1439,14 @@
                 
                 <!-- Desktop Nav Left: Menus -->
                 <div class="hidden lg:flex items-center gap-6 xl:gap-8 h-full text-white font-semibold">
-                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="home" size="16"></i> Início
+                    <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-accent transition-colors flex items-center py-2">
+                        Início
                     </a>
                     
                     <!-- Dropdown Institucional with Arrow -->
                     <div class="relative group/menu h-full flex items-center">
                         <button class="hover:text-accent transition-colors flex items-center gap-1.5 py-2 focus:outline-none">
-                            <i data-lucide="building-2" size="16"></i> Institucional
+                            Institucional
                             <i data-lucide="chevron-down" size="14" class="transition-transform group-hover/menu:rotate-180"></i>
                         </button>
                         <div class="absolute left-0 top-[64px] w-52 bg-[#044204] border border-emerald-800 rounded-xl shadow-2xl py-3 opacity-0 invisible group-hover/menu:opacity-100 group-hover/menu:visible transition-all duration-300 z-50 transform origin-top translate-y-2 group-hover/menu:translate-y-0">
@@ -1457,27 +1457,27 @@
                         </div>
                     </div>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="briefcase" size="16"></i> Serviços
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Serviços
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Projetos
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="shield" class="text-accent animate-pulse" size="16"></i> SISATER
+                    <a href="javascript:void(0)" onclick="showSection('login')" class="hover:text-accent transition-colors flex items-center py-2">
+                        SISATER
                     </a>
                     
-                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center gap-1.5 py-2">
-                        <i data-lucide="phone" size="16"></i> Contatos
+                    <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100)" class="hover:text-accent transition-colors flex items-center py-2">
+                        Contatos
                     </a>
                 </div>
                 
                 <!-- Search Bar at the Right -->
                 <div class="hidden lg:flex items-center gap-4">
                     <div class="relative max-w-xs w-64">
-                        <input type="text" id="all-news-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-primary focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
+                        <input type="text" id="all-news-search-input" placeholder="Pesquisar no site..." onkeypress="handleSearchKeyPress(event)" class="w-full bg-white/10 text-white placeholder-white/50 text-sm pl-10 pr-4 py-2 rounded-full border border-white/20 focus:outline-none focus:bg-white focus:text-black focus:placeholder-gray-400 transition-all focus:ring-2 focus:ring-accent">
                         <button onclick="triggerSiteSearch()" class="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors">
                             <i data-lucide="search" size="16"></i>
                         </button>
@@ -1500,11 +1500,11 @@
             <!-- Mobile Navigation Menu -->
             <div id="all-news-mobile-menu" class="hidden lg:hidden bg-[#044204] border-t border-emerald-800 shadow-2xl absolute top-[72px] left-0 w-full z-50 py-4 px-6 flex flex-col gap-4 text-white font-semibold divide-y divide-emerald-800/50">
                 <a href="javascript:void(0)" onclick="showSection('site'); window.scrollTo({top:0, behavior:'smooth'}); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="home" size="16"></i> Início
+                    Início
                 </a>
                 
                 <div class="py-2 flex flex-col gap-2">
-                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2"><i data-lucide="building-2" size="14"></i> Institucional</span>
+                    <span class="text-xs text-gray-300 uppercase tracking-widest flex items-center gap-2">Institucional</span>
                     <div class="grid grid-cols-2 gap-2 pl-4 pt-1 font-normal text-sm text-gray-100">
                         <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('empresa'); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">A empresa</a>
                         <a href="javascript:void(0)" onclick="showSection('quemsomos'); switchInstitucionalTab('organograma'); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-1 hover:text-accent">Organograma</a>
@@ -1514,19 +1514,19 @@
                 </div>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('servicos').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="briefcase" size="16"></i> Serviços
+                    Serviços
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('galeria').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="folder-kanban" size="16"></i> Projetos
+                    Projetos
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('login'); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2 text-accent">
-                    <i data-lucide="shield" size="16"></i> SISATER
+                    SISATER
                 </a>
                 
                 <a href="javascript:void(0)" onclick="showSection('site'); setTimeout(() => document.getElementById('contato').scrollIntoView({behavior:'smooth'}), 100); document.getElementById('all-news-mobile-menu').classList.add('hidden')" class="py-2 pt-4 hover:text-accent transition-colors flex items-center gap-2">
-                    <i data-lucide="phone" size="16"></i> Contatos
+                    Contatos
                 </a>
             </div>
         </nav>
