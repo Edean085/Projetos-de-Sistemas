@@ -6274,6 +6274,10 @@
                 : '<option value="">Sem comunidades</option>';
         }
 
+        function updateProductionCommunitySelect() {
+            updateCommunitySelect();
+        }
+
         function renderProductionHistory() {
             const history = document.getElementById('production-history');
             if(!history) return;
